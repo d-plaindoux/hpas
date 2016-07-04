@@ -1,0 +1,28 @@
+// Commons library
+
+apply plugin: 'java'
+apply plugin: 'net.saliman.cobertura'
+
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath "net.saliman:gradle-cobertura-plugin:2.3.2"
+    }
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.12'
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.assertj:assertj-core:2.4.1'
+    testCompile 'com.jayway.awaitility:awaitility:1.6.0'
+}
