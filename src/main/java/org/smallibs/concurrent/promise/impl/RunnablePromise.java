@@ -63,7 +63,7 @@ public class RunnablePromise<T> implements Promise<T>, RunnableFuture<T> {
             }
         }
 
-        if (success.isPresent()) {
+        if (success.hasSome()) {
             consumer.accept(success.get());
         }
     }
@@ -84,7 +84,7 @@ public class RunnablePromise<T> implements Promise<T>, RunnableFuture<T> {
             }
         }
 
-        if (failure.isPresent()) {
+        if (failure.hasSome()) {
             consumer.accept(failure.get());
         }
     }

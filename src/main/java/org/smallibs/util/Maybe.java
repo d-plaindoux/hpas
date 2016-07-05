@@ -26,7 +26,7 @@ public interface Maybe<T> {
     }
 
     default Maybe<T> filter(Predicate<? super T> predicate) {
-        if (this.isPresent() && predicate.test(this.get())) {
+        if (this.hasSome() && predicate.test(this.get())) {
             return this;
         } else {
             return Maybe.none();
@@ -34,7 +34,7 @@ public interface Maybe<T> {
     }
 
     default <U> Maybe<U> map(Function<? super T, U> mapper) {
-        if (this.isPresent()) {
+        if (this.hasSome()) {
             return Maybe.some(mapper.apply(this.get()));
         } else {
             return Maybe.none();
@@ -42,7 +42,7 @@ public interface Maybe<T> {
     }
 
     default <U> Maybe<U> flatmap(Function<? super T, ? extends Maybe<U>> mapper) {
-        if (this.isPresent()) {
+        if (this.hasSome()) {
             return mapper.apply(this.get());
         } else {
             return Maybe.none();
@@ -50,14 +50,14 @@ public interface Maybe<T> {
     }
 
     default Maybe<T> onSome(Consumer<T> onSuccess) {
-        if (this.isPresent()) {
+        if (this.hasSome()) {
             onSuccess.accept(this.get());
         }
         return this;
     }
 
     default T orLazyElse(Supplier<T> t) {
-        if (this.isPresent()) {
+        if (this.hasSome()) {
             return this.get();
         } else {
             return t.get();
@@ -65,14 +65,14 @@ public interface Maybe<T> {
     }
 
     default T orElse(T t) {
-        if (this.isPresent()) {
+        if (this.hasSome()) {
             return this.get();
         } else {
             return t;
         }
     }
 
-    boolean isPresent();
+    boolean hasSome();
 
     T get();
 
@@ -87,7 +87,7 @@ public interface Maybe<T> {
         }
 
         @Override
-        public boolean isPresent() {
+        public boolean hasSome() {
             return true;
         }
 
@@ -103,7 +103,7 @@ public interface Maybe<T> {
     class None<T> implements Maybe<T> {
 
         @Override
-        public boolean isPresent() {
+        public boolean hasSome() {
             return false;
         }
 
