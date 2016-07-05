@@ -1,4 +1,4 @@
-package org.smallibs.concurrent.promise.exception;
+package org.smallibs.exception;
 
 public class PromiseException extends Exception {
     public PromiseException(Throwable cause) {

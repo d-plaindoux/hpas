@@ -1,7 +1,7 @@
 package org.smallibs.concurrent.promise.impl;
 
 import org.smallibs.concurrent.promise.Promise;
-import org.smallibs.concurrent.promise.exception.PromiseException;
+import org.smallibs.exception.PromiseException;
 import org.smallibs.util.Maybe;
 import org.smallibs.util.Try;
 

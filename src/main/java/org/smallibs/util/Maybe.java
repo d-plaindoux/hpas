@@ -1,6 +1,6 @@
 package org.smallibs.util;
 
-import org.smallibs.concurrent.promise.exception.NoValueException;
+import org.smallibs.exception.NoValueException;
 
 import java.util.function.Consumer;
 import java.util.function.Function;

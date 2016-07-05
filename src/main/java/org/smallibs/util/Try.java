@@ -1,6 +1,6 @@
 package org.smallibs.util;
 
-import org.smallibs.concurrent.promise.exception.FilterException;
+import org.smallibs.exception.FilterException;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -43,12 +43,6 @@ public interface Try<T> {
             return mapper.apply(this.success());
         } else {
             return Try.failure(this.failure());
-        }
-    }
-
-    default void ifSuccess(Consumer<? super T> consumer) {
-        if (this.isSuccess()) {
-            consumer.accept(this.success());
         }
     }
 
