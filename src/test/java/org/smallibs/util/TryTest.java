@@ -13,6 +13,11 @@ public class TryTest {
         assertThat(Try.success(1).isSuccess()).isTrue();
     }
 
+    @Test(expected = IllegalAccessError.class)
+    public void shouldHaveSuccessNotFailure() throws Exception {
+        Try.success(1).failure();
+    }
+
     @Test
     public void shouldHaveSuccessValue() throws Exception {
         assertThat(Try.success(1).success()).isEqualTo(1);
@@ -22,6 +27,12 @@ public class TryTest {
     public void shouldHaveFailure() throws Exception {
         assertThat(Try.failure(new Exception()).isSuccess()).isFalse();
     }
+
+    @Test(expected = IllegalAccessError.class)
+    public void shouldHaveFailureNotSuccess() throws Exception {
+        Try.failure(new Exception()).success();
+    }
+
 
     @Test
     public void shouldFilterSuccess() throws Exception {
@@ -92,6 +103,24 @@ public class TryTest {
     }
 
     @Test
+    public void shouldOnFailureSuccess() throws Exception {
+        final AtomicInteger integer = new AtomicInteger(0);
+
+        Try.success(1).onFailure(throwable -> integer.set(0));
+
+        assertThat(integer.get()).isEqualTo(0);
+    }
+
+    @Test
+    public void shouldOnFailureFailure() throws Exception {
+        final AtomicInteger integer = new AtomicInteger(0);
+
+        Try.<Integer>failure(new Exception()).onFailure(throwable -> integer.set(1));
+
+        assertThat(integer.get()).isEqualTo(1);
+    }
+
+    @Test
     public void shouldRecoverWithSuccess() throws Exception {
         assertThat(Try.success(1).recoverWith(0)).isEqualTo(1);
     }
@@ -103,12 +132,12 @@ public class TryTest {
 
     @Test
     public void shouldOrLazyElseSuccess() throws Exception {
-        assertThat(Try.success(1).lazyRecoverWith(__ -> 0)).isEqualTo(1);
+        assertThat(Try.success(1).recoverWith(__ -> 0)).isEqualTo(1);
     }
 
     @Test
     public void shouldOrLazyElseFailure() throws Exception {
-        assertThat(Try.<Integer>failure(new Exception()).lazyRecoverWith(__ -> 0)).isEqualTo(0);
+        assertThat(Try.<Integer>failure(new Exception()).recoverWith(__ -> 0)).isEqualTo(0);
     }
 
     @Test

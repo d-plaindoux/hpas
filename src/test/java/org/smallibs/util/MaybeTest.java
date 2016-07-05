@@ -109,12 +109,12 @@ public class MaybeTest {
 
     @Test
     public void shouldOrLazyElseSome() throws Exception {
-        assertThat(Maybe.some(1).orLazyElse(() -> 0)).isEqualTo(1);
+        assertThat(Maybe.some(1).orElse(() -> 0)).isEqualTo(1);
     }
 
     @Test
     public void shouldOrLazyElseNone() throws Exception {
-        assertThat(Maybe.<Integer>none().orLazyElse(() -> 0)).isEqualTo(0);
+        assertThat(Maybe.<Integer>none().orElse(() -> 0)).isEqualTo(0);
     }
 
     @Test

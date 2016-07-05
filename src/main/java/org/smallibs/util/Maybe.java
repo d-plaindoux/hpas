@@ -56,7 +56,7 @@ public interface Maybe<T> {
         return this;
     }
 
-    default T orLazyElse(Supplier<T> t) {
+    default T orElse(Supplier<T> t) {
         if (this.hasSome()) {
             return this.get();
         } else {

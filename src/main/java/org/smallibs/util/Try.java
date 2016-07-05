@@ -68,7 +68,7 @@ public interface Try<T> {
         return this;
     }
 
-    default T lazyRecoverWith(Function<Throwable, T> t) {
+    default T recoverWith(Function<Throwable, T> t) {
         if (this.isSuccess()) {
             return this.success();
         } else {
