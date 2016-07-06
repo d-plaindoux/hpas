@@ -1,4 +1,4 @@
-package org.smallibs.util;
+package org.smallibs.data;
 
 import org.smallibs.exception.FilterException;
 

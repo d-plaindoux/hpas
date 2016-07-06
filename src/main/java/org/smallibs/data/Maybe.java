@@ -1,4 +1,4 @@
-package org.smallibs.util;
+package org.smallibs.data;
 
 import org.smallibs.exception.NoValueException;
 
@@ -77,7 +77,7 @@ public interface Maybe<T> {
     T get();
 
     /**
-     * Success implementation
+     * Some implementation
      */
     class Some<T> implements Maybe<T> {
         private final T value;
@@ -98,7 +98,7 @@ public interface Maybe<T> {
     }
 
     /**
-     * Failure implementation
+     * None implementation
      */
     class None<T> implements Maybe<T> {
 

@@ -1,7 +1,7 @@
 package org.smallibs.concurrent.promise.impl;
 
 import org.smallibs.concurrent.promise.Promise;
-import org.smallibs.util.Try;
+import org.smallibs.data.Try;
 
 import java.util.concurrent.Future;
 import java.util.function.Consumer;

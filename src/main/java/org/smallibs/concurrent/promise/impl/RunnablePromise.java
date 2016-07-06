@@ -2,8 +2,8 @@ package org.smallibs.concurrent.promise.impl;
 
 import org.smallibs.concurrent.promise.Promise;
 import org.smallibs.exception.PromiseException;
-import org.smallibs.util.Maybe;
-import org.smallibs.util.Try;
+import org.smallibs.data.Maybe;
+import org.smallibs.data.Try;
 
 import java.lang.ref.WeakReference;
 import java.util.Objects;

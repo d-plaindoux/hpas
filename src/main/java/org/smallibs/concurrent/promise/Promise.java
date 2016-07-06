@@ -1,6 +1,6 @@
 package org.smallibs.concurrent.promise;
 
-import org.smallibs.util.Try;
+import org.smallibs.data.Try;
 
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
@@ -10,7 +10,8 @@ import java.util.function.Function;
  * A promise is a component denoting an asynchronous computation. Such component can be mapped in order to chain
  * transformations.
  */
-public interface Promise<T> {
+
+public interface Promise<T>  {
 
     /**
      * Provides the underlying future able to capture and returns the result or the error for a given execution
@@ -39,10 +40,6 @@ public interface Promise<T> {
      * @param consumer The callback to be activated on completion
      */
     void onComplete(Consumer<Try<T>> consumer);
-
-    //
-    // No High-Order Type implies re-specification with specialized returned types
-    //
 
     /**
      * Method use to map a function. This mapping is done when the operation is a success. The result of this mapping
