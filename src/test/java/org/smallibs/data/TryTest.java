@@ -2,6 +2,7 @@ package org.smallibs.data;
 
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -158,5 +159,38 @@ public class TryTest {
     @Test(expected = IllegalAccessError.class)
     public void shouldToTryFailureValue() throws Throwable {
         Try.failure(new Exception()).toMaybe().get();
+    }
+
+    @Test(expected = IOException.class)
+    public void shouldFailureRaiseASuppliedError() throws Throwable {
+        Try.failure(new UnknownError()).orElseThrow(() -> new IOException());
+    }
+
+    @Test
+    public void shouldSuccessNotRaiseASuppliedError() throws Throwable {
+        Try.success(1).orElseThrow(() -> new IOException());
+        assertThat(true).isTrue();
+    }
+
+    @Test(expected = UnknownError.class)
+    public void shouldFailureBeRaised() throws Throwable {
+        Try.failure(new UnknownError()).orElseRetrieveAndThrow();
+    }
+
+    @Test
+    public void shouldSuccessNotRaiseAnError() throws Throwable {
+        Try.success(1).orElseRetrieveAndThrow();
+        assertThat(true).isTrue();
+    }
+
+    @Test(expected = IOException.class)
+    public void shouldFailureDoAnExceptionRaise() throws Throwable {
+        Try.failure(new UnknownError()).orElseRetrieveAndThrow(x -> new IOException());
+    }
+
+    @Test
+    public void shouldSuccessNotDoAnExceptionRaise() throws Throwable {
+        Try.success(1).orElseRetrieveAndThrow(x -> new IOException());
+        assertThat(true).isTrue();
     }
 }
