@@ -1,9 +1,9 @@
 package org.smallibs.concurrent.promise.impl;
 
 import org.smallibs.concurrent.promise.Promise;
-import org.smallibs.exception.PromiseException;
 import org.smallibs.data.Maybe;
 import org.smallibs.data.Try;
+import org.smallibs.exception.PromiseException;
 
 import java.lang.ref.WeakReference;
 import java.util.Objects;
@@ -38,8 +38,12 @@ public class RunnablePromise<T> implements Promise<T>, RunnableFuture<T> {
         this.currentExecutor = new WeakReference<>(null);
         this.canceled = false;
 
-        this.onSuccess = null;
-        this.onError = null;
+        this.onSuccess = __ -> {
+            return;
+        };
+        this.onError = __ -> {
+            return;
+        };
     }
 
     @Override
@@ -171,11 +175,11 @@ public class RunnablePromise<T> implements Promise<T>, RunnableFuture<T> {
         this.currentExecutor = new WeakReference<>(Thread.currentThread());
 
         try {
-            manageResult(this.callable.call());
+            manageResponse(Try.success(this.callable.call()));
         } catch (final PromiseException exception) {
-            manageError(exception.getCause());
+            manageResponse(Try.failure(exception.getCause()));
         } catch (final Throwable exception) {
-            manageError(exception);
+            manageResponse(Try.failure(exception));
         }
 
         this.currentExecutor.clear();
@@ -185,31 +189,17 @@ public class RunnablePromise<T> implements Promise<T>, RunnableFuture<T> {
     // Private behaviors
     //
 
-    private boolean manageResult(final T call) {
-        synchronized (this.responseReference) {
-            if (this.isCancelled()) {
-                return true;
-            }
-
-            this.responseReference.set(Try.success(call));
-            this.responseReference.notifyAll();
-        }
-
-        Maybe.some(this.onSuccess).onSome(consumer -> consumer.accept(call));
-        return false;
-    }
-
-    private void manageError(final Throwable exception) {
+    private void manageResponse(final Try<T> call) {
         synchronized (this.responseReference) {
             if (this.isCancelled()) {
                 return;
             }
 
-            this.responseReference.set(Try.failure(exception));
+            this.responseReference.set(call);
             this.responseReference.notifyAll();
         }
 
-        Maybe.some(this.onError).onSome(throwableConsumer -> throwableConsumer.accept(exception));
+        call.onSuccess(s -> onSuccess.accept(s)).onFailure(t -> onError.accept(t));
     }
 
     private T getNow() throws ExecutionException {
