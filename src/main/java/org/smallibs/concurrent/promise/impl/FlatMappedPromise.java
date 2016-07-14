@@ -25,10 +25,7 @@ class FlatMappedPromise<T, R> implements Promise<R> {
     @Override
     public void onSuccess(final Consumer<R> consumer) {
         promise.onSuccess(t -> {
-            transform.apply(t).map(r -> {
-                consumer.accept(r);
-                return r;
-            });
+            transform.apply(t).onSuccess(consumer::accept);
         });
     }
 
@@ -39,7 +36,11 @@ class FlatMappedPromise<T, R> implements Promise<R> {
 
     @Override
     public void onComplete(Consumer<Try<R>> consumer) {
-        promise.flatmap(transform).onComplete(consumer);
+        promise.onComplete(value -> {
+            value.map(transform).
+                    onSuccess(o -> o.onComplete(consumer)).
+                    onFailure(t -> consumer.accept(Try.failure(t)));
+        });
     }
 
     @Override

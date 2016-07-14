@@ -34,7 +34,9 @@ class MappedPromise<T, R> implements Promise<R> {
 
     @Override
     public void onComplete(Consumer<Try<R>> consumer) {
-        promise.map(transform).onComplete(consumer);
+        promise.onComplete(value -> {
+            consumer.accept(value.map(transform));
+        });
     }
 
     @Override

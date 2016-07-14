@@ -39,10 +39,8 @@ public class RunnablePromise<T> implements Promise<T>, RunnableFuture<T> {
         this.canceled = false;
 
         this.onSuccess = __ -> {
-            return;
         };
         this.onError = __ -> {
-            return;
         };
     }
 
@@ -131,7 +129,6 @@ public class RunnablePromise<T> implements Promise<T>, RunnableFuture<T> {
 
             return true;
         }
-
     }
 
     @Override
@@ -189,17 +186,21 @@ public class RunnablePromise<T> implements Promise<T>, RunnableFuture<T> {
     // Private behaviors
     //
 
-    private void manageResponse(final Try<T> call) {
+    private void manageResponse(final Try<T> response) {
         synchronized (this.responseReference) {
             if (this.isCancelled()) {
                 return;
             }
 
-            this.responseReference.set(call);
-            this.responseReference.notifyAll();
+            this.responseReference.set(response);
         }
 
-        call.onSuccess(s -> onSuccess.accept(s)).onFailure(t -> onError.accept(t));
+        response.onSuccess(s -> onSuccess.accept(s)).
+                onFailure(t -> onError.accept(t));
+
+        synchronized (this.responseReference) {
+            this.responseReference.notifyAll();
+        }
     }
 
     private T getNow() throws ExecutionException {
