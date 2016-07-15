@@ -133,9 +133,9 @@ public interface Try<T> extends Monad<Try, T> {
             throw new IllegalAccessError();
         }
 
-        @SuppressWarnings("unchecked")
         @Override
-        public Success<T> concretize() {
+        @SuppressWarnings("unchecked")
+        public Try<T> concretize() {
             return this;
         }
     }
@@ -165,9 +165,9 @@ public interface Try<T> extends Monad<Try, T> {
             return value;
         }
 
-        @SuppressWarnings("unchecked")
         @Override
-        public Failure<T> concretize() {
+        @SuppressWarnings("unchecked")
+        public Try<T> concretize() {
             return this;
         }
     }

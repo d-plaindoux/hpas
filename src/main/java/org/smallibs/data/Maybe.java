@@ -101,7 +101,7 @@ public interface Maybe<T> extends Monad<Maybe, T> {
 
         @SuppressWarnings("unchecked")
         @Override
-        public Some<T> concretize() {
+        public Maybe<T> concretize() {
             return this;
         }
     }
@@ -123,7 +123,7 @@ public interface Maybe<T> extends Monad<Maybe, T> {
 
         @SuppressWarnings("unchecked")
         @Override
-        public None<T> concretize() {
+        public Maybe<T> concretize() {
             return this;
         }
     }

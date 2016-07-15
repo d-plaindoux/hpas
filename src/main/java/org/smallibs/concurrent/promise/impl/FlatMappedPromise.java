@@ -48,7 +48,7 @@ public class FlatMappedPromise<T, R> implements Promise<R> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public FlatMappedPromise<T, R> concretize() {
+    public Promise<R> concretize() {
         return this;
     }
 }
