@@ -5,15 +5,10 @@ import org.smallibs.concurrent.asynchronous.impl.ExecutorImpl;
 import java.util.concurrent.ExecutorService;
 
 /**
- * Asynchronous execution media
+ * Asynchronous execution builder
  */
-public class ExecutorBuilder {
-
-    /**
-     * Constructor
-     */
-    private ExecutorBuilder() {
-    }
+public enum ExecutorBuilder {
+    $;
 
     /**
      * Factory

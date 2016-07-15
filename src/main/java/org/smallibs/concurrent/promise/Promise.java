@@ -1,7 +1,11 @@
 package org.smallibs.concurrent.promise;
 
+import org.smallibs.concurrent.promise.impl.FlatMappedPromise;
+import org.smallibs.concurrent.promise.impl.MappedPromise;
+import org.smallibs.data.Monad;
 import org.smallibs.data.Try;
 
+import java.util.Objects;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -11,7 +15,7 @@ import java.util.function.Function;
  * transformations.
  */
 
-public interface Promise<T>  {
+public interface Promise<T> extends Monad<Promise, T> {
 
     /**
      * Provides the underlying future able to capture and returns the result or the error for a given execution
@@ -48,7 +52,11 @@ public interface Promise<T>  {
      * @param function The function to applied on success
      * @return a new promise
      */
-    <R> Promise<R> map(Function<? super T, R> function);
+    default <R> Promise<R> map(Function<? super T, R> function) {
+        Objects.requireNonNull(function);
+
+        return new MappedPromise<>(this, function).concretize();
+    }
 
     /**
      * Method use to flatmap a function. This mapping is done when the operation is a success. The result of this mapping
@@ -57,5 +65,9 @@ public interface Promise<T>  {
      * @param function The function to applied on success
      * @return a new promise
      */
-    <R> Promise<R> flatmap(Function<? super T, ? extends Promise<R>> function);
+    default <R> Promise<R> flatmap(Function<? super T, Monad<Promise, R>> function) {
+        Objects.requireNonNull(function);
+
+        return new FlatMappedPromise<>(this, function).concretize();
+    }
 }

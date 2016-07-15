@@ -1,31 +1,33 @@
 package org.smallibs.concurrent.promise.impl;
 
 import org.smallibs.concurrent.promise.Promise;
+import org.smallibs.data.Monad;
 import org.smallibs.data.Try;
 
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-class FlatMappedPromise<T, R> implements Promise<R> {
+public class FlatMappedPromise<T, R> implements Promise<R> {
 
     private final Promise<T> promise;
-    private final Function<? super T, ? extends Promise<R>> transform;
+    private final Function<? super T, Monad<Promise, R>> transform;
 
-    FlatMappedPromise(Promise<T> promise, Function<? super T, ? extends Promise<R>> transform) {
-        this.promise = promise;
+    public FlatMappedPromise(Monad<Promise, T> promise, Function<? super T, Monad<Promise, R>> transform) {
+        this.promise = promise.concretize();
         this.transform = transform;
     }
 
     @Override
     public Future<R> getFuture() {
-        return new FlatMappedFuture<>(promise.getFuture(), transform);
+        final Promise<T> concretize = promise.concretize();
+        return new FlatMappedFuture<>(concretize.getFuture(), transform);
     }
 
     @Override
     public void onSuccess(final Consumer<R> consumer) {
         promise.onSuccess(t -> {
-            transform.apply(t).onSuccess(consumer::accept);
+            transform.apply(t).<Promise<R>>concretize().onSuccess(consumer);
         });
     }
 
@@ -37,19 +39,16 @@ class FlatMappedPromise<T, R> implements Promise<R> {
     @Override
     public void onComplete(Consumer<Try<R>> consumer) {
         promise.onComplete(value -> {
-            value.map(transform).
-                    onSuccess(o -> o.onComplete(consumer)).
+            final Try<Monad<Promise, R>> concretized = value.map(transform).concretize();
+            concretized.
+                    onSuccess(o -> o.<Promise<R>>concretize().onComplete(consumer)).
                     onFailure(t -> consumer.accept(Try.failure(t)));
         });
     }
 
     @Override
-    public <S> Promise<S> map(Function<? super R, S> function) {
-        return new MappedPromise<>(this, function);
-    }
-
-    @Override
-    public <S> Promise<S> flatmap(Function<? super R, ? extends Promise<S>> function) {
-        return new FlatMappedPromise<>(this, function);
+    @SuppressWarnings("unchecked")
+    public FlatMappedPromise<T, R> concretize() {
+        return this;
     }
 }

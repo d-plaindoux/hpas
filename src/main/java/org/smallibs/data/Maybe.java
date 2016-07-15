@@ -7,7 +7,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface Maybe<T> {
+public interface Maybe<T> extends Monad<Maybe, T> {
 
     static <T> Maybe<T> some(T value) {
         if (value == null) {
@@ -22,7 +22,8 @@ public interface Maybe<T> {
     }
 
     default Try<T> toTry() {
-        return this.map(Try::success).orElse(Try.failure(new NoValueException()));
+        final Maybe<Try<T>> concretize = this.map(Try::success).concretize();
+        return concretize.orElse(Try.failure(new NoValueException()));
     }
 
     default Maybe<T> filter(Predicate<? super T> predicate) {
@@ -33,7 +34,8 @@ public interface Maybe<T> {
         }
     }
 
-    default <U> Maybe<U> map(Function<? super T, U> mapper) {
+    @Override
+    default <B> Maybe<B> map(Function<? super T, B> mapper) {
         if (this.hasSome()) {
             return Maybe.some(mapper.apply(this.get()));
         } else {
@@ -41,9 +43,10 @@ public interface Maybe<T> {
         }
     }
 
-    default <U> Maybe<U> flatmap(Function<? super T, ? extends Maybe<U>> mapper) {
+    @Override
+    default <B> Maybe<B> flatmap(Function<? super T, Monad<Maybe, B>> mapper) {
         if (this.hasSome()) {
-            return mapper.apply(this.get());
+            return mapper.apply(this.get()).concretize();
         } else {
             return Maybe.none();
         }
@@ -95,6 +98,12 @@ public interface Maybe<T> {
         public T get() {
             return value;
         }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public Some<T> concretize() {
+            return this;
+        }
     }
 
     /**
@@ -110,6 +119,12 @@ public interface Maybe<T> {
         @Override
         public T get() {
             throw new IllegalAccessError();
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public None<T> concretize() {
+            return this;
         }
     }
 }

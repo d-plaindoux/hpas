@@ -16,7 +16,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class RunnablePromise<T> implements Promise<T>, RunnableFuture<T> {
 
@@ -42,6 +41,12 @@ public class RunnablePromise<T> implements Promise<T>, RunnableFuture<T> {
         };
         this.onError = __ -> {
         };
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public RunnablePromise<T> concretize() {
+        return this;
     }
 
     @Override
@@ -97,20 +102,6 @@ public class RunnablePromise<T> implements Promise<T>, RunnableFuture<T> {
 
         this.onSuccess(t -> consumer.accept(Try.success(t)));
         this.onFailure(throwable -> consumer.accept(Try.failure(throwable)));
-    }
-
-    @Override
-    public <R> Promise<R> map(Function<? super T, R> function) {
-        Objects.requireNonNull(function);
-
-        return new MappedPromise<>(this, function);
-    }
-
-    @Override
-    public <R> Promise<R> flatmap(Function<? super T, ? extends Promise<R>> function) {
-        Objects.requireNonNull(function);
-
-        return new FlatMappedPromise<>(this, function);
     }
 
     @Override

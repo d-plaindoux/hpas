@@ -7,7 +7,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface Try<T> {
+public interface Try<T> extends Monad<Try, T> {
 
     static <T> Try<T> success(T value) {
         return new Success<>(value);
@@ -18,9 +18,9 @@ public interface Try<T> {
     }
 
     default Maybe<T> toMaybe() {
-        return this.map(Maybe::some).recoverWith(Maybe.none());
+        final Try<Maybe<T>> concretize = this.map(Maybe::some).concretize();
+        return concretize.recoverWith(Maybe.none());
     }
-
 
     default Try<T> filter(Predicate<? super T> predicate) {
         if (this.isSuccess() && predicate.test(this.success())) {
@@ -30,7 +30,8 @@ public interface Try<T> {
         }
     }
 
-    default <U> Try<U> map(Function<? super T, U> mapper) {
+    @Override
+    default <B> Try<B> map(Function<? super T, B> mapper) {
         if (this.isSuccess()) {
             return Try.success(mapper.apply(this.success()));
         } else {
@@ -38,9 +39,10 @@ public interface Try<T> {
         }
     }
 
-    default <U> Try<U> flatmap(Function<? super T, ? extends Try<U>> mapper) {
+    @Override
+    default <B> Try<B> flatmap(Function<? super T, Monad<Try, B>> mapper) {
         if (this.isSuccess()) {
-            return mapper.apply(this.success());
+            return mapper.apply(this.success()).concretize();
         } else {
             return Try.failure(this.failure());
         }
@@ -130,6 +132,12 @@ public interface Try<T> {
         public Throwable failure() {
             throw new IllegalAccessError();
         }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public Success<T> concretize() {
+            return this;
+        }
     }
 
     /**
@@ -155,6 +163,12 @@ public interface Try<T> {
         @Override
         public Throwable failure() {
             return value;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public Failure<T> concretize() {
+            return this;
         }
     }
 
