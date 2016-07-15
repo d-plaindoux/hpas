@@ -7,7 +7,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface Maybe<T> extends Monad<Maybe, T> {
+public interface Maybe<T> extends Monad<Maybe, T>, Selectable<Maybe, T> {
 
     static <T> Maybe<T> some(T value) {
         if (value == null) {
@@ -99,7 +99,6 @@ public interface Maybe<T> extends Monad<Maybe, T> {
             return value;
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public Maybe<T> concretize() {
             return this;

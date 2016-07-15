@@ -7,7 +7,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface Try<T> extends Monad<Try, T> {
+public interface Try<T> extends Monad<Try, T>, Selectable<Try, T> {
 
     static <T> Try<T> success(T value) {
         return new Success<>(value);

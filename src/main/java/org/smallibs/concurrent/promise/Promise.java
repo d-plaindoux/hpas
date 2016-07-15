@@ -45,7 +45,6 @@ public interface Promise<T> extends Monad<Promise, T> {
      */
     void onComplete(Consumer<Try<T>> consumer);
 
-
     /**
      * Method use to map a function. This mapping is done when the operation is a success. The result of this mapping
      * is a new promise component.
