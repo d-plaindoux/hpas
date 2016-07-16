@@ -31,7 +31,7 @@ final class FlatMappedPromise<T, R, Self extends TApp<Promise, R, Self>> extends
     @Override
     public void onSuccess(final Consumer<R> consumer) {
         promise.onSuccess(t -> {
-            specialize(transform.apply(t).self().<Promise<R>>self()).self().onSuccess(consumer);
+            specialize(transform.apply(t)).self().onSuccess(consumer);
         });
     }
 
