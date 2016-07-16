@@ -14,6 +14,10 @@ import java.util.function.Function;
 
 public interface Promise<T> extends Monad<Promise, T> {
 
+    @Override
+    @SuppressWarnings("unchecked")
+    Promise<T> concretize();
+
     /**
      * Provides the underlying future able to capture and returns the result or the error for a given execution
      *

@@ -22,8 +22,7 @@ final class FlatMappedPromise<T, R> extends AbstractPromise<R> {
 
     @Override
     public Future<R> getFuture() {
-        final Promise<T> concretize = promise.concretize();
-        return new FlatMappedFuture<>(concretize.getFuture(), transform);
+        return new FlatMappedFuture<>(promise.concretize().getFuture(), transform);
     }
 
     @Override
@@ -41,8 +40,7 @@ final class FlatMappedPromise<T, R> extends AbstractPromise<R> {
     @Override
     public void onComplete(Consumer<Try<R>> consumer) {
         promise.onComplete(value -> {
-            final Try<Monad<Promise, R>> concretized = value.map(transform).concretize();
-            concretized.
+            value.map(transform).concretize().
                     onSuccess(o -> o.<Promise<R>>concretize().onComplete(consumer)).
                     onFailure(t -> consumer.accept(Try.failure(t)));
         });
