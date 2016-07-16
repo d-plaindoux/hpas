@@ -7,22 +7,24 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface Try<T> extends Monad<Try, T>, Selectable<Try, T> {
+public abstract class Try<T> implements Monad<Try, T>, Selectable<Try, T> {
 
-    static <T> Try<T> success(T value) {
+    private Try() {
+    }
+
+    public static <T> Try<T> success(T value) {
         return new Success<>(value);
     }
 
-    static <T> Try<T> failure(Throwable value) {
+    public static <T> Try<T> failure(Throwable value) {
         return new Failure<>(value);
     }
 
-    default Maybe<T> toMaybe() {
-        final Try<Maybe<T>> concretize = this.map(Maybe::some).concretize();
-        return concretize.recoverWith(Maybe.none());
+    public Maybe<T> toMaybe() {
+        return this.map(Maybe::some).recoverWith(Maybe.none());
     }
 
-    default Try<T> filter(Predicate<? super T> predicate) {
+    public Try<T> filter(Predicate<? super T> predicate) {
         if (this.isSuccess() && predicate.test(this.success())) {
             return this;
         } else {
@@ -31,7 +33,7 @@ public interface Try<T> extends Monad<Try, T>, Selectable<Try, T> {
     }
 
     @Override
-    default <B> Try<B> map(Function<? super T, B> mapper) {
+    public <B> Try<B> map(Function<? super T, B> mapper) {
         if (this.isSuccess()) {
             return Try.success(mapper.apply(this.success()));
         } else {
@@ -40,7 +42,7 @@ public interface Try<T> extends Monad<Try, T>, Selectable<Try, T> {
     }
 
     @Override
-    default <B> Try<B> flatmap(Function<? super T, Monad<Try, B>> mapper) {
+    public <B> Try<B> flatmap(Function<? super T, Monad<Try, B>> mapper) {
         if (this.isSuccess()) {
             return mapper.apply(this.success()).concretize();
         } else {
@@ -48,7 +50,13 @@ public interface Try<T> extends Monad<Try, T>, Selectable<Try, T> {
         }
     }
 
-    default T recoverWith(T t) {
+    @Override
+    @SuppressWarnings("unchecked")
+    public Try<T> concretize() {
+        return this;
+    }
+
+    public T recoverWith(T t) {
         if (this.isSuccess()) {
             return this.success();
         } else {
@@ -56,21 +64,21 @@ public interface Try<T> extends Monad<Try, T>, Selectable<Try, T> {
         }
     }
 
-    default Try<T> onSuccess(Consumer<T> onSuccess) {
+    public Try<T> onSuccess(Consumer<T> onSuccess) {
         if (this.isSuccess()) {
             onSuccess.accept(this.success());
         }
         return this;
     }
 
-    default Try<T> onFailure(Consumer<Throwable> onFailure) {
+    public Try<T> onFailure(Consumer<Throwable> onFailure) {
         if (!this.isSuccess()) {
             onFailure.accept(this.failure());
         }
         return this;
     }
 
-    default T recoverWith(Function<Throwable, T> t) {
+    public T recoverWith(Function<Throwable, T> t) {
         if (this.isSuccess()) {
             return this.success();
         } else {
@@ -78,7 +86,7 @@ public interface Try<T> extends Monad<Try, T>, Selectable<Try, T> {
         }
     }
 
-    default <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
+    public <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
         if (this.isSuccess()) {
             return this.success();
         } else {
@@ -86,7 +94,7 @@ public interface Try<T> extends Monad<Try, T>, Selectable<Try, T> {
         }
     }
 
-    default <X extends Throwable> T orElseRetrieveAndThrow(Function<Throwable, ? extends X> exceptionSupplier) throws X {
+    public <X extends Throwable> T orElseRetrieveAndThrow(Function<Throwable, ? extends X> exceptionSupplier) throws X {
         if (this.isSuccess()) {
             return this.success();
         } else {
@@ -94,7 +102,7 @@ public interface Try<T> extends Monad<Try, T>, Selectable<Try, T> {
         }
     }
 
-    default <X extends Throwable> T orElseRetrieveAndThrow() throws Throwable {
+    public <X extends Throwable> T orElseRetrieveAndThrow() throws Throwable {
         if (this.isSuccess()) {
             return this.success();
         } else {
@@ -102,16 +110,16 @@ public interface Try<T> extends Monad<Try, T>, Selectable<Try, T> {
         }
     }
 
-    boolean isSuccess();
+    abstract public boolean isSuccess();
 
-    T success();
+    abstract public T success();
 
-    Throwable failure();
+    abstract public Throwable failure();
 
     /**
      * Success implementation
      */
-    class Success<T> implements Try<T> {
+    private static class Success<T> extends Try<T> {
         private final T value;
 
         private Success(T value) {
@@ -132,18 +140,12 @@ public interface Try<T> extends Monad<Try, T>, Selectable<Try, T> {
         public Throwable failure() {
             throw new IllegalAccessError();
         }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public Try<T> concretize() {
-            return this;
-        }
     }
 
     /**
      * Failure implementation
      */
-    class Failure<T> implements Try<T> {
+    private static class Failure<T> extends Try<T> {
         private final Throwable value;
 
         private Failure(Throwable value) {
@@ -163,12 +165,6 @@ public interface Try<T> extends Monad<Try, T>, Selectable<Try, T> {
         @Override
         public Throwable failure() {
             return value;
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public Try<T> concretize() {
-            return this;
         }
     }
 

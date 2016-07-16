@@ -7,9 +7,12 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface Maybe<T> extends Monad<Maybe, T>, Selectable<Maybe, T> {
+public abstract class Maybe<T> implements Monad<Maybe, T>, Selectable<Maybe, T> {
 
-    static <T> Maybe<T> some(T value) {
+    private Maybe() {
+    }
+
+    public static <T> Maybe<T> some(T value) {
         if (value == null) {
             return none();
         }
@@ -17,16 +20,15 @@ public interface Maybe<T> extends Monad<Maybe, T>, Selectable<Maybe, T> {
         return new Some<>(value);
     }
 
-    static <T> Maybe<T> none() {
+    public static <T> Maybe<T> none() {
         return new None<>();
     }
 
-    default Try<T> toTry() {
-        final Maybe<Try<T>> concretize = this.map(Try::success).concretize();
-        return concretize.orElse(Try.failure(new NoValueException()));
+    public Try<T> toTry() {
+        return this.map(Try::success).orElse(Try.failure(new NoValueException()));
     }
 
-    default Maybe<T> filter(Predicate<? super T> predicate) {
+    public Maybe<T> filter(Predicate<? super T> predicate) {
         if (this.hasSome() && predicate.test(this.get())) {
             return this;
         } else {
@@ -35,7 +37,7 @@ public interface Maybe<T> extends Monad<Maybe, T>, Selectable<Maybe, T> {
     }
 
     @Override
-    default <B> Maybe<B> map(Function<? super T, B> mapper) {
+    public <B> Maybe<B> map(Function<? super T, B> mapper) {
         if (this.hasSome()) {
             return Maybe.some(mapper.apply(this.get()));
         } else {
@@ -44,7 +46,7 @@ public interface Maybe<T> extends Monad<Maybe, T>, Selectable<Maybe, T> {
     }
 
     @Override
-    default <B> Maybe<B> flatmap(Function<? super T, Monad<Maybe, B>> mapper) {
+    public <B> Maybe<B> flatmap(Function<? super T, Monad<Maybe, B>> mapper) {
         if (this.hasSome()) {
             return mapper.apply(this.get()).concretize();
         } else {
@@ -52,14 +54,20 @@ public interface Maybe<T> extends Monad<Maybe, T>, Selectable<Maybe, T> {
         }
     }
 
-    default Maybe<T> onSome(Consumer<T> onSuccess) {
+    @SuppressWarnings("unchecked")
+    @Override
+    public Maybe<T> concretize() {
+        return this;
+    }
+
+    public Maybe<T> onSome(Consumer<T> onSuccess) {
         if (this.hasSome()) {
             onSuccess.accept(this.get());
         }
         return this;
     }
 
-    default T orElse(Supplier<T> t) {
+    public T orElse(Supplier<T> t) {
         if (this.hasSome()) {
             return this.get();
         } else {
@@ -67,7 +75,7 @@ public interface Maybe<T> extends Monad<Maybe, T>, Selectable<Maybe, T> {
         }
     }
 
-    default T orElse(T t) {
+    public T orElse(T t) {
         if (this.hasSome()) {
             return this.get();
         } else {
@@ -75,14 +83,14 @@ public interface Maybe<T> extends Monad<Maybe, T>, Selectable<Maybe, T> {
         }
     }
 
-    boolean hasSome();
+    abstract public boolean hasSome();
 
-    T get();
+    abstract public T get();
 
     /**
      * Some implementation
      */
-    class Some<T> implements Maybe<T> {
+    private static class Some<T> extends Maybe<T> {
         private final T value;
 
         private Some(T value) {
@@ -98,17 +106,12 @@ public interface Maybe<T> extends Monad<Maybe, T>, Selectable<Maybe, T> {
         public T get() {
             return value;
         }
-
-        @Override
-        public Maybe<T> concretize() {
-            return this;
-        }
     }
 
     /**
      * None implementation
      */
-    class None<T> implements Maybe<T> {
+    private static class None<T> extends Maybe<T> {
 
         @Override
         public boolean hasSome() {
@@ -118,12 +121,6 @@ public interface Maybe<T> extends Monad<Maybe, T>, Selectable<Maybe, T> {
         @Override
         public T get() {
             throw new IllegalAccessError();
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public Maybe<T> concretize() {
-            return this;
         }
     }
 }

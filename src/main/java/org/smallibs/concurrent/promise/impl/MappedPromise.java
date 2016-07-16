@@ -7,12 +7,12 @@ import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class MappedPromise<T, R> implements Promise<R> {
+final class MappedPromise<T, R> extends AbstractPromise<R> {
 
     private final Promise<T> promise;
     private final Function<? super T, R> transform;
 
-    public MappedPromise(Promise<T> promise, Function<? super T, R> transform) {
+    MappedPromise(Promise<T> promise, Function<? super T, R> transform) {
         this.promise = promise;
         this.transform = transform;
     }
@@ -37,11 +37,5 @@ public class MappedPromise<T, R> implements Promise<R> {
         promise.onComplete(value -> {
             consumer.accept(value.concretize().map(transform).concretize());
         });
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public MappedPromise<T, R> concretize() {
-        return this;
     }
 }

@@ -1,6 +1,5 @@
 package org.smallibs.concurrent.promise.impl;
 
-import org.smallibs.concurrent.promise.Promise;
 import org.smallibs.data.Maybe;
 import org.smallibs.data.Try;
 import org.smallibs.exception.PromiseException;
@@ -17,7 +16,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-public class RunnablePromise<T> implements Promise<T>, RunnableFuture<T> {
+public final class RunnablePromise<T> extends AbstractPromise<T> implements RunnableFuture<T> {
 
     private final Callable<T> callable;
     private final AtomicReference<Try<T>> responseReference;
@@ -41,12 +40,6 @@ public class RunnablePromise<T> implements Promise<T>, RunnableFuture<T> {
         };
         this.onError = __ -> {
         };
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public RunnablePromise<T> concretize() {
-        return this;
     }
 
     @Override

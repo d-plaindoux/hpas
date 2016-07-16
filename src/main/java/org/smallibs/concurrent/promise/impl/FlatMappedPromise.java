@@ -8,12 +8,14 @@ import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class FlatMappedPromise<T, R> implements Promise<R> {
+final class FlatMappedPromise<T, R> extends AbstractPromise<R> {
 
     private final Promise<T> promise;
     private final Function<? super T, Monad<Promise, R>> transform;
 
-    public FlatMappedPromise(Monad<Promise, T> promise, Function<? super T, Monad<Promise, R>> transform) {
+    FlatMappedPromise(Monad<Promise, T> promise, Function<? super T, Monad<Promise, R>> transform) {
+        super();
+
         this.promise = promise.concretize();
         this.transform = transform;
     }
@@ -44,11 +46,5 @@ public class FlatMappedPromise<T, R> implements Promise<R> {
                     onSuccess(o -> o.<Promise<R>>concretize().onComplete(consumer)).
                     onFailure(t -> consumer.accept(Try.failure(t)));
         });
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Promise<R> concretize() {
-        return this;
     }
 }
