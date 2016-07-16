@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.smallibs.data.Try.specialize;
 
 public class TryTest {
 
@@ -57,32 +58,32 @@ public class TryTest {
 
     @Test
     public void shouldMapSuccess() throws Exception {
-        assertThat(Try.success(1).map(i -> i + 1).isSuccess()).isTrue();
+        assertThat(specialize(Try.success(1).map(i -> i + 1)).self().isSuccess()).isTrue();
     }
 
     @Test
     public void shouldMapSuccessRetrieveValue() throws Exception {
-        assertThat(Try.success(1).map(i -> i + 1).success()).isEqualTo(2);
+        assertThat(specialize(Try.success(1).map(i -> i + 1)).self().success()).isEqualTo(2);
     }
 
     @Test
     public void shouldMapFailure() throws Exception {
-        assertThat(Try.<Integer>failure(new Exception()).map(i -> i + 1).isSuccess()).isFalse();
+        assertThat(specialize(Try.<Integer>failure(new Exception()).map(i -> i + 1)).self().isSuccess()).isFalse();
     }
 
     @Test
     public void shouldFlatMapSuccessToSuccess() throws Exception {
-        assertThat(Try.success(1).flatmap(Try::success).isSuccess()).isTrue();
+        assertThat(specialize(Try.success(1).flatmap(Try::success)).self().isSuccess()).isTrue();
     }
 
     @Test
     public void shouldFlatMapSuccessToFailure() throws Exception {
-        assertThat(Try.success(1).flatmap(i -> Try.failure(new Exception())).isSuccess()).isFalse();
+        assertThat(specialize(Try.success(1).flatmap(i -> Try.failure(new Exception()))).self().isSuccess()).isFalse();
     }
 
     @Test
     public void shouldFlatMapFailure() throws Exception {
-        assertThat(Try.<Integer>failure(new Exception()).flatmap(Try::success).isSuccess()).isFalse();
+        assertThat(specialize(Try.<Integer>failure(new Exception()).flatmap(Try::success)).self().isSuccess()).isFalse();
     }
 
     @Test

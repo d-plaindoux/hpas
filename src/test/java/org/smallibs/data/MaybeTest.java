@@ -6,6 +6,7 @@ import org.smallibs.exception.NoValueException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.smallibs.data.Maybe.specialize;
 
 public class MaybeTest {
 
@@ -51,32 +52,32 @@ public class MaybeTest {
 
     @Test
     public void shouldMapSome() throws Exception {
-        assertThat(Maybe.some(1).map(i -> i + 1).hasSome()).isTrue();
+        assertThat(specialize(Maybe.some(1).map(i -> i + 1)).self().hasSome()).isTrue();
     }
 
     @Test
     public void shouldMapSomeRetrieveValue() throws Exception {
-        assertThat(Maybe.some(1).map(i -> i + 1).get()).isEqualTo(2);
+        assertThat(specialize(Maybe.some(1).map(i -> i + 1)).self().get()).isEqualTo(2);
     }
 
     @Test
     public void shouldMapNone() throws Exception {
-        assertThat(Maybe.<Integer>none().map(i -> i + 1).hasSome()).isFalse();
+        assertThat(specialize(Maybe.<Integer>none().map(i -> i + 1)).self().hasSome()).isFalse();
     }
 
     @Test
     public void shouldFlatMapSomeToSome() throws Exception {
-        assertThat(Maybe.some(1).flatmap(Maybe::some).hasSome()).isTrue();
+        assertThat(specialize(Maybe.some(1).flatmap(Maybe::some)).self().hasSome()).isTrue();
     }
 
     @Test
     public void shouldFlatMapSomeToNone() throws Exception {
-        assertThat(Maybe.some(1).flatmap(i -> Maybe.none()).hasSome()).isFalse();
+        assertThat(specialize(Maybe.some(1).flatmap(i -> Maybe.none())).self().hasSome()).isFalse();
     }
 
     @Test
     public void shouldFlatMapNone() throws Exception {
-        assertThat(Maybe.<Integer>none().flatmap(Maybe::some).hasSome()).isFalse();
+        assertThat(specialize(Maybe.<Integer>none().flatmap(Maybe::some)).self().hasSome()).isFalse();
     }
 
     @Test

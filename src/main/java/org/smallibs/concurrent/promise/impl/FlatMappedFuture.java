@@ -1,7 +1,7 @@
 package org.smallibs.concurrent.promise.impl;
 
 import org.smallibs.concurrent.promise.Promise;
-import org.smallibs.data.Monad;
+import org.smallibs.data.TApp;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -9,12 +9,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
-class FlatMappedFuture<T, R> implements Future<R> {
+import static org.smallibs.concurrent.promise.Promise.specialize;
+
+class FlatMappedFuture<T, R, Self extends TApp<Promise, R, Self>> implements Future<R> {
 
     private final Future<T> future;
-    private final Function<? super T, ? extends Monad<Promise, R>> function;
+    private final Function<? super T, TApp<Promise, R, Self>> function;
 
-    FlatMappedFuture(Future<T> future, Function<? super T, ? extends Monad<Promise, R>> function) {
+    FlatMappedFuture(Future<T> future, Function<? super T, TApp<Promise, R, Self>> function) {
         this.future = future;
         this.function = function;
     }
@@ -36,13 +38,11 @@ class FlatMappedFuture<T, R> implements Future<R> {
 
     @Override
     public R get() throws InterruptedException, ExecutionException {
-        final Promise<R> concretized = this.function.apply(this.future.get()).concretize();
-        return concretized.getFuture().get();
+        return specialize(this.function.apply(this.future.get())).self().getFuture().get();
     }
 
     @Override
     public R get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        final Promise<R> concretized = this.function.apply(this.future.get(timeout, unit)).concretize();
-        return concretized.getFuture().get(timeout, unit);
+        return specialize(this.function.apply(this.future.get(timeout, unit))).self().getFuture().get(timeout, unit);
     }
 }

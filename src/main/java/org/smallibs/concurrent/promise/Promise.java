@@ -1,22 +1,26 @@
 package org.smallibs.concurrent.promise;
 
 import org.smallibs.data.Monad;
+import org.smallibs.data.TApp;
 import org.smallibs.data.Try;
 
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * A promise is a component denoting an asynchronous computation. Such component can be mapped in order to chain
  * transformations.
  */
 
-public interface Promise<T> extends Monad<Promise, T> {
+public interface Promise<T> extends Monad<Promise, T>, TApp<Promise, T, Promise<T>> {
 
-    @Override
-    @SuppressWarnings("unchecked")
-    Promise<T> concretize();
+    static <B> TApp<Promise, B, Promise<B>> specialize(TApp<Promise, B, ?> app) {
+        return (TApp<Promise, B, Promise<B>>) app;
+    }
+
+    static <B, Self extends TApp<Promise, B, Self>> TApp<Promise, B, Self> generalize(TApp<Promise, B, Promise<B>> app) {
+        return (TApp<Promise, B, Self>) app;
+    }
 
     /**
      * Provides the underlying future able to capture and returns the result or the error for a given execution
@@ -53,7 +57,7 @@ public interface Promise<T> extends Monad<Promise, T> {
      * @param function The function to applied on success
      * @return a new promise
      */
-    <R> Promise<R> map(Function<? super T, R> function);
+    // <R> Promise<R> map(Function<? super T, R> function);
 
     /**
      * Method use to flatmap a function. This mapping is done when the operation is a success. The result of this mapping
@@ -62,6 +66,6 @@ public interface Promise<T> extends Monad<Promise, T> {
      * @param function The function to applied on success
      * @return a new promise
      */
-    <R> Promise<R> flatmap(Function<? super T, Monad<Promise, R>> function);
+    // <R> Promise<R> flatmap(Function<? super T, Monad<Promise, R, Promise<R>>> function);
 
 }

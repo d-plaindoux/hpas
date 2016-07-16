@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.smallibs.concurrent.promise.Promise.specialize;
 
 public class MappedPromiseTest {
 
@@ -17,7 +18,7 @@ public class MappedPromiseTest {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = executor.async(() -> 1).map(i -> i + 1);
+        final Promise<Integer> integerPromise = specialize(executor.async(() -> 1).map(i -> i + 1)).self();
 
         integerPromise.onSuccess(i -> aBoolean.set(true));
         integerPromise.getFuture().get();
@@ -30,10 +31,10 @@ public class MappedPromiseTest {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = executor.async(() -> {
+        final Promise<Integer> integerPromise = specialize(executor.async(() -> {
             Thread.sleep(1000);
             return 1;
-        }).map(i -> i + 1);
+        }).map(i -> i + 1)).self();
 
         integerPromise.onSuccess(i -> aBoolean.set(true));
         integerPromise.getFuture().get();
@@ -46,9 +47,9 @@ public class MappedPromiseTest {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
+        final Promise<Integer> integerPromise = specialize(executor.<Integer>async(() -> {
             throw new SecurityException();
-        }).map(i -> i + 1);
+        }).map(i -> i + 1)).self();
 
         integerPromise.onFailure(i -> aBoolean.set(true));
 
@@ -66,10 +67,10 @@ public class MappedPromiseTest {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
+        final Promise<Integer> integerPromise = specialize(executor.<Integer>async(() -> {
             Thread.sleep(1000);
             throw new SecurityException();
-        }).map(i -> i + 1);
+        }).map(i -> i + 1)).self();
 
         integerPromise.onFailure(i -> aBoolean.set(true));
 
@@ -87,9 +88,9 @@ public class MappedPromiseTest {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
+        final Promise<Integer> integerPromise = specialize(executor.<Integer>async(() -> {
             throw new SecurityException();
-        }).map(i -> i + 1);
+        }).map(i -> i + 1)).self();
         ;
 
         integerPromise.onComplete(i -> aBoolean.set(true));
@@ -108,10 +109,10 @@ public class MappedPromiseTest {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
+        final Promise<Integer> integerPromise = specialize(executor.<Integer>async(() -> {
             Thread.sleep(1000);
             throw new SecurityException();
-        }).map(i -> i + 1);
+        }).map(i -> i + 1)).self();
 
         integerPromise.onComplete(i -> aBoolean.set(true));
 
@@ -128,9 +129,9 @@ public class MappedPromiseTest {
     public void shouldApplyPromiseMap() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = executor.async(() -> 1).
-                map(i -> i + 1).
-                map(i -> i + 1);
+        final Promise<Integer> integerPromise = specialize(specialize(executor.async(() -> 1).
+                map(i -> i + 1)).self().
+                map(i -> i + 1)).self();
 
         assertThat(integerPromise.getFuture().get()).isEqualTo(3);
     }
@@ -139,9 +140,9 @@ public class MappedPromiseTest {
     public void shouldNotApplyPromiseMap() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
+        final Promise<Integer> integerPromise = specialize(specialize(executor.<Integer>async(() -> {
             throw new SecurityException();
-        }).map(i -> i + 1).map(i -> i + 1);
+        }).map(i -> i + 1)).self().map(i -> i + 1)).self();
 
         integerPromise.getFuture().get();
     }
@@ -150,9 +151,9 @@ public class MappedPromiseTest {
     public void shouldApplyPromiseFlatMap() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = executor.async(() -> 1).
-                map(i -> i + 1).
-                flatmap(i -> executor.async(() -> i + 1));
+        final Promise<Integer> integerPromise = specialize(executor.async(() -> 1).
+                map(i -> i + 1)).self().
+                flatmap(i -> executor.async(() -> i + 1)).self();
 
         assertThat(integerPromise.getFuture().get()).isEqualTo(3);
     }
@@ -161,9 +162,9 @@ public class MappedPromiseTest {
     public void shouldNotApplyPromiseFlatMap() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
+        final Promise<Integer> integerPromise = specialize(specialize(executor.<Integer>async(() -> {
             throw new SecurityException();
-        }).map(i -> i + 1).flatmap(i -> executor.async(() -> i + 1));
+        }).map(i -> i + 1)).self().flatmap(i -> executor.async(() -> i + 1))).self();
 
         integerPromise.getFuture().get();
     }

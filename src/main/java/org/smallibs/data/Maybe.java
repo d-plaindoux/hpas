@@ -7,9 +7,19 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public abstract class Maybe<T> implements Monad<Maybe, T>, Selectable<Maybe, T> {
+public abstract class Maybe<T> implements Monad<Maybe, T>, Selectable<Maybe, T>, TApp<Maybe, T, Maybe<T>> {
 
     private Maybe() {
+    }
+
+    public static <B> TApp<Maybe, B, Maybe<B>> specialize(TApp<Maybe, B, ?> app) {
+        //noinspection unchecked
+        return (TApp<Maybe, B, Maybe<B>>) app;
+    }
+
+    public static <B, Self extends TApp<Maybe, B, Self>> TApp<Maybe, B, Self> generalize(TApp<Maybe, B, Maybe<B>> app) {
+        //noinspection unchecked
+        return (TApp<Maybe, B, Self>) app;
     }
 
     public static <T> Maybe<T> some(T value) {
@@ -24,8 +34,14 @@ public abstract class Maybe<T> implements Monad<Maybe, T>, Selectable<Maybe, T> 
         return new None<>();
     }
 
+    @Override
+    public <R> R accept(Function<TApp<Maybe, T, ? extends Maybe>, R> f) {
+        return f.apply(this);
+    }
+
     public Try<T> toTry() {
-        return this.map(Try::success).orElse(Try.failure(new NoValueException()));
+        final TApp<Maybe, Try<T>, Maybe<Try<T>>> map = this.map(Try::success);
+        return map.self().orElse(Try.failure(new NoValueException()));
     }
 
     public Maybe<T> filter(Predicate<? super T> predicate) {
@@ -37,27 +53,21 @@ public abstract class Maybe<T> implements Monad<Maybe, T>, Selectable<Maybe, T> 
     }
 
     @Override
-    public <B> Maybe<B> map(Function<? super T, B> mapper) {
+    public <B, Self extends TApp<Maybe, B, Self>> TApp<Maybe, B, Self> map(Function<? super T, B> mapper) {
         if (this.hasSome()) {
-            return Maybe.some(mapper.apply(this.get()));
+            return generalize(Maybe.some(mapper.apply(this.get())));
         } else {
-            return Maybe.none();
+            return generalize(Maybe.<B>none());
         }
     }
 
     @Override
-    public <B> Maybe<B> flatmap(Function<? super T, Monad<Maybe, B>> mapper) {
+    public <B, Self extends TApp<Maybe, B, Self>> TApp<Maybe, B, Self> flatmap(Function<? super T, TApp<Maybe, B, Self>> mapper) {
         if (this.hasSome()) {
-            return mapper.apply(this.get()).concretize();
+            return mapper.apply(this.get());
         } else {
-            return Maybe.none();
+            return (TApp<Maybe, B, Self>) Maybe.none();
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Maybe<T> concretize() {
-        return this;
     }
 
     public Maybe<T> onSome(Consumer<T> onSuccess) {
@@ -87,6 +97,11 @@ public abstract class Maybe<T> implements Monad<Maybe, T>, Selectable<Maybe, T> 
 
     abstract public T get();
 
+    @Override
+    public Maybe<T> self() {
+        return this;
+    }
+
     /**
      * Some implementation
      */
@@ -106,6 +121,7 @@ public abstract class Maybe<T> implements Monad<Maybe, T>, Selectable<Maybe, T> 
         public T get() {
             return value;
         }
+
     }
 
     /**

@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.smallibs.concurrent.promise.Promise.specialize;
 
 public class RunnablePromiseTest {
 
@@ -126,7 +127,7 @@ public class RunnablePromiseTest {
     public void shouldApplyPromiseMap() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = executor.async(() -> 1).map(i -> i + 1);
+        final Promise<Integer> integerPromise = specialize(executor.async(() -> 1).map(i -> i + 1)).self();
 
         assertThat(integerPromise.getFuture().get()).isEqualTo(2);
     }
@@ -135,9 +136,9 @@ public class RunnablePromiseTest {
     public void shouldNotApplyPromiseMap() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
+        final Promise<Integer> integerPromise = specialize(executor.<Integer>async(() -> {
             throw new SecurityException();
-        }).map(i -> i + 1);
+        }).map(i -> i + 1)).self();
 
         integerPromise.getFuture().get();
     }
@@ -146,7 +147,8 @@ public class RunnablePromiseTest {
     public void shouldApplyPromiseFlatMap() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = executor.async(() -> 1).flatmap(i -> executor.async(() -> i + 1));
+        final Promise<Integer> integerPromise = specialize(executor.async(() -> 1).
+                flatmap(i -> executor.async(() -> i + 1))).self();
 
         assertThat(integerPromise.getFuture().get()).isEqualTo(2);
     }
@@ -155,9 +157,9 @@ public class RunnablePromiseTest {
     public void shouldApplyPromiseFlatMapMap() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = executor.async(() -> 1).
-                flatmap(i -> executor.async(() -> i + 1)).
-                map(i -> i + 1);
+        final Promise<Integer> integerPromise = specialize(specialize(executor.async(() -> 1).
+                flatmap(i -> executor.async(() -> i + 1))).self().
+                map(i -> i + 1)).self();
 
         assertThat(integerPromise.getFuture().get()).isEqualTo(3);
     }
@@ -166,9 +168,9 @@ public class RunnablePromiseTest {
     public void shouldNotApplyPromiseFlatMap() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
+        final Promise<Integer> integerPromise = specialize(executor.<Integer>async(() -> {
             throw new SecurityException();
-        }).flatmap(i -> executor.async(() -> i + 1));
+        }).flatmap(i -> executor.async(() -> i + 1))).self();
 
         integerPromise.getFuture().get();
     }

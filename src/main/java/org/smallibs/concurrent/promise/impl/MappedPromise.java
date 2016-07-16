@@ -1,6 +1,7 @@
 package org.smallibs.concurrent.promise.impl;
 
 import org.smallibs.concurrent.promise.Promise;
+import org.smallibs.data.TApp;
 import org.smallibs.data.Try;
 
 import java.util.concurrent.Future;
@@ -35,7 +36,8 @@ final class MappedPromise<T, R> extends AbstractPromise<R> {
     @Override
     public void onComplete(Consumer<Try<R>> consumer) {
         promise.onComplete(value -> {
-            consumer.accept(value.concretize().map(transform).concretize());
+            final TApp<Try, R, ? extends Try<R>> map = value.map(transform);
+            consumer.accept(map.self());
         });
     }
 }

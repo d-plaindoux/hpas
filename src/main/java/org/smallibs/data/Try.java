@@ -7,9 +7,19 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public abstract class Try<T> implements Monad<Try, T>, Selectable<Try, T> {
+public abstract class Try<T> implements Monad<Try, T>, Selectable<Try, T>, TApp<Try, T, Try<T>> {
 
     private Try() {
+    }
+
+    public static <B> TApp<Try, B, Try<B>> specialize(TApp<Try, B, ?> app) {
+        //noinspection unchecked
+        return (TApp<Try, B, Try<B>>) app;
+    }
+
+    public static <B, Self extends TApp<Try, B, Self>> TApp<Try, B, Self> generalize(TApp<Try, B, Try<B>> app) {
+        //noinspection unchecked
+        return (TApp<Try, B, Self>) app;
     }
 
     public static <T> Try<T> success(T value) {
@@ -21,7 +31,8 @@ public abstract class Try<T> implements Monad<Try, T>, Selectable<Try, T> {
     }
 
     public Maybe<T> toMaybe() {
-        return this.map(Maybe::some).recoverWith(Maybe.none());
+        final TApp<Try, Maybe<T>, ? extends Try<Maybe<T>>> map = this.map(Maybe::some);
+        return map.self().recoverWith(Maybe.none());
     }
 
     public Try<T> filter(Predicate<? super T> predicate) {
@@ -33,27 +44,26 @@ public abstract class Try<T> implements Monad<Try, T>, Selectable<Try, T> {
     }
 
     @Override
-    public <B> Try<B> map(Function<? super T, B> mapper) {
+    public <R> R accept(Function<TApp<Try, T, ? extends Try>, R> f) {
+        return f.apply(this);
+    }
+
+    @Override
+    public <B, Self extends TApp<Try, B, Self>> TApp<Try, B, Self> map(Function<? super T, B> mapper) {
         if (this.isSuccess()) {
-            return Try.success(mapper.apply(this.success()));
+            return generalize(Try.success(mapper.apply(this.success())));
         } else {
-            return Try.failure(this.failure());
+            return generalize(Try.failure(this.failure()));
         }
     }
 
     @Override
-    public <B> Try<B> flatmap(Function<? super T, Monad<Try, B>> mapper) {
+    public <B, Self extends TApp<Try, B, Self>> TApp<Try, B, Self> flatmap(Function<? super T, TApp<Try, B, Self>> mapper) {
         if (this.isSuccess()) {
-            return mapper.apply(this.success()).concretize();
+            return mapper.apply(this.success());
         } else {
-            return Try.failure(this.failure());
+            return generalize(Try.failure(this.failure()));
         }
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Try<T> concretize() {
-        return this;
     }
 
     public T recoverWith(T t) {
@@ -115,6 +125,11 @@ public abstract class Try<T> implements Monad<Try, T>, Selectable<Try, T> {
     abstract public T success();
 
     abstract public Throwable failure();
+
+    @Override
+    public Try<T> self() {
+        return this;
+    }
 
     /**
      * Success implementation
