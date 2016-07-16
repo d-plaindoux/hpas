@@ -50,22 +50,4 @@ public interface Promise<T> extends Monad<Promise, T>, TApp<Promise, T, Promise<
      */
     void onComplete(Consumer<Try<T>> consumer);
 
-    /**
-     * Method use to map a function. This mapping is done when the operation is a success. The result of this mapping
-     * is a new promise component.
-     *
-     * @param function The function to applied on success
-     * @return a new promise
-     */
-    // <R> Promise<R> map(Function<? super T, R> function);
-
-    /**
-     * Method use to flatmap a function. This mapping is done when the operation is a success. The result of this mapping
-     * is a new promise component.
-     *
-     * @param function The function to applied on success
-     * @return a new promise
-     */
-    // <R> Promise<R> flatmap(Function<? super T, Monad<Promise, R, Promise<R>>> function);
-
 }
