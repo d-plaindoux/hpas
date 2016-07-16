@@ -1,8 +1,15 @@
-sudo: false
 language: java
+
+sudo: required
+
 jdk:
   - oraclejdk8
+
+install: true
+
 script:
-  - ./gradlew test
+  - sudo apt-get update && sudo apt-get install oracle-java8-installer
+  - java -version
+
 after_success:
   - ./gradlew jacocoTestReport coveralls
