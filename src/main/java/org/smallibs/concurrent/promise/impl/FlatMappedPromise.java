@@ -11,12 +11,12 @@ import java.util.function.Function;
 import static org.smallibs.concurrent.promise.Promise.specialize;
 import static org.smallibs.data.Try.specialize;
 
-final class FlatMappedPromise<T, R, Self extends TApp<Promise, R, Self>> extends AbstractPromise<R> {
+final class FlatMappedPromise<T, R> extends AbstractPromise<R> {
 
     private final Promise<T> promise;
-    private final Function<? super T, TApp<Promise, R, Self>> transform;
+    private final Function<? super T, Promise<R>> transform;
 
-    FlatMappedPromise(Promise<T> promise, Function<? super T, TApp<Promise, R, Self>> transform) {
+    FlatMappedPromise(Promise<T> promise, Function<? super T, Promise<R>> transform) {
         super();
 
         this.promise = promise;
@@ -31,7 +31,7 @@ final class FlatMappedPromise<T, R, Self extends TApp<Promise, R, Self>> extends
     @Override
     public void onSuccess(final Consumer<R> consumer) {
         promise.onSuccess(t -> {
-            specialize(transform.apply(t)).self().onSuccess(consumer);
+            specialize(transform.apply(t).<Promise<R>>self()).self().onSuccess(consumer);
         });
     }
 

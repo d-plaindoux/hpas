@@ -10,7 +10,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.smallibs.concurrent.promise.Promise.specialize;
 
 public class FlatMappedPromiseTest {
 
@@ -19,7 +18,8 @@ public class FlatMappedPromiseTest {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = executor.async(() -> 1).flatmap(i -> executor.async(() -> i + 1)).self();
+        final Promise<Integer> integerPromise = executor.async(() -> 1).
+                flatmap(i -> executor.async(() -> i + 1));
 
         integerPromise.onSuccess(i -> aBoolean.set(true));
         integerPromise.getFuture().get();
@@ -35,7 +35,7 @@ public class FlatMappedPromiseTest {
         final Promise<Integer> integerPromise = executor.async(() -> {
             Thread.sleep(1000);
             return 1;
-        }).flatmap(i -> executor.async(() -> i + 1)).self();
+        }).flatmap(i -> executor.async(() -> i + 1));
 
         integerPromise.onSuccess(i -> aBoolean.set(true));
         integerPromise.getFuture().get();
@@ -50,7 +50,7 @@ public class FlatMappedPromiseTest {
 
         final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
             throw new SecurityException();
-        }).flatmap(i -> executor.async(() -> i + 1)).self();
+        }).flatmap(i -> executor.async(() -> i + 1));
 
         integerPromise.onFailure(i -> aBoolean.set(true));
 
@@ -71,7 +71,7 @@ public class FlatMappedPromiseTest {
         final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
             Thread.sleep(1000);
             throw new SecurityException();
-        }).flatmap(i -> executor.async(() -> i + 1)).self();
+        }).flatmap(i -> executor.async(() -> i + 1));
 
         integerPromise.onFailure(i -> aBoolean.set(true));
 
@@ -91,8 +91,7 @@ public class FlatMappedPromiseTest {
 
         final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
             throw new SecurityException();
-        }).flatmap(i -> executor.async(() -> i + 1)).self();
-        ;
+        }).flatmap(i -> executor.async(() -> i + 1));
 
         integerPromise.onComplete(i -> aBoolean.set(true));
 
@@ -113,7 +112,7 @@ public class FlatMappedPromiseTest {
         final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
             Thread.sleep(1000);
             throw new SecurityException();
-        }).flatmap(i -> executor.async(() -> i + 1)).self();
+        }).flatmap(i -> executor.async(() -> i + 1));
 
         integerPromise.onComplete(i -> aBoolean.set(true));
 
@@ -140,9 +139,9 @@ public class FlatMappedPromiseTest {
     public void shouldNotApplyPromiseMap() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = specialize(specialize(executor.<Integer>async(() -> {
+        final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
             throw new SecurityException();
-        })).self().flatmap(i -> executor.async(() -> i + 1)).self().map(i -> i + 1)).self();
+        }).flatmap(i -> executor.async(() -> i + 1)).map(i -> i + 1);
 
         integerPromise.getFuture().get();
     }
@@ -152,8 +151,8 @@ public class FlatMappedPromiseTest {
         final Executor executor = givenAnExecutor();
 
         final Promise<Integer> integerPromise =
-                specialize(executor.async(() -> 1).map(i -> i + 1)).self().
-                        flatmap(i -> executor.async(() -> i + 1)).self();
+                executor.async(() -> 1).map(i -> i + 1).
+                        flatmap(i -> executor.async(() -> i + 1));
 
         assertThat(integerPromise.getFuture().get()).isEqualTo(3);
     }
@@ -164,7 +163,7 @@ public class FlatMappedPromiseTest {
 
         final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
             throw new SecurityException();
-        }).flatmap(i -> executor.async(() -> i + 1)).self().flatmap(i -> executor.async(() -> i + 1)).self();
+        }).flatmap(i -> executor.async(() -> i + 1)).flatmap(i -> executor.async(() -> i + 1));
 
         integerPromise.getFuture().get();
     }

@@ -1,7 +1,6 @@
 package org.smallibs.concurrent.promise.impl;
 
 import org.smallibs.concurrent.promise.Promise;
-import org.smallibs.data.TApp;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -11,12 +10,12 @@ import java.util.function.Function;
 
 import static org.smallibs.concurrent.promise.Promise.specialize;
 
-class FlatMappedFuture<T, R, Self extends TApp<Promise, R, Self>> implements Future<R> {
+class FlatMappedFuture<T, R> implements Future<R> {
 
     private final Future<T> future;
-    private final Function<? super T, TApp<Promise, R, Self>> function;
+    private final Function<? super T, Promise<R>> function;
 
-    FlatMappedFuture(Future<T> future, Function<? super T, TApp<Promise, R, Self>> function) {
+    FlatMappedFuture(Future<T> future, Function<? super T, Promise<R>> function) {
         this.future = future;
         this.function = function;
     }

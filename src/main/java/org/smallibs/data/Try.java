@@ -7,7 +7,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public abstract class Try<T> implements Monad<Try, T>, Selectable<Try, T>, TApp<Try, T, Try<T>> {
+public abstract class Try<T> implements Filter<Try, T>, TApp<Try, T, Try<T>> {
 
     private Try() {
     }
@@ -30,6 +30,10 @@ public abstract class Try<T> implements Monad<Try, T>, Selectable<Try, T>, TApp<
         return new Failure<>(value);
     }
 
+    public Monad<Try, T, Try<T>> monad() {
+        return new Monadic<>(this);
+    }
+
     public Maybe<T> toMaybe() {
         final TApp<Try, Maybe<T>, ? extends Try<Maybe<T>>> map = this.map(Maybe::some);
         return map.self().recoverWith(Maybe.none());
@@ -44,25 +48,23 @@ public abstract class Try<T> implements Monad<Try, T>, Selectable<Try, T>, TApp<
     }
 
     @Override
-    public <R> R accept(Function<TApp<Try, T, ? extends Try>, R> f) {
+    public <R> R accept(Function<TApp<Try, T, Try<T>>, R> f) {
         return f.apply(this);
     }
 
-    @Override
-    public <B, Self extends TApp<Try, B, Self>> TApp<Try, B, Self> map(Function<? super T, B> mapper) {
+    public <B> Try<B> map(Function<? super T, B> mapper) {
         if (this.isSuccess()) {
-            return generalize(Try.success(mapper.apply(this.success())));
+            return Try.success(mapper.apply(this.success()));
         } else {
-            return generalize(Try.failure(this.failure()));
+            return Try.failure(this.failure());
         }
     }
 
-    @Override
-    public <B, Self extends TApp<Try, B, Self>> TApp<Try, B, Self> flatmap(Function<? super T, TApp<Try, B, Self>> mapper) {
+    public <B> Try<B> flatmap(Function<? super T, Try<B>> mapper) {
         if (this.isSuccess()) {
             return mapper.apply(this.success());
         } else {
-            return generalize(Try.failure(this.failure()));
+            return Try.failure(this.failure());
         }
     }
 
@@ -112,7 +114,7 @@ public abstract class Try<T> implements Monad<Try, T>, Selectable<Try, T>, TApp<
         }
     }
 
-    public <X extends Throwable> T orElseRetrieveAndThrow() throws Throwable {
+    public T orElseRetrieveAndThrow() throws Throwable {
         if (this.isSuccess()) {
             return this.success();
         } else {
@@ -134,7 +136,7 @@ public abstract class Try<T> implements Monad<Try, T>, Selectable<Try, T>, TApp<
     /**
      * Success implementation
      */
-    private static class Success<T> extends Try<T> {
+    private final static class Success<T> extends Try<T> {
         private final T value;
 
         private Success(T value) {
@@ -160,7 +162,7 @@ public abstract class Try<T> implements Monad<Try, T>, Selectable<Try, T>, TApp<
     /**
      * Failure implementation
      */
-    private static class Failure<T> extends Try<T> {
+    private final static class Failure<T> extends Try<T> {
         private final Throwable value;
 
         private Failure(Throwable value) {
@@ -180,6 +182,43 @@ public abstract class Try<T> implements Monad<Try, T>, Selectable<Try, T>, TApp<
         @Override
         public Throwable failure() {
             return value;
+        }
+    }
+
+
+    /**
+     * @param <T>
+     */
+    private final static class Monadic<T> implements Monad<Try, T, Try<T>> {
+        private final Try<T> aTry;
+
+        private Monadic(Try<T> aTry) {
+            this.aTry = aTry;
+        }
+
+        @Override
+        public <B, NSelf extends TApp<Try, B, NSelf>> TApp<Try, B, NSelf> map(Function<? super T, B> function) {
+            return generalize(new Monadic<>(aTry.map(function)));
+        }
+
+        @Override
+        public <B, NSelf extends TApp<Try, B, NSelf>> TApp<Try, B, NSelf> flatmap(Function<? super T, TApp<Try, B, NSelf>> function) {
+            final Function<T, Try<B>> tTryFunction = t -> {
+                final TApp<Try, B, NSelf> apply = function.apply(t);
+                return Try.specialize(apply).self();
+            };
+
+            return generalize(new Monadic<>(aTry.flatmap(tTryFunction)));
+        }
+
+        @Override
+        public <T1> T1 accept(Function<TApp<Try, T, Try<T>>, T1> f) {
+            return aTry.accept(f);
+        }
+
+        @Override
+        public Try<T> self() {
+            return aTry;
         }
     }
 

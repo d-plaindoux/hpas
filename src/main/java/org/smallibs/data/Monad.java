@@ -2,8 +2,10 @@ package org.smallibs.data;
 
 import java.util.function.Function;
 
-public interface Monad<M, A> extends Applicative<M, A> {
+public interface Monad<M, A, Self extends TApp<M, A, Self>> extends Applicative<M, A, Self> {
 
-    <B, Self extends TApp<M, B, Self>> TApp<M, B, Self> flatmap(Function<? super A, TApp<M, B, Self>> function);
+    <B, NSelf extends TApp<M, B, NSelf>> TApp<M, B, NSelf> map(Function<? super A, B> function);
+
+    <B, NSelf extends TApp<M, B, NSelf>> TApp<M, B, NSelf> flatmap(Function<? super A, TApp<M, B, NSelf>> function);
 
 }

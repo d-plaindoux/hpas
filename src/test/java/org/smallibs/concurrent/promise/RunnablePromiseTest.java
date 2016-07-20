@@ -3,13 +3,13 @@ package org.smallibs.concurrent.promise;
 import org.junit.Test;
 import org.smallibs.concurrent.asynchronous.Executor;
 import org.smallibs.concurrent.asynchronous.ExecutorBuilder;
+import org.smallibs.data.Monad;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.smallibs.concurrent.promise.Promise.specialize;
 
 public class RunnablePromiseTest {
 
@@ -127,7 +127,7 @@ public class RunnablePromiseTest {
     public void shouldApplyPromiseMap() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = specialize(executor.async(() -> 1).map(i -> i + 1)).self();
+        final Promise<Integer> integerPromise = executor.async(() -> 1).map(i -> i + 1);
 
         assertThat(integerPromise.getFuture().get()).isEqualTo(2);
     }
@@ -136,9 +136,9 @@ public class RunnablePromiseTest {
     public void shouldNotApplyPromiseMap() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = specialize(executor.<Integer>async(() -> {
+        final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
             throw new SecurityException();
-        }).map(i -> i + 1)).self();
+        }).map(i -> i + 1);
 
         integerPromise.getFuture().get();
     }
@@ -147,8 +147,8 @@ public class RunnablePromiseTest {
     public void shouldApplyPromiseFlatMap() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = specialize(executor.async(() -> 1).
-                flatmap(i -> executor.async(() -> i + 1))).self();
+        final Promise<Integer> integerPromise = executor.async(() -> 1).
+                flatmap(i -> executor.async(() -> i + 1));
 
         assertThat(integerPromise.getFuture().get()).isEqualTo(2);
     }
@@ -157,9 +157,9 @@ public class RunnablePromiseTest {
     public void shouldApplyPromiseFlatMapMap() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = specialize(specialize(executor.async(() -> 1).
-                flatmap(i -> executor.async(() -> i + 1))).self().
-                map(i -> i + 1)).self();
+        final Promise<Integer> integerPromise = executor.async(() -> 1).
+                flatmap(i -> executor.async(() -> i + 1)).
+                map(i -> i + 1);
 
         assertThat(integerPromise.getFuture().get()).isEqualTo(3);
     }
@@ -168,11 +168,20 @@ public class RunnablePromiseTest {
     public void shouldNotApplyPromiseFlatMap() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = specialize(executor.<Integer>async(() -> {
+        final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
             throw new SecurityException();
-        }).flatmap(i -> executor.async(() -> i + 1))).self();
+        }).flatmap(i -> executor.async(() -> i + 1));
 
         integerPromise.getFuture().get();
+    }
+
+    @Test
+    public void shouldMapMonadicPromise() throws Exception {
+        final Executor executor = givenAnExecutor();
+
+        final Monad<Promise, Integer, Promise<Integer>> integerPromise = executor.async(() -> 1).map(i -> i + 1).monad();
+
+        assertThat(Promise.specialize(integerPromise.map(i -> i + 1)).self().getFuture().get()).isEqualTo(3);
     }
 
     private Executor givenAnExecutor() {

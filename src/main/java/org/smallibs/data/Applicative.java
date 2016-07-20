@@ -1,6 +1,6 @@
 package org.smallibs.data;
 
-public interface Applicative<M, A> extends Functor<M, A> {
+public interface Applicative<M, A, Self extends TApp<M, A, Self>> extends Functor<M, A, Self> {
 
     /*
     default <B> Applicative<M, B> apply(Applicative<M, Function<? super A, B>> function) {
