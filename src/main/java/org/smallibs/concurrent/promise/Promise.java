@@ -74,5 +74,4 @@ public interface Promise<T> extends TApp<Promise, T, Promise<T>> {
      * @return a new promise
      */
     <R> Promise<R> flatmap(Function<? super T, Promise<R>> function);
-
 }
