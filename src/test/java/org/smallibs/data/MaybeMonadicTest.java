@@ -9,6 +9,7 @@
 package org.smallibs.data;
 
 import org.junit.Test;
+import org.smallibs.control.Monad;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

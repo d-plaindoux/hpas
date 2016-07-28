@@ -8,7 +8,7 @@
 
 package org.smallibs.concurrent.promise;
 
-import org.smallibs.data.Monad;
+import org.smallibs.control.Monad;
 import org.smallibs.data.TApp;
 import org.smallibs.data.Try;
 

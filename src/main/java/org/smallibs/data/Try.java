@@ -8,6 +8,8 @@
 
 package org.smallibs.data;
 
+import org.smallibs.control.Filter;
+import org.smallibs.control.Monad;
 import org.smallibs.exception.FilterException;
 
 import java.util.function.Consumer;

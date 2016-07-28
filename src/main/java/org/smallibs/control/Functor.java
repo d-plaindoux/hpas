@@ -6,14 +6,14 @@
  * Licensed under the LGPL2 license.
  */
 
-package org.smallibs.data;
+package org.smallibs.control;
+
+import org.smallibs.data.TApp;
 
 import java.util.function.Function;
 
-public interface Monad<M, A, Self extends TApp<M, A, Self>> extends Applicative<M, A, Self> {
+public interface Functor<M, A, Self extends TApp<M, A, Self>> extends TApp<M, A, Self> {
 
     <B, NSelf extends TApp<M, B, NSelf>> TApp<M, B, NSelf> map(Function<? super A, B> function);
-
-    <B, NSelf extends TApp<M, B, NSelf>> TApp<M, B, NSelf> flatmap(Function<? super A, TApp<M, B, NSelf>> function);
 
 }

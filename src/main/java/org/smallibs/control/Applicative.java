@@ -6,7 +6,9 @@
  * Licensed under the LGPL2 license.
  */
 
-package org.smallibs.data;
+package org.smallibs.control;
+
+import org.smallibs.data.TApp;
 
 public interface Applicative<M, A, Self extends TApp<M, A, Self>> extends Functor<M, A, Self> {
 
