@@ -11,7 +11,6 @@ package org.smallibs.concurrent.promise;
 import org.junit.Test;
 import org.smallibs.concurrent.asynchronous.Executor;
 import org.smallibs.concurrent.asynchronous.ExecutorBuilder;
-import org.smallibs.data.Monad;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -181,15 +180,6 @@ public class RunnablePromiseTest {
         }).flatmap(i -> executor.async(() -> i + 1));
 
         integerPromise.getFuture().get();
-    }
-
-    @Test
-    public void shouldMapMonadicPromise() throws Exception {
-        final Executor executor = givenAnExecutor();
-
-        final Monad<Promise, Integer, Promise<Integer>> integerPromise = executor.async(() -> 1).map(i -> i + 1).monad();
-
-        assertThat(Promise.specialize(integerPromise.map(i -> i + 1)).self().getFuture().get()).isEqualTo(3);
     }
 
     private Executor givenAnExecutor() {
