@@ -19,10 +19,6 @@ repositories {
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.12'
 
-    compile 'org.functionaljava:functionaljava:4.6'
-    compile 'org.functionaljava:functionaljava-java8:4.6'
-    compile 'org.functionaljava:functionaljava-java-core:4.6'
-
     testCompile 'junit:junit:4.12'
     testCompile 'org.assertj:assertj-core:2.4.1'
     testCompile 'com.jayway.awaitility:awaitility:1.6.0'

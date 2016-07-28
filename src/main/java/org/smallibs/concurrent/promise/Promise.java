@@ -1,3 +1,11 @@
+/*
+ * HPAS
+ * https://github.com/d-plaindoux/hpas
+ *
+ * Copyright (c) 2016 Didier Plaindoux
+ * Licensed under the LGPL2 license.
+ */
+
 package org.smallibs.concurrent.promise;
 
 import org.smallibs.data.Monad;
@@ -24,7 +32,6 @@ public interface Promise<T> extends TApp<Promise, T, Promise<T>> {
     }
 
     /**
-     *
      * @return
      */
     Monad<Promise, T, Promise<T>> monad();

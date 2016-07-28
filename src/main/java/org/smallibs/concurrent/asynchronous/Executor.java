@@ -1,3 +1,11 @@
+/*
+ * HPAS
+ * https://github.com/d-plaindoux/hpas
+ *
+ * Copyright (c) 2016 Didier Plaindoux
+ * Licensed under the LGPL2 license.
+ */
+
 package org.smallibs.concurrent.asynchronous;
 
 import org.smallibs.concurrent.promise.Promise;
@@ -9,7 +17,7 @@ import java.util.concurrent.TimeoutException;
 public interface Executor {
 
     /**
-      * Async method
+     * Async method
      *
      * @param task the task to be asynchronously executed
      * @return a promise
