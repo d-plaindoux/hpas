@@ -2,7 +2,7 @@ package org.smallibs.concurrent.promise.impl;
 
 import org.smallibs.concurrent.promise.Promise;
 import org.smallibs.control.Monad;
-import org.smallibs.data.TApp;
+import org.smallibs.type.TApp;
 
 import java.util.Objects;
 import java.util.function.Function;

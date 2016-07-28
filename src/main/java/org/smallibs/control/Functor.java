@@ -8,7 +8,7 @@
 
 package org.smallibs.control;
 
-import org.smallibs.data.TApp;
+import org.smallibs.type.TApp;
 
 import java.util.function.Function;
 

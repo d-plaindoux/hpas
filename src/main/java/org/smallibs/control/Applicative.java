@@ -8,7 +8,7 @@
 
 package org.smallibs.control;
 
-import org.smallibs.data.TApp;
+import org.smallibs.type.TApp;
 
 public interface Applicative<M, A, Self extends TApp<M, A, Self>> extends Functor<M, A, Self> {
 

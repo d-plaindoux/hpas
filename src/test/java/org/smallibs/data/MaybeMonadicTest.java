@@ -10,6 +10,7 @@ package org.smallibs.data;
 
 import org.junit.Test;
 import org.smallibs.control.Monad;
+import org.smallibs.type.TApp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -9,7 +9,7 @@
 package org.smallibs.concurrent.promise;
 
 import org.smallibs.control.Monad;
-import org.smallibs.data.TApp;
+import org.smallibs.type.TApp;
 import org.smallibs.data.Try;
 
 import java.util.concurrent.Future;

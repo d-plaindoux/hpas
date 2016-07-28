@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.smallibs.concurrent.asynchronous.Executor;
 import org.smallibs.concurrent.asynchronous.ExecutorBuilder;
 import org.smallibs.control.Monad;
-import org.smallibs.data.TApp;
+import org.smallibs.type.TApp;
 
 import java.util.concurrent.Executors;
 

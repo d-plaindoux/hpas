@@ -6,7 +6,7 @@
  * Licensed under the LGPL2 license.
  */
 
-package org.smallibs.data;
+package org.smallibs.type;
 
 import java.util.function.Function;
 
