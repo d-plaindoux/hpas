@@ -1,10 +1,12 @@
 package org.smallibs.concurrent.promise.impl;
 
 import org.smallibs.concurrent.promise.Promise;
+import org.smallibs.exception.FilterException;
 import org.smallibs.type.TApp;
 
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 abstract class AbstractPromise<T> implements Promise<T> {
 
@@ -28,6 +30,17 @@ abstract class AbstractPromise<T> implements Promise<T> {
         Objects.requireNonNull(function);
 
         return new FlatMappedPromise<>(this, function);
+    }
+
+    @Override
+    public TApp<Promise, T, Promise<T>> filter(Predicate<? super T> predicate) {
+        return this.flatmap(t -> {
+            if (predicate.test(t)) {
+                return SolvedPromise.success(t);
+            } else {
+                return SolvedPromise.failure(new FilterException());
+            }
+        });
     }
 
     @Override

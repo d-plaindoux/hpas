@@ -61,6 +61,7 @@ public class RunnablePromiseTest {
 
         try {
             integerPromise.getFuture().get();
+            assertThat(true).isFalse();
         } catch (ExecutionException e) {
             // consume
         }
@@ -82,6 +83,7 @@ public class RunnablePromiseTest {
 
         try {
             integerPromise.getFuture().get();
+            assertThat(true).isFalse();
         } catch (ExecutionException e) {
             // consume
         }
@@ -102,6 +104,7 @@ public class RunnablePromiseTest {
 
         try {
             integerPromise.getFuture().get();
+            assertThat(true).isFalse();
         } catch (ExecutionException e) {
             // consume
         }
@@ -123,6 +126,7 @@ public class RunnablePromiseTest {
 
         try {
             integerPromise.getFuture().get();
+            assertThat(true).isFalse();
         } catch (ExecutionException e) {
             // consume
         }
