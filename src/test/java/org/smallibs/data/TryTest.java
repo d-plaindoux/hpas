@@ -27,6 +27,12 @@ public class TryTest {
         Try.success(1).failure();
     }
 
+
+    @Test(expected = IllegalAccessError.class)
+    public void shouldHaveFailuerNotSuccess() throws Exception {
+        Try.failure(new SecurityException()).success();
+    }
+
     @Test
     public void shouldHaveSuccessValue() throws Exception {
         assertThat(Try.success(1).success()).isEqualTo(1);
