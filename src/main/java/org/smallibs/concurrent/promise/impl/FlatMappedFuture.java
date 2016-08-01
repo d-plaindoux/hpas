@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
-import static org.smallibs.concurrent.promise.Promise.specialize;
+import static org.smallibs.concurrent.promise.PromiseHelper.specialize;
 
 class FlatMappedFuture<T, R> implements Future<R> {
 

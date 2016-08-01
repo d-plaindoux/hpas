@@ -17,6 +17,7 @@ import org.smallibs.type.TApp;
 import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.smallibs.concurrent.promise.PromiseHelper.monad;
 
 public class PromiseMonadicTest {
 
@@ -24,7 +25,7 @@ public class PromiseMonadicTest {
     public void shouldHaveMonadicPromise() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Monad<Promise, Integer, Promise<Integer>> integerPromise = executor.async(() -> 1).map(i -> i + 1).monad();
+        final Monad<Promise, Integer, Promise<Integer>> integerPromise = monad(executor.async(() -> 1).map(i -> i + 1));
 
         assertThat(integerPromise.self().getFuture().get()).isEqualTo(2);
     }
@@ -33,7 +34,7 @@ public class PromiseMonadicTest {
     public void shouldMapMonadicPromise() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Monad<Promise, Integer, Promise<Integer>> integerPromise = executor.async(() -> 1).map(i -> i + 1).monad();
+        final Monad<Promise, Integer, Promise<Integer>> integerPromise = monad(executor.async(() -> 1).map(i -> i + 1));
         final TApp<Promise, Integer, Promise<Integer>> mappedIntegerPromise = integerPromise.map(i -> i + 1);
 
         assertThat(mappedIntegerPromise.self().getFuture().get()).isEqualTo(3);
@@ -43,7 +44,7 @@ public class PromiseMonadicTest {
     public void shouldFlatmapMonadicPromise() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Monad<Promise, Integer, Promise<Integer>> integerPromise = executor.async(() -> 1).map(i -> i + 1).monad();
+        final Monad<Promise, Integer, Promise<Integer>> integerPromise = monad(executor.async(() -> 1).map(i -> i + 1));
         final TApp<Promise, Integer, Promise<Integer>> mappedIntegerPromise = integerPromise.flatmap(i -> executor.async(() -> i + 1));
 
         assertThat(mappedIntegerPromise.self().getFuture().get()).isEqualTo(3);
@@ -52,6 +53,5 @@ public class PromiseMonadicTest {
     private Executor givenAnExecutor() {
         return ExecutorBuilder.create(Executors.newSingleThreadExecutor());
     }
-
 
 }

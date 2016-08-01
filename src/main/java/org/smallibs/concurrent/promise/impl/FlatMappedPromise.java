@@ -15,8 +15,8 @@ import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static org.smallibs.concurrent.promise.Promise.specialize;
-import static org.smallibs.data.Try.specialize;
+import static org.smallibs.concurrent.promise.PromiseHelper.specialize;
+import static org.smallibs.data.TryHelper.specialize;
 
 final class FlatMappedPromise<T, R> extends AbstractPromise<R> {
 

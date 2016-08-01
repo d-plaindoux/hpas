@@ -13,19 +13,20 @@ import org.smallibs.control.Monad;
 import org.smallibs.type.TApp;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.smallibs.data.TryHelper.monad;
 
 public class TryMonadicTest {
 
     @Test
     public void shouldHaveMonadicTry() throws Exception {
-        final Monad<Try, Integer, Try<Integer>> integerTry = Try.success(1).monad();
+        final Monad<Try, Integer, Try<Integer>> integerTry = monad(Try.success(1));
 
         assertThat(integerTry.self().success()).isEqualTo(1);
     }
 
     @Test
     public void shouldMapMonadicTry() throws Exception {
-        final Monad<Try, Integer, Try<Integer>> integerTry = Try.success(1).monad();
+        final Monad<Try, Integer, Try<Integer>> integerTry = monad(Try.success(1));
         final TApp<Try, Integer, Try<Integer>> mappedIntegerTry = integerTry.map(i -> i + 1);
 
         assertThat(mappedIntegerTry.self().success()).isEqualTo(2);
@@ -33,7 +34,7 @@ public class TryMonadicTest {
 
     @Test
     public void shouldFlatmapMonadicTry() throws Exception {
-        final Monad<Try, Integer, Try<Integer>> integerTry = Try.success(1).monad();
+        final Monad<Try, Integer, Try<Integer>> integerTry = monad(Try.success(1));
         final TApp<Try, Integer, Try<Integer>> flatMappedIntegerTry = integerTry.flatmap(i -> Try.success(i + 1));
 
         assertThat(flatMappedIntegerTry.self().success()).isEqualTo(2);

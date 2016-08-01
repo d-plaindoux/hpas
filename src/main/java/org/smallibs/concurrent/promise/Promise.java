@@ -8,9 +8,8 @@
 
 package org.smallibs.concurrent.promise;
 
-import org.smallibs.control.Monad;
-import org.smallibs.type.TApp;
 import org.smallibs.data.Try;
+import org.smallibs.type.TApp;
 
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
@@ -22,19 +21,6 @@ import java.util.function.Function;
  */
 
 public interface Promise<T> extends TApp<Promise, T, Promise<T>> {
-
-    static <B> Promise<B> specialize(TApp<Promise, B, ?> app) {
-        return ((TApp<Promise, B, Promise<B>>) app).self();
-    }
-
-    static <B, Self extends TApp<Promise, B, Self>> TApp<Promise, B, Self> generalize(TApp<Promise, B, Promise<B>> app) {
-        return (TApp<Promise, B, Self>) app;
-    }
-
-    /**
-     * @return
-     */
-    Monad<Promise, T, Promise<T>> monad();
 
     /**
      * Provides the underlying future able to capture and returns the result or the error for a given execution

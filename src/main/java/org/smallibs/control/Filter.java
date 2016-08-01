@@ -8,11 +8,12 @@
 
 package org.smallibs.control;
 
+import org.smallibs.type.TApp;
+
 import java.util.function.Predicate;
 
-public interface Filter<M, A> {
+public interface Filter<M, A, Self extends TApp<M, A, Self>> extends TApp<M, A, Self> {
 
-    Filter<M, A> filter(Predicate<? super A> predicate);
-
+    TApp<M, A, Self> filter(Predicate<? super A> predicate);
 
 }
