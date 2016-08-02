@@ -15,7 +15,7 @@ import java.util.function.Function;
 
 public class TryHelper {
 
-    public static <B> TApp<Try, B, Try<B>> specialize(TApp<Try, B, ?> app) {
+    public static <B, Self extends TApp<Try, B, Self>> TApp<Try, B, Try<B>> specialize(TApp<Try, B, Self> app) {
         //noinspection unchecked
         return (TApp<Try, B, Try<B>>) app;
     }
@@ -27,6 +27,11 @@ public class TryHelper {
 
     public static <T> Monad<Try, T, Try<T>> monad(Try<T> aTry) {
         return new TryHelper.Monadic<>(aTry);
+    }
+
+    public static <T> Maybe<T> toMaybe(Try<T> aTry) {
+        final TApp<Try, Maybe<T>, ? extends Try<Maybe<T>>> map = aTry.map(Maybe::some);
+        return map.self().recoverWith(Maybe.none());
     }
 
     /**

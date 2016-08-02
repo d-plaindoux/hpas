@@ -9,6 +9,7 @@
 package org.smallibs.concurrent.promise.impl;
 
 import org.smallibs.concurrent.promise.Promise;
+import org.smallibs.concurrent.promise.PromiseHelper;
 import org.smallibs.exception.FilterException;
 import org.smallibs.type.TApp;
 
@@ -44,9 +45,9 @@ abstract class AbstractPromise<T> implements Promise<T> {
     public TApp<Promise, T, Promise<T>> filter(Predicate<? super T> predicate) {
         return this.flatmap(t -> {
             if (predicate.test(t)) {
-                return SolvedPromise.success(t);
+                return PromiseHelper.success(t);
             } else {
-                return SolvedPromise.failure(new FilterException());
+                return PromiseHelper.failure(new FilterException());
             }
         });
     }

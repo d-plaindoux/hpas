@@ -157,22 +157,22 @@ public class TryTest {
 
     @Test
     public void shouldToTrySuccess() throws Exception {
-        assertThat(Try.success(1).toMaybe().hasSome()).isTrue();
+        assertThat(TryHelper.toMaybe(Try.success(1)).hasSome()).isTrue();
     }
 
     @Test
     public void shouldToTrySuccessValue() throws Exception {
-        assertThat(Try.success(1).toMaybe().get()).isEqualTo(1);
+        assertThat(TryHelper.toMaybe(Try.success(1)).get()).isEqualTo(1);
     }
 
     @Test
     public void shouldToTryFailure() throws Exception {
-        assertThat(Try.failure(new Exception()).toMaybe().hasSome()).isFalse();
+        assertThat(TryHelper.toMaybe(Try.failure(new Exception())).hasSome()).isFalse();
     }
 
     @Test(expected = IllegalAccessError.class)
     public void shouldToTryFailureValue() throws Throwable {
-        Try.failure(new Exception()).toMaybe().get();
+        TryHelper.toMaybe(Try.failure(new Exception())).get();
     }
 
     @Test(expected = IOException.class)

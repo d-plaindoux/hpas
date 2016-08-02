@@ -9,6 +9,7 @@
 package org.smallibs.data;
 
 import org.smallibs.control.Monad;
+import org.smallibs.exception.NoValueException;
 import org.smallibs.type.TApp;
 
 import java.util.function.Function;
@@ -18,7 +19,7 @@ public class MaybeHelper {
     private MaybeHelper() {
     }
 
-    public static <B> TApp<Maybe, B, Maybe<B>> specialize(TApp<Maybe, B, ?> app) {
+    public static <B, Self extends TApp<Maybe, B, Self>> TApp<Maybe, B, Maybe<B>> specialize(TApp<Maybe, B, Self> app) {
         //noinspection unchecked
         return (TApp<Maybe, B, Maybe<B>>) app;
     }
@@ -30,6 +31,11 @@ public class MaybeHelper {
 
     public static <T> Monad<Maybe, T, Maybe<T>> monad(Maybe<T> maybe) {
         return new MaybeHelper.Monadic<T>(maybe);
+    }
+
+    public static <T> Try<T> toTry(Maybe<T> maybe) {
+        final TApp<Maybe, Try<T>, Maybe<Try<T>>> map = maybe.map(Try::success);
+        return map.self().orElse(Try.failure(new NoValueException()));
     }
 
     /**

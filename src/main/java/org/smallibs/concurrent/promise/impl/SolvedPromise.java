@@ -22,18 +22,8 @@ public final class SolvedPromise<T> extends AbstractPromise<T> {
 
     private final Try<T> value;
 
-    private SolvedPromise(Try<T> value) {
+    public SolvedPromise(Try<T> value) {
         this.value = value;
-    }
-
-    public static <T> Promise<T> success(T t) {
-        Objects.requireNonNull(t);
-        return new SolvedPromise<T>(Try.success(t));
-    }
-
-    public static <T> Promise<T> failure(Throwable t) {
-        Objects.requireNonNull(t);
-        return new SolvedPromise<T>(Try.failure(t));
     }
 
     @Override

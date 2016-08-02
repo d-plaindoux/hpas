@@ -30,11 +30,6 @@ public abstract class Try<T> implements Filter<Try, T, Try<T>>, TApp<Try, T, Try
         return new Failure<>(value);
     }
 
-    public Maybe<T> toMaybe() {
-        final TApp<Try, Maybe<T>, ? extends Try<Maybe<T>>> map = this.map(Maybe::some);
-        return map.self().recoverWith(Maybe.none());
-    }
-
     public Try<T> filter(Predicate<? super T> predicate) {
         if (this.isSuccess() && predicate.test(this.success())) {
             return this;

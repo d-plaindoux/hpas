@@ -39,11 +39,6 @@ public abstract class Maybe<T> implements Filter<Maybe, T, Maybe<T>>, TApp<Maybe
         return f.apply(this);
     }
 
-    public Try<T> toTry() {
-        final TApp<Maybe, Try<T>, Maybe<Try<T>>> map = this.map(Try::success);
-        return map.self().orElse(Try.failure(new NoValueException()));
-    }
-
     public Maybe<T> filter(Predicate<? super T> predicate) {
         if (this.hasSome() && predicate.test(this.get())) {
             return this;

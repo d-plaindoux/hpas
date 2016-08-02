@@ -8,7 +8,9 @@
 
 package org.smallibs.concurrent.promise;
 
+import org.smallibs.concurrent.promise.impl.SolvedPromise;
 import org.smallibs.control.Monad;
+import org.smallibs.data.Try;
 import org.smallibs.type.TApp;
 
 import java.util.function.Function;
@@ -18,8 +20,8 @@ public class PromiseHelper {
     private PromiseHelper() {
     }
 
-    public static <B> Promise<B> specialize(TApp<Promise, B, ?> app) {
-        return ((TApp<Promise, B, Promise<B>>) app).self();
+    public static <B, Self extends TApp<Promise, B, Self>> TApp<Promise, B, Promise<B>> specialize(TApp<Promise, B, Self> app) {
+        return (TApp<Promise, B, Promise<B>>) app;
     }
 
     public static <B, Self extends TApp<Promise, B, Self>> TApp<Promise, B, Self> generalize(TApp<Promise, B, Promise<B>> app) {
@@ -28,6 +30,14 @@ public class PromiseHelper {
 
     public static <T> Monad<Promise, T, Promise<T>> monad(Promise<T> promise) {
         return new Monadic<>(promise);
+    }
+
+    public static <T> Promise<T> success(T t) {
+        return new SolvedPromise<T>(Try.success(t));
+    }
+
+    public static <T> Promise<T> failure(Throwable t) {
+        return new SolvedPromise<T>(Try.failure(t));
     }
 
     /**

@@ -127,21 +127,21 @@ public class MaybeTest {
 
     @Test
     public void shouldToTrySome() throws Exception {
-        assertThat(Maybe.some(1).toTry().isSuccess()).isTrue();
+        assertThat(MaybeHelper.toTry(Maybe.some(1)).isSuccess()).isTrue();
     }
 
     @Test
     public void shouldToTrySomeValue() throws Exception {
-        assertThat(Maybe.some(1).toTry().success()).isEqualTo(1);
+        assertThat(MaybeHelper.toTry(Maybe.some(1)).success()).isEqualTo(1);
     }
 
     @Test
     public void shouldToTryNone() throws Exception {
-        assertThat(Maybe.none().toTry().isSuccess()).isFalse();
+        assertThat(MaybeHelper.toTry(Maybe.none()).isSuccess()).isFalse();
     }
 
     @Test(expected = NoValueException.class)
     public void shouldToTryNoneValue() throws Throwable {
-        throw Maybe.none().toTry().failure();
+        throw MaybeHelper.toTry(Maybe.none()).failure();
     }
 }
