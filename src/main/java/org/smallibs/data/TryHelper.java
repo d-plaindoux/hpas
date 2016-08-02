@@ -30,8 +30,7 @@ public class TryHelper {
     }
 
     public static <T> Maybe<T> toMaybe(Try<T> aTry) {
-        final TApp<Try, Maybe<T>, ? extends Try<Maybe<T>>> map = aTry.map(Maybe::some);
-        return map.self().recoverWith(Maybe.none());
+        return aTry.map(Maybe::some).recoverWith(Maybe.none());
     }
 
     /**

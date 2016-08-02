@@ -34,8 +34,7 @@ public class MaybeHelper {
     }
 
     public static <T> Try<T> toTry(Maybe<T> maybe) {
-        final TApp<Maybe, Try<T>, Maybe<Try<T>>> map = maybe.map(Try::success);
-        return map.self().orElse(Try.failure(new NoValueException()));
+        return maybe.map(Try::success).orElse(Try.failure(new NoValueException()));
     }
 
     /**
