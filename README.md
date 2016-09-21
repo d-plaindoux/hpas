@@ -11,6 +11,48 @@ The library has been designed simulating High Order Type in Java and self type t
 
 For more information follow [this link](https://gist.github.com/jdegoes/6842d471e7b8849f90d5bb5644ecb3b2).
 
+## A taste of HiPeAS
+
+### Asynchronous computational model
+
+#### Executors
+
+```java
+final Executor executor = ExecutorBuilder.create(Executors.newSingleThreadExecutor());
+```
+
+#### Async
+
+Executor#&lt;T&gt;async :: (() -> T) &rarr; Promise&lt;T&gt;
+
+```java
+final Promise<Integer> integerPromise = executor.async(() -> 1);
+```
+
+#### Map
+
+Promise&lt;T&gt;#&lt;R&gt;map :: (T &rarr; R) &rarr; Promise&lt;R&gt;
+
+```java
+integerPromise.map(i -> i + 1);
+```
+
+#### Flatmap
+
+Promise&lt;T&gt;#&lt;R&gt;flatmap :: (T &rarr; Promise&lt;R&gt;) &rarr; Promise&lt;R&gt;
+
+```java
+integerPromise.flatmap(i -> executor.async(() -> i + 1));
+```
+
+#### Back to the Future
+
+Promise&lt;T&gt;#getFuture :: () &rarr; Future&lt;T&gt;
+
+```java
+integerPromise.getFuture();
+```
+
 ## License
 
 Copyright (C)2016 D. Plaindoux.
