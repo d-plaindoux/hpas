@@ -1,4 +1,4 @@
-# HPAS
+# HiPeAS
 
 [![Build Status](https://travis-ci.org/d-plaindoux/hpas.svg?branch=master)](https://travis-ci.org/d-plaindoux/hpas)
 [![Coverage Status](https://coveralls.io/repos/github/d-plaindoux/hpas/badge.svg?branch=master)](https://coveralls.io/github/d-plaindoux/hpas?branch=master)
@@ -11,9 +11,51 @@ The library has been designed simulating High Order Type in Java and self type t
 
 For more information follow [this link](https://gist.github.com/jdegoes/6842d471e7b8849f90d5bb5644ecb3b2).
 
+## A taste of HiPeAS
+
+### Asynchronous computational model
+
+#### Executors
+
+```java
+final Executor executor = ExecutorBuilder.create(Executors.newSingleThreadExecutor());
+```
+
+#### Async
+
+In Executor#&lt;T&gt; **async :: (() -> T) &rarr; Promise&lt;T&gt;**
+
+```java
+final Promise<Integer> integerPromise = executor.async(() -> 1);
+```
+
+#### Map
+
+In Promise&lt;T&gt; **&lt;R&gt;map :: (T &rarr; R) &rarr; Promise&lt;R&gt;**
+
+```java
+integerPromise.map(i -> i + 1);
+```
+
+#### Flatmap
+
+In Promise&lt;T&gt; **&lt;R&gt;flatmap :: (T &rarr; Promise&lt;R&gt;) &rarr; Promise&lt;R&gt;**
+
+```java
+integerPromise.flatmap(i -> executor.async(() -> i + 1));
+```
+
+#### Back to the Future
+
+In Promise&lt;T&gt; **getFuture :: () &rarr; Future&lt;T&gt;**
+
+```java
+integerPromise.getFuture();
+```
+
 ## License
 
-Copyright (C)2015-2016 D. Plaindoux.
+Copyright (C)2016 D. Plaindoux.
 
 This program is  free software; you can redistribute  it and/or modify
 it  under the  terms  of  the GNU  Lesser  General  Public License  as
