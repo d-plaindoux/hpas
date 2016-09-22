@@ -23,7 +23,7 @@ final Executor executor = ExecutorBuilder.create(Executors.newSingleThreadExecut
 
 #### Async
 
-Executor#&lt;T&gt;async :: (() -> T) &rarr; Promise&lt;T&gt;
+In Executor#&lt;T&gt; **async :: (() -> T) &rarr; Promise&lt;T&gt;**
 
 ```java
 final Promise<Integer> integerPromise = executor.async(() -> 1);
@@ -31,7 +31,7 @@ final Promise<Integer> integerPromise = executor.async(() -> 1);
 
 #### Map
 
-Promise&lt;T&gt;#&lt;R&gt;map :: (T &rarr; R) &rarr; Promise&lt;R&gt;
+In Promise&lt;T&gt; **&lt;R&gt;map :: (T &rarr; R) &rarr; Promise&lt;R&gt;**
 
 ```java
 integerPromise.map(i -> i + 1);
@@ -39,7 +39,7 @@ integerPromise.map(i -> i + 1);
 
 #### Flatmap
 
-Promise&lt;T&gt;#&lt;R&gt;flatmap :: (T &rarr; Promise&lt;R&gt;) &rarr; Promise&lt;R&gt;
+In Promise&lt;T&gt; **&lt;R&gt;flatmap :: (T &rarr; Promise&lt;R&gt;) &rarr; Promise&lt;R&gt;**
 
 ```java
 integerPromise.flatmap(i -> executor.async(() -> i + 1));
@@ -47,7 +47,7 @@ integerPromise.flatmap(i -> executor.async(() -> i + 1));
 
 #### Back to the Future
 
-Promise&lt;T&gt;#getFuture :: () &rarr; Future&lt;T&gt;
+In Promise&lt;T&gt; **getFuture :: () &rarr; Future&lt;T&gt;**
 
 ```java
 integerPromise.getFuture();
