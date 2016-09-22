@@ -11,6 +11,7 @@ package org.smallibs.concurrent.promise;
 import org.smallibs.control.Filter;
 import org.smallibs.data.Try;
 import org.smallibs.type.TApp;
+import org.smallibs.util.FunctionWithError;
 
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
@@ -55,10 +56,10 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, TApp<Promise
      * Method use to map a function. This mapping is done when the operation is a success. The result of this mapping
      * is a new promise component.
      *
-     * @param function The function to applied on success
+     * @param function The function to applied on success which can raise an error
      * @return a new promise
      */
-    <R> Promise<R> map(Function<? super T, R> function);
+    <R> Promise<R> map(FunctionWithError<? super T, R> function);
 
     /**
      * Method use to flatmap a function. This mapping is done when the operation is a success. The result of this mapping
@@ -68,4 +69,5 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, TApp<Promise
      * @return a new promise
      */
     <R> Promise<R> flatmap(Function<? super T, Promise<R>> function);
+
 }

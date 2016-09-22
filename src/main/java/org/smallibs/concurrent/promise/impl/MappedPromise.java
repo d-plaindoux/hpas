@@ -10,6 +10,8 @@ package org.smallibs.concurrent.promise.impl;
 
 import org.smallibs.concurrent.promise.Promise;
 import org.smallibs.data.Try;
+import org.smallibs.util.FunctionWithError;
+import org.smallibs.util.FunctionsWithError;
 
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
@@ -18,11 +20,11 @@ import java.util.function.Function;
 final class MappedPromise<T, R> extends AbstractPromise<R> {
 
     private final Promise<T> promise;
-    private final Function<? super T, R> transform;
+    private final Function<? super T, Try<R>> transform;
 
-    MappedPromise(Promise<T> promise, Function<? super T, R> transform) {
+    MappedPromise(Promise<T> promise, FunctionWithError<? super T, R> transform) {
         this.promise = promise;
-        this.transform = transform;
+        this.transform = FunctionsWithError.toFunction(transform);
     }
 
     @Override
@@ -32,7 +34,7 @@ final class MappedPromise<T, R> extends AbstractPromise<R> {
 
     @Override
     public void onSuccess(final Consumer<R> consumer) {
-        promise.onSuccess(t -> consumer.accept(transform.apply(t)));
+        promise.onSuccess(t -> transform.apply(t).onSuccess(consumer));
     }
 
     @Override
@@ -43,7 +45,7 @@ final class MappedPromise<T, R> extends AbstractPromise<R> {
     @Override
     public void onComplete(Consumer<Try<R>> consumer) {
         promise.onComplete(value -> {
-            consumer.accept(value.map(transform).self());
+            consumer.accept(value.flatmap(transform).self());
         });
     }
 }

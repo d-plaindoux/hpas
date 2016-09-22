@@ -8,6 +8,8 @@
 
 package org.smallibs.concurrent.promise.impl;
 
+import org.smallibs.data.Try;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -17,9 +19,9 @@ import java.util.function.Function;
 class MappedFuture<T, R> implements Future<R> {
 
     private final Future<T> future;
-    private final Function<? super T, R> function;
+    private final Function<? super T, Try<R>> function;
 
-    MappedFuture(Future<T> future, Function<? super T, R> function) {
+    MappedFuture(Future<T> future, Function<? super T, Try<R>> function) {
         this.future = future;
         this.function = function;
     }
@@ -41,11 +43,19 @@ class MappedFuture<T, R> implements Future<R> {
 
     @Override
     public R get() throws InterruptedException, ExecutionException {
-        return this.function.apply(this.future.get());
+        try {
+            return  this.function.apply(this.future.get()).orElseRetrieveAndThrow();
+        } catch (Throwable throwable) {
+            throw new ExecutionException(throwable);
+        }
     }
 
     @Override
     public R get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        return this.function.apply(this.future.get(timeout, unit));
+        try {
+            return this.function.apply(this.future.get(timeout, unit)).orElseRetrieveAndThrow();
+        } catch (Throwable throwable) {
+            throw new ExecutionException(throwable);
+        }
     }
 }

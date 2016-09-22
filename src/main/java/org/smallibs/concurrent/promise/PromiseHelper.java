@@ -12,6 +12,7 @@ import org.smallibs.concurrent.promise.impl.SolvedPromise;
 import org.smallibs.control.Monad;
 import org.smallibs.data.Try;
 import org.smallibs.type.TApp;
+import org.smallibs.util.FunctionsWithError;
 
 import java.util.function.Function;
 
@@ -52,7 +53,7 @@ public class PromiseHelper {
 
         @Override
         public <B, NSelf extends TApp<Promise, B, NSelf>> TApp<Promise, B, NSelf> map(Function<? super T, B> function) {
-            return generalize(new Monadic<>(promise.map(function)));
+            return generalize(new Monadic<>(promise.map(FunctionsWithError.fromFunction(function))));
         }
 
         @Override
