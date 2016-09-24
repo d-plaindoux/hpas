@@ -71,7 +71,7 @@ integerPromise.onFailure(t -> t.printStackTrace(System.err))
 
 ### Conclude on complete
 
-In Promise&lt;T&gt; **onFailure :: (Try&lt;T&gt; &rarr; void) &rarr; Promise&lt;T&gt;**
+In Promise&lt;T&gt; **onComplete :: (Try&lt;T&gt; &rarr; void) &rarr; Promise&lt;T&gt;**
 
 ```java
 integerPromise.onComplete(t -> t.onSuccess(integerPromise::onSuccess).onFailure(integerPromise::onSuccess));
