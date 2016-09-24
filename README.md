@@ -53,6 +53,30 @@ In Promise&lt;T&gt; **getFuture :: () &rarr; Future&lt;T&gt;**
 integerPromise.getFuture();
 ```
 
+### Conclude on success
+
+In Promise&lt;T&gt; **onSuccess :: (T &rarr; void) &rarr; Promise&lt;T&gt;**
+
+```java
+integerPromise.onSuccess(i -> System.println(i))
+```
+
+### Conclude on failure
+
+In Promise&lt;T&gt; **onFailure :: (Throwable &rarr; void) &rarr; Promise&lt;T&gt;**
+
+```java
+integerPromise.onFailure(t -> t.printStackTrace(System.err))
+```
+
+### Conclude on complete
+
+In Promise&lt;T&gt; **onFailure :: (Try&lt;T&gt; &rarr; void) &rarr; Promise&lt;T&gt;**
+
+```java
+integerPromise.onComplete(t -> t.onSuccess(integerPromise::onSuccess).onFailure(integerPromise::onSuccess));
+```
+
 ## License
 
 Copyright (C)2016 D. Plaindoux.
