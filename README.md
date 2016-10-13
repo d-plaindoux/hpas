@@ -5,7 +5,7 @@
 
 HiPeAS has been designed with one basic idea: all data type provided might be also available as monadic structures.
 Functional paradigm deeply drives the design with a taste of OO for encapsulation and chaining methods which mimics infix
-operators like Haskell monad `>>=`.
+operators like Haskell monad function `>>=`.
 
 Since such ADT provides traditional map, flapmap etc. functions a DSL perspective is also given in order to increase the code readability.
 
