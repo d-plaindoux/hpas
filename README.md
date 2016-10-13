@@ -37,6 +37,7 @@ final Promise<Integer> integerPromise = executor.async(() -> 1);
 #### `and` or `map` 
 
 In Promise&lt;T&gt; **&lt;R&gt; map :: (T &rarr; R) &rarr; Promise&lt;R&gt;**
+
 In Promise&lt;T&gt; **&lt;R&gt; and :: (T &rarr; R) &rarr; Promise&lt;R&gt;**
 
 ```java
@@ -47,6 +48,7 @@ integerPromise.and(i -> i + 1);
 #### `then` or `flatmap`
 
 In Promise&lt;T&gt; **&lt;R&gt; flatmap :: (T &rarr; Promise&lt;R&gt;) &rarr; Promise&lt;R&gt;**
+
 In Promise&lt;T&gt; **&lt;R&gt; then :: (T &rarr; Promise&lt;R&gt;) &rarr; Promise&lt;R&gt;**
 
 ```java
