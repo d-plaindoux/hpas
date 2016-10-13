@@ -66,7 +66,7 @@ public class SolvedPromiseTest {
 
     @Test
     public void shouldApplyPromiseMap() throws Exception {
-        final Promise<Integer> integerPromise = PromiseHelper.success(1).map(i -> i + 1);
+        final Promise<Integer> integerPromise = PromiseHelper.success(1).and(i -> i + 1);
 
         assertThat(integerPromise.getFuture().get()).isEqualTo(2);
     }
@@ -74,7 +74,7 @@ public class SolvedPromiseTest {
     @Test(expected = ExecutionException.class)
     public void shouldNotApplyPromiseMap() throws Exception {
         final Promise<Integer> integerPromise = PromiseHelper.<Integer>failure(new SecurityException()).
-                map(i -> i + 1);
+                and(i -> i + 1);
 
         integerPromise.getFuture().get();
     }
@@ -82,7 +82,7 @@ public class SolvedPromiseTest {
     @Test
     public void shouldApplyPromiseFlatMap() throws Exception {
         final Promise<Integer> integerPromise = PromiseHelper.success(1).
-                flatmap(i -> PromiseHelper.success(i + 1));
+                then(i -> PromiseHelper.success(i + 1));
 
         assertThat(integerPromise.getFuture().get()).isEqualTo(2);
     }
@@ -90,8 +90,8 @@ public class SolvedPromiseTest {
     @Test
     public void shouldApplyPromiseFlatMapMap() throws Exception {
         final Promise<Integer> integerPromise = PromiseHelper.success(1).
-                flatmap(i -> PromiseHelper.success(i + 1)).
-                map(i -> i + 1);
+                then(i -> PromiseHelper.success(i + 1)).
+                and(i -> i + 1);
 
         assertThat(integerPromise.getFuture().get()).isEqualTo(3);
     }
@@ -100,7 +100,7 @@ public class SolvedPromiseTest {
     public void shouldNotApplyPromiseFlatMap() throws Exception {
 
         final Promise<Integer> integerPromise = PromiseHelper.<Integer>failure(new SecurityException()).
-                flatmap(i -> PromiseHelper.success(i + 1));
+                then(i -> PromiseHelper.success(i + 1));
 
         integerPromise.getFuture().get();
     }

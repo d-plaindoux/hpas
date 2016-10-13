@@ -25,7 +25,7 @@ public class MappedPromiseTest {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = executor.async(() -> 1).map(i -> i + 1);
+        final Promise<Integer> integerPromise = executor.async(() -> 1).and(i -> i + 1);
 
         integerPromise.onSuccess(i -> aBoolean.set(true));
         integerPromise.getFuture().get();
@@ -41,7 +41,7 @@ public class MappedPromiseTest {
         final Promise<Integer> integerPromise = executor.async(() -> {
             Thread.sleep(1000);
             return 1;
-        }).map(i -> i + 1);
+        }).and(i -> i + 1);
 
         integerPromise.onSuccess(i -> aBoolean.set(true));
         integerPromise.getFuture().get();
@@ -56,7 +56,7 @@ public class MappedPromiseTest {
 
         final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
             throw new SecurityException();
-        }).map(i -> i + 1);
+        }).and(i -> i + 1);
 
         integerPromise.onFailure(i -> aBoolean.set(true));
 
@@ -77,7 +77,7 @@ public class MappedPromiseTest {
         final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
             Thread.sleep(1000);
             throw new SecurityException();
-        }).map(i -> i + 1);
+        }).and(i -> i + 1);
 
         integerPromise.onFailure(i -> aBoolean.set(true));
 
@@ -97,7 +97,7 @@ public class MappedPromiseTest {
 
         final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
             throw new SecurityException();
-        }).map(i -> i + 1);
+        }).and(i -> i + 1);
 
         integerPromise.onComplete(i -> aBoolean.set(true));
 
@@ -118,7 +118,7 @@ public class MappedPromiseTest {
         final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
             Thread.sleep(1000);
             throw new SecurityException();
-        }).map(i -> i + 1);
+        }).and(i -> i + 1);
 
         integerPromise.onComplete(i -> aBoolean.set(true));
 
@@ -136,8 +136,8 @@ public class MappedPromiseTest {
         final Executor executor = givenAnExecutor();
 
         final Promise<Integer> integerPromise = executor.async(() -> 1).
-                map(i -> i + 1).
-                map(i -> i + 1);
+                and(i -> i + 1).
+                and(i -> i + 1);
 
         assertThat(integerPromise.getFuture().get()).isEqualTo(3);
     }
@@ -148,7 +148,7 @@ public class MappedPromiseTest {
 
         final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
             throw new SecurityException();
-        }).map(i -> i + 1).map(i -> i + 1);
+        }).and(i -> i + 1).and(i -> i + 1);
 
         integerPromise.getFuture().get();
     }
@@ -158,8 +158,8 @@ public class MappedPromiseTest {
         final Executor executor = givenAnExecutor();
 
         final Promise<Integer> integerPromise = executor.async(() -> 1).
-                map(i -> i + 1).
-                flatmap(i -> executor.async(() -> i + 1));
+                and(i -> i + 1).
+                then(i -> executor.async(() -> i + 1));
 
         assertThat(integerPromise.getFuture().get()).isEqualTo(3);
     }
@@ -170,7 +170,7 @@ public class MappedPromiseTest {
 
         final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
             throw new SecurityException();
-        }).map(i -> i + 1).flatmap(i -> executor.async(() -> i + 1));
+        }).and(i -> i + 1).then(i -> executor.async(() -> i + 1));
 
         integerPromise.getFuture().get();
     }

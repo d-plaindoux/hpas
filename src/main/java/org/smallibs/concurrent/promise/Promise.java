@@ -62,6 +62,17 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, TApp<Promise
     <R> Promise<R> map(FunctionWithError<? super T, R> function);
 
     /**
+     * Method use when a new computation must be done when the current one succeed. The current one and the chained one
+     * are done sequentially in the same context.
+     *
+     * @param function The function to applied on success
+     * @return a new promise
+     */
+    default <R> Promise<R> and(FunctionWithError<? super T, R> function) {
+        return this.map(function);
+    }
+
+    /**
      * Method use to flatmap a function. This mapping is done when the operation is a success. The result of this mapping
      * is a new promise component.
      *
@@ -70,4 +81,14 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, TApp<Promise
      */
     <R> Promise<R> flatmap(Function<? super T, Promise<R>> function);
 
+    /**
+     * Method use when a new asynchronous computation must be done when the current one succeed. The current one and the
+     * chained one are not done sequentially in the same context.
+     *
+     * @param function The function to applied on success
+     * @return a new promise
+     */
+    default <R> Promise<R> then(Function<? super T, Promise<R>> function) {
+        return this.flatmap(function);
+    }
 }

@@ -18,13 +18,13 @@ of this library.
 
 ### Asynchronous computational model
 
-#### Executors
+### Executors
 
 ```java
 final Executor executor = ExecutorBuilder.create(Executors.newSingleThreadExecutor());
 ```
 
-#### Async
+#### `async`
 
 In Executor **&lt;T&gt; async :: (() -> T) &rarr; Promise&lt;T&gt;**
 
@@ -32,7 +32,9 @@ In Executor **&lt;T&gt; async :: (() -> T) &rarr; Promise&lt;T&gt;**
 final Promise<Integer> integerPromise = executor.async(() -> 1);
 ```
 
-#### `and` or map 
+### Promise
+
+#### `and` or `map` 
 
 In Promise&lt;T&gt; **&lt;R&gt;map :: (T &rarr; R) &rarr; Promise&lt;R&gt;**
 In Promise&lt;T&gt; **&lt;R&gt;and :: (T &rarr; R) &rarr; Promise&lt;R&gt;**
@@ -42,7 +44,7 @@ integerPromise.map(i -> i + 1);
 integerPromise.and(i -> i + 1);
 ```
 
-#### `andThen` or flatmap
+#### `then` or `flatmap`
 
 In Promise&lt;T&gt; **&lt;R&gt;flatmap :: (T &rarr; Promise&lt;R&gt;) &rarr; Promise&lt;R&gt;**
 In Promise&lt;T&gt; **&lt;R&gt;andThen :: (T &rarr; Promise&lt;R&gt;) &rarr; Promise&lt;R&gt;**
