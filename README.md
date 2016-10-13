@@ -24,26 +24,30 @@ final Executor executor = ExecutorBuilder.create(Executors.newSingleThreadExecut
 
 #### Async
 
-In Executor#&lt;T&gt; **async :: (() -> T) &rarr; Promise&lt;T&gt;**
+In Executor **&lt;T&gt; async :: (() -> T) &rarr; Promise&lt;T&gt;**
 
 ```java
 final Promise<Integer> integerPromise = executor.async(() -> 1);
 ```
 
-#### Map
+#### `and` or map 
 
 In Promise&lt;T&gt; **&lt;R&gt;map :: (T &rarr; R) &rarr; Promise&lt;R&gt;**
+In Promise&lt;T&gt; **&lt;R&gt;and :: (T &rarr; R) &rarr; Promise&lt;R&gt;**
 
 ```java
 integerPromise.map(i -> i + 1);
+integerPromise.and(i -> i + 1);
 ```
 
-#### Flatmap
+#### `andThen` or flatmap
 
 In Promise&lt;T&gt; **&lt;R&gt;flatmap :: (T &rarr; Promise&lt;R&gt;) &rarr; Promise&lt;R&gt;**
+In Promise&lt;T&gt; **&lt;R&gt;andThen :: (T &rarr; Promise&lt;R&gt;) &rarr; Promise&lt;R&gt;**
 
 ```java
 integerPromise.flatmap(i -> executor.async(() -> i + 1));
+integerPromise.andThen(i -> executor.async(() -> i + 1));
 ```
 
 #### Back to the Future
