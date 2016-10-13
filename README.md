@@ -51,7 +51,7 @@ In Promise&lt;T&gt; **&lt;R&gt; then :: (T &rarr; Promise&lt;R&gt;) &rarr; Promi
 
 ```java
 integerPromise.flatmap(i -> executor.async(() -> i + 1));
-integerPromise.andThen(i -> executor.async(() -> i + 1));
+integerPromise.then(i -> executor.async(() -> i + 1));
 ```
 
 #### Back to the Future
