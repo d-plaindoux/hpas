@@ -74,7 +74,7 @@ integerPromise.onFailure(t -> t.printStackTrace(System.err))
 In Promise&lt;T&gt; **onComplete :: (Try&lt;T&gt; &rarr; void) &rarr; Promise&lt;T&gt;**
 
 ```java
-integerPromise.onComplete(t -> t.onSuccess(integerPromise::onSuccess).onFailure(integerPromise::onSuccess));
+integerPromise.onComplete(t -> t.onSuccess(integerPromise::onSuccess).onFailure(integerPromise::onFailure));
 ```
 
 ## License
