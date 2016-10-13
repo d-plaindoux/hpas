@@ -15,22 +15,22 @@ import java.util.function.Function;
 
 public class TryHelper {
 
-    public static <B, Self extends TApp<Try, B, Self>> TApp<Try, B, Try<B>> specialize(TApp<Try, B, Self> app) {
-        //noinspection unchecked
-        return (TApp<Try, B, Try<B>>) app;
-    }
-
-    public static <B, Self extends TApp<Try, B, Self>> TApp<Try, B, Self> generalize(TApp<Try, B, Try<B>> app) {
-        //noinspection unchecked
-        return (TApp<Try, B, Self>) app;
-    }
-
     public static <T> Monad<Try, T, Try<T>> monad(Try<T> aTry) {
         return new TryHelper.Monadic<>(aTry);
     }
 
     public static <T> Maybe<T> toMaybe(Try<T> aTry) {
         return aTry.map(Maybe::some).recoverWith(Maybe.none());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <B, Self extends TApp<Try, B, Self>> TApp<Try, B, Try<B>> specialize(TApp<Try, B, Self> app) {
+        return (TApp<Try, B, Try<B>>) app;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <B, Self extends TApp<Try, B, Self>> TApp<Try, B, Self> generalize(TApp<Try, B, Try<B>> app) {
+        return (TApp<Try, B, Self>) app;
     }
 
     /**

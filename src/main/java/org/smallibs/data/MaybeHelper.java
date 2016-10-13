@@ -19,22 +19,22 @@ public class MaybeHelper {
     private MaybeHelper() {
     }
 
-    public static <B, Self extends TApp<Maybe, B, Self>> TApp<Maybe, B, Maybe<B>> specialize(TApp<Maybe, B, Self> app) {
-        //noinspection unchecked
-        return (TApp<Maybe, B, Maybe<B>>) app;
-    }
-
-    public static <B, Self extends TApp<Maybe, B, Self>> TApp<Maybe, B, Self> generalize(TApp<Maybe, B, Maybe<B>> app) {
-        //noinspection unchecked
-        return (TApp<Maybe, B, Self>) app;
-    }
-
     public static <T> Monad<Maybe, T, Maybe<T>> monad(Maybe<T> maybe) {
         return new MaybeHelper.Monadic<T>(maybe);
     }
 
     public static <T> Try<T> toTry(Maybe<T> maybe) {
         return maybe.map(Try::success).orElse(Try.failure(new NoValueException()));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <B, Self extends TApp<Maybe, B, Self>> TApp<Maybe, B, Maybe<B>> specialize(TApp<Maybe, B, Self> app) {
+        return (TApp<Maybe, B, Maybe<B>>) app;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <B, Self extends TApp<Maybe, B, Self>> TApp<Maybe, B, Self> generalize(TApp<Maybe, B, Maybe<B>> app) {
+        return (TApp<Maybe, B, Self>) app;
     }
 
     /**

@@ -11,11 +11,11 @@ public interface FunctionsWithError {
     }
 
     static <T, R> Function<T, Try<R>> toFunction(FunctionWithError<T, R> function) {
-        return a -> {
+        return t -> {
             try {
-                return Try.success(function.apply(a));
-            } catch (Throwable e) {
-                return Try.failure(e);
+                return Try.success(function.apply(t));
+            } catch (Throwable throwable) {
+                return Try.failure(throwable);
             }
         };
     }

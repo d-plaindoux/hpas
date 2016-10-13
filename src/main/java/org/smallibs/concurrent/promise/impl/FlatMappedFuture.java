@@ -16,8 +16,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
-import static org.smallibs.concurrent.promise.PromiseHelper.specialize;
-
 class FlatMappedFuture<T, R> implements Future<R> {
 
     private final Future<T> future;
@@ -45,11 +43,11 @@ class FlatMappedFuture<T, R> implements Future<R> {
 
     @Override
     public R get() throws InterruptedException, ExecutionException {
-        return specialize(this.function.apply(this.future.get())).self().getFuture().get();
+        return this.function.apply(this.future.get()).getFuture().get();
     }
 
     @Override
     public R get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        return specialize(this.function.apply(this.future.get(timeout, unit))).self().getFuture().get(timeout, unit);
+        return this.function.apply(this.future.get(timeout, unit)).getFuture().get(timeout, unit);
     }
 }

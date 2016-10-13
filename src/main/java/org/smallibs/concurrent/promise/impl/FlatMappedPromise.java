@@ -15,9 +15,6 @@ import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static org.smallibs.concurrent.promise.PromiseHelper.specialize;
-import static org.smallibs.data.TryHelper.specialize;
-
 final class FlatMappedPromise<T, R> extends AbstractPromise<R> {
 
     private final Promise<T> promise;
@@ -37,9 +34,7 @@ final class FlatMappedPromise<T, R> extends AbstractPromise<R> {
 
     @Override
     public void onSuccess(final Consumer<R> consumer) {
-        promise.onSuccess(t -> {
-            specialize(transform.apply(t).<Promise<R>>self()).self().onSuccess(consumer);
-        });
+        promise.onSuccess(t -> transform.apply(t).onSuccess(consumer));
     }
 
     @Override
@@ -49,10 +44,9 @@ final class FlatMappedPromise<T, R> extends AbstractPromise<R> {
 
     @Override
     public void onComplete(Consumer<Try<R>> consumer) {
-        promise.onComplete(value -> {
-            specialize(value.map(transform)).self().
-                    onSuccess(o -> specialize(o).self().onComplete(consumer)).
-                    onFailure(t -> consumer.accept(Try.failure(t)));
-        });
+        promise.onComplete(value ->
+                value.map(transform).
+                onSuccess(o -> o.onComplete(consumer)).
+                onFailure(t -> consumer.accept(Try.failure(t))));
     }
 }

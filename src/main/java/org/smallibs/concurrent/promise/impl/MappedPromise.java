@@ -44,8 +44,6 @@ final class MappedPromise<T, R> extends AbstractPromise<R> {
 
     @Override
     public void onComplete(Consumer<Try<R>> consumer) {
-        promise.onComplete(value -> {
-            consumer.accept(value.flatmap(transform).self());
-        });
+        promise.onComplete(value -> consumer.accept(value.flatmap(transform).self()));
     }
 }

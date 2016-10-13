@@ -16,17 +16,10 @@ import org.smallibs.util.FunctionsWithError;
 
 import java.util.function.Function;
 
-public class PromiseHelper {
+public final class PromiseHelper {
 
     private PromiseHelper() {
-    }
-
-    public static <B, Self extends TApp<Promise, B, Self>> TApp<Promise, B, Promise<B>> specialize(TApp<Promise, B, Self> app) {
-        return (TApp<Promise, B, Promise<B>>) app;
-    }
-
-    public static <B, Self extends TApp<Promise, B, Self>> TApp<Promise, B, Self> generalize(TApp<Promise, B, Promise<B>> app) {
-        return (TApp<Promise, B, Self>) app;
+        // Prevent useless construction
     }
 
     public static <T> Monad<Promise, T, Promise<T>> monad(Promise<T> promise) {
@@ -39,6 +32,16 @@ public class PromiseHelper {
 
     public static <T> Promise<T> failure(Throwable t) {
         return new SolvedPromise<T>(Try.failure(t));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <B, Self extends TApp<Promise, B, Self>> TApp<Promise, B, Promise<B>> specialize(TApp<Promise, B, Self> app) {
+        return (TApp<Promise, B, Promise<B>>) app;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <B, Self extends TApp<Promise, B, Self>> TApp<Promise, B, Self> generalize(TApp<Promise, B, Promise<B>> app) {
+        return (TApp<Promise, B, Self>) app;
     }
 
     /**
