@@ -39,4 +39,12 @@ public class MaybeMonadicTest {
 
         assertThat(flatMappedIntegerMaybe.self().get()).isEqualTo(2);
     }
+
+    @Test
+    public void shouldApplypMonadicMaybe() throws Exception {
+        final Monad<Maybe, Integer, Maybe<Integer>> integerMaybe = monad(Maybe.some(1));
+        final TApp<Maybe, Integer, Maybe<Integer>> appliedIntegerMaybe  = integerMaybe.apply(monad(Maybe.some(i -> i + 1)));
+
+        assertThat(appliedIntegerMaybe .self().get()).isEqualTo(2);
+    }
 }

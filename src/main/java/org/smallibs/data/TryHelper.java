@@ -8,6 +8,7 @@
 
 package org.smallibs.data;
 
+import org.smallibs.control.Functor;
 import org.smallibs.control.Monad;
 import org.smallibs.type.TApp;
 
@@ -61,6 +62,14 @@ public class TryHelper {
         @Override
         public <T1> T1 accept(Function<TApp<Try, T, Try<T>>, T1> f) {
             return aTry.accept(f);
+        }
+
+        @Override
+        public <B, NSelf extends TApp<Try, B, NSelf>> TApp<Try, B, NSelf> apply(Functor<Try, Function<? super T, ? extends B>, ?> functor) {
+            return generalize(new Monadic<>(aTry.flatmap(a -> {
+                final TApp<Try, B, NSelf> map = functor.map(bFunction -> bFunction.apply(a));
+                return specialize(map).self();
+            })));
         }
 
         @Override

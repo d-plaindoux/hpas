@@ -50,6 +50,17 @@ public class PromiseMonadicTest {
         assertThat(mappedIntegerPromise.self().getFuture().get()).isEqualTo(3);
     }
 
+    @Test
+    public void shouldApplypMonadicPromise() throws Exception {
+        final Executor executor = givenAnExecutor();
+
+        final Monad<Promise, Integer, Promise<Integer>> integerPromise = monad(executor.async(() -> 1).map(i -> i + 1));
+        final TApp<Promise, Integer, Promise<Integer>> appliedIntegerPromise  = integerPromise.apply(monad(executor.async(() -> i -> i + 1)));
+
+        assertThat(appliedIntegerPromise .self().getFuture().get()).isEqualTo(3);
+    }
+
+
     private Executor givenAnExecutor() {
         return ExecutorBuilder.create(Executors.newSingleThreadExecutor());
     }

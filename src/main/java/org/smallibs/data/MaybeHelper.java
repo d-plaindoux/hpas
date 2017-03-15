@@ -8,6 +8,7 @@
 
 package org.smallibs.data;
 
+import org.smallibs.control.Functor;
 import org.smallibs.control.Monad;
 import org.smallibs.exception.NoValueException;
 import org.smallibs.type.TApp;
@@ -65,6 +66,14 @@ public class MaybeHelper {
         @Override
         public <T1> T1 accept(Function<TApp<Maybe, T, Maybe<T>>, T1> f) {
             return aMaybe.accept(f);
+        }
+
+        @Override
+        public <B, NSelf extends TApp<Maybe, B, NSelf>> TApp<Maybe, B, NSelf> apply(Functor<Maybe, Function<? super T, ? extends  B>, ?> functor) {
+            return generalize(new Monadic<>(aMaybe.flatmap(a -> {
+                final TApp<Maybe, B, NSelf> map = functor.map(bFunction -> bFunction.apply(a));
+                return specialize(map).self();
+            })));
         }
 
         @Override

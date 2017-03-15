@@ -39,4 +39,13 @@ public class TryMonadicTest {
 
         assertThat(flatMappedIntegerTry.self().success()).isEqualTo(2);
     }
+
+    @Test
+    public void shouldApplypMonadicTry() throws Exception {
+        final Monad<Try, Integer, Try<Integer>> integerTry = monad(Try.success(1));
+        final TApp<Try, Integer, Try<Integer>> appliedIntegerTry  = integerTry.apply(monad(Try.success(i -> i + 1)));
+
+        assertThat(appliedIntegerTry .self().success()).isEqualTo(2);
+    }
+
 }

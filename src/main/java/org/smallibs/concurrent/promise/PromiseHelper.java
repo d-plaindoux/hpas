@@ -9,6 +9,7 @@
 package org.smallibs.concurrent.promise;
 
 import org.smallibs.concurrent.promise.impl.SolvedPromise;
+import org.smallibs.control.Functor;
 import org.smallibs.control.Monad;
 import org.smallibs.data.Try;
 import org.smallibs.type.TApp;
@@ -71,6 +72,15 @@ public final class PromiseHelper {
         @Override
         public <T1> T1 accept(Function<TApp<Promise, T, Promise<T>>, T1> f) {
             return promise.accept(f);
+        }
+
+
+        @Override
+        public <B, NSelf extends TApp<Promise, B, NSelf>> TApp<Promise, B, NSelf> apply(Functor<Promise, Function<? super T, ? extends B>, ?> functor) {
+            return generalize(new Monadic<>(promise.flatmap(a -> {
+                final TApp<Promise, B, NSelf> map = functor.map(bFunction -> bFunction.apply(a));
+                return specialize(map).self();
+            })));
         }
 
         @Override

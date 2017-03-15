@@ -10,12 +10,10 @@ package org.smallibs.control;
 
 import org.smallibs.type.TApp;
 
+import java.util.function.Function;
+
 public interface Applicative<M, A, Self extends TApp<M, A, Self>> extends Functor<M, A, Self> {
 
-    /*
-    default <B> Applicative<M, B> apply(Applicative<M, Function<? super A, B>> function) {
-        throw new IllegalAccessError(); // Not yet implemented
-    }
-    */
+    <B, NSelf extends TApp<M, B, NSelf>> TApp<M, B, NSelf> apply(Functor<M, Function<? super A, ? extends B>, ?> functor);
 
 }
