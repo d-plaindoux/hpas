@@ -22,7 +22,7 @@
         <connection>scm:git:git@github.com:d-plaindoux/haps.git</connection>
         <developerConnection>scm:git:git@github.com:d-plaindoux/haps.git</developerConnection>
         <url>git@github.com:d-plaindoux/haps.git</url>
-        <tag>v0.3</tag>
+        <tag>v0.1</tag>
     </scm>
 
     <developers>
