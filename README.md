@@ -5,7 +5,7 @@
 
 HiPeAS has been designed with one basic idea: all data type provided might be also available as monadic structures.
 Functional paradigm deeply drives the design with a taste of OO for encapsulation and chaining methods which mimics infix
-operators like Haskell monad `>>=`.
+operators like Haskell monad function `>>=`.
 
 Since such ADT provides traditional map, flapmap etc. functions a DSL perspective is also given in order to increase the code readability.
 
@@ -36,8 +36,9 @@ final Promise<Integer> integerPromise = executor.async(() -> 1);
 
 #### `and` or `map` 
 
-In Promise&lt;T&gt; **&lt;R&gt;map :: (T &rarr; R) &rarr; Promise&lt;R&gt;**
-In Promise&lt;T&gt; **&lt;R&gt;and :: (T &rarr; R) &rarr; Promise&lt;R&gt;**
+In Promise&lt;T&gt; **&lt;R&gt; map :: (T &rarr; R) &rarr; Promise&lt;R&gt;**
+
+In Promise&lt;T&gt; **&lt;R&gt; and :: (T &rarr; R) &rarr; Promise&lt;R&gt;**
 
 ```java
 integerPromise.map(i -> i + 1);
@@ -46,12 +47,13 @@ integerPromise.and(i -> i + 1);
 
 #### `then` or `flatmap`
 
-In Promise&lt;T&gt; **&lt;R&gt;flatmap :: (T &rarr; Promise&lt;R&gt;) &rarr; Promise&lt;R&gt;**
-In Promise&lt;T&gt; **&lt;R&gt;andThen :: (T &rarr; Promise&lt;R&gt;) &rarr; Promise&lt;R&gt;**
+In Promise&lt;T&gt; **&lt;R&gt; flatmap :: (T &rarr; Promise&lt;R&gt;) &rarr; Promise&lt;R&gt;**
+
+In Promise&lt;T&gt; **&lt;R&gt; then :: (T &rarr; Promise&lt;R&gt;) &rarr; Promise&lt;R&gt;**
 
 ```java
 integerPromise.flatmap(i -> executor.async(() -> i + 1));
-integerPromise.andThen(i -> executor.async(() -> i + 1));
+integerPromise.then(i -> executor.async(() -> i + 1));
 ```
 
 #### Back to the Future
