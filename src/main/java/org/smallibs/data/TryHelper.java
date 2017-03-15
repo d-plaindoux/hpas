@@ -14,7 +14,8 @@ import org.smallibs.type.TApp;
 
 import java.util.function.Function;
 
-public class TryHelper {
+public enum  TryHelper {
+    ;
 
     public static <T> Monad<Try, T, Try<T>> monad(Try<T> aTry) {
         return new TryHelper.Monadic<>(aTry);

@@ -51,7 +51,7 @@ public class PromiseMonadicTest {
     }
 
     @Test
-    public void shouldApplypMonadicPromise() throws Exception {
+    public void shouldApplyMonadicPromise() throws Exception {
         final Executor executor = givenAnExecutor();
 
         final Monad<Promise, Integer, Promise<Integer>> integerPromise = monad(executor.async(() -> 1).map(i -> i + 1));

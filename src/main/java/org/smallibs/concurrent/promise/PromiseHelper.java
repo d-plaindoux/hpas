@@ -17,11 +17,8 @@ import org.smallibs.util.FunctionsWithError;
 
 import java.util.function.Function;
 
-public final class PromiseHelper {
-
-    private PromiseHelper() {
-        // Prevent useless construction
-    }
+public enum PromiseHelper {
+    ;
 
     public static <T> Monad<Promise, T, Promise<T>> monad(Promise<T> promise) {
         return new Monadic<>(promise);

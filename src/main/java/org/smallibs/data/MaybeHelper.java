@@ -15,10 +15,8 @@ import org.smallibs.type.TApp;
 
 import java.util.function.Function;
 
-public class MaybeHelper {
-
-    private MaybeHelper() {
-    }
+public enum  MaybeHelper {
+    ;
 
     public static <T> Monad<Maybe, T, Maybe<T>> monad(Maybe<T> maybe) {
         return new MaybeHelper.Monadic<T>(maybe);
