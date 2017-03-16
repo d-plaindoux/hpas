@@ -87,6 +87,18 @@ In Promise&lt;T&gt; **onComplete :: (Try&lt;T&gt; &rarr; void) &rarr; Promise&lt
 ```java
 integerPromise.onComplete(t -> t.onSuccess(integerPromise::onSuccess).onFailure(integerPromise::onFailure));
 ```
+## Releases
+
+This library is available at Sonatype OSS Repository Hosting service and can be simply used adding the following 
+dependency to your pom project.
+
+```
+<dependency>
+  <groupId>org.smallibs</groupId>
+  <artifactId>hpas</artifactId>
+  <version>0.3</version>
+</dependency>
+```
 
 ## About the library design 
 
