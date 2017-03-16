@@ -8,10 +8,8 @@
 
 package org.smallibs.concurrent.promise.impl;
 
-import org.smallibs.concurrent.promise.Promise;
 import org.smallibs.data.Try;
 
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -46,11 +44,7 @@ public final class SolvedPromise<T> extends AbstractPromise<T> {
 
             @Override
             public T get() throws InterruptedException, ExecutionException {
-                if (value.isSuccess()) {
-                    return value.success();
-                }
-
-                throw new ExecutionException(value.failure());
+                return value.orElseThrow(t -> new ExecutionException(t));
             }
 
             @Override

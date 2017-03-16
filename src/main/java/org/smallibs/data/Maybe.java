@@ -9,7 +9,6 @@
 package org.smallibs.data;
 
 import org.smallibs.control.Filter;
-import org.smallibs.exception.NoValueException;
 import org.smallibs.type.TApp;
 
 import java.util.function.Consumer;
@@ -17,12 +16,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public abstract class Maybe<T> implements Filter<Maybe, T, Maybe<T>>, TApp<Maybe, T, Maybe<T>> {
+public interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, TApp<Maybe, T, Maybe<T>> {
 
-    private Maybe() {
-    }
-
-    public static <T> Maybe<T> some(T value) {
+    static <T> Maybe<T> some(T value) {
         if (value == null) {
             return none();
         }
@@ -30,75 +26,50 @@ public abstract class Maybe<T> implements Filter<Maybe, T, Maybe<T>>, TApp<Maybe
         return new Some<>(value);
     }
 
-    public static <T> Maybe<T> none() {
+    static <T> Maybe<T> none() {
         return new None<>();
     }
 
     @Override
-    public <R> R accept(Function<TApp<Maybe, T, Maybe<T>>, R> f) {
+    default <R> R accept(Function<TApp<Maybe, T, Maybe<T>>, R> f) {
         return f.apply(this);
     }
 
-    public Maybe<T> filter(Predicate<? super T> predicate) {
-        if (this.hasSome() && predicate.test(this.get())) {
-            return this;
-        } else {
-            return Maybe.none();
-        }
-    }
-
-    public <B> Maybe<B> map(Function<? super T, B> mapper) {
-        if (this.hasSome()) {
-            return Maybe.some(mapper.apply(this.get()));
-        } else {
-            return Maybe.<B>none();
-        }
-    }
-
-    public <B> Maybe<B> flatmap(Function<? super T, Maybe<B>> mapper) {
-        if (this.hasSome()) {
-            return mapper.apply(this.get());
-        } else {
-            return Maybe.none();
-        }
-    }
-
-    public Maybe<T> onSome(Consumer<T> onSuccess) {
-        if (this.hasSome()) {
-            onSuccess.accept(this.get());
-        }
-        return this;
-    }
-
-    public T orElse(Supplier<T> t) {
-        if (this.hasSome()) {
-            return this.get();
-        } else {
-            return t.get();
-        }
-    }
-
-    public T orElse(T t) {
-        if (this.hasSome()) {
-            return this.get();
-        } else {
-            return t;
-        }
-    }
-
-    abstract public boolean hasSome();
-
-    abstract public T get();
-
     @Override
-    public Maybe<T> self() {
+    default Maybe<T> self() {
         return this;
     }
+
+    default Maybe<T> filter(Predicate<? super T> predicate) {
+        return this.flatmap(t -> predicate.test(t) ? this : Maybe.none());
+    }
+
+    default <B> Maybe<B> map(Function<? super T, B> mapper) {
+        return this.flatmap(x -> some(mapper.apply(x)));
+    }
+
+    default <B> B fold(Function<? super T, B> some, Supplier<B> none) {
+        return this.map(some).orElse(none);
+    }
+
+    default T orElse(T t) {
+        return this.orElse(() -> t);
+    }
+
+    default boolean hasSome() {
+        return this.fold(__ -> true, () -> false);
+    }
+
+    Maybe<T> onSome(Consumer<T> onSuccess);
+
+    <B> Maybe<B> flatmap(Function<? super T, Maybe<B>> mapper);
+
+    T orElse(Supplier<T> t);
 
     /**
      * Some implementation
      */
-    private final static class Some<T> extends Maybe<T> {
+    final class Some<T> implements Maybe<T> {
         private final T value;
 
         private Some(T value) {
@@ -111,8 +82,17 @@ public abstract class Maybe<T> implements Filter<Maybe, T, Maybe<T>>, TApp<Maybe
         }
 
         @Override
-        public T get() {
-            return value;
+        public <B> Maybe<B> flatmap(Function<? super T, Maybe<B>> mapper) {
+            return mapper.apply(this.value);
+        }
+
+        public Maybe<T> onSome(Consumer<T> onSuccess) {
+            onSuccess.accept(this.value);
+            return this;
+        }
+
+        public T orElse(Supplier<T> t) {
+            return this.value;
         }
 
     }
@@ -120,7 +100,7 @@ public abstract class Maybe<T> implements Filter<Maybe, T, Maybe<T>>, TApp<Maybe
     /**
      * None implementation
      */
-    private final static class None<T> extends Maybe<T> {
+    final class None<T> implements Maybe<T> {
 
         @Override
         public boolean hasSome() {
@@ -128,8 +108,16 @@ public abstract class Maybe<T> implements Filter<Maybe, T, Maybe<T>>, TApp<Maybe
         }
 
         @Override
-        public T get() {
-            throw new IllegalAccessError();
+        public <B> Maybe<B> flatmap(Function<? super T, Maybe<B>> mapper) {
+            return Maybe.none();
+        }
+
+        public Maybe<T> onSome(Consumer<T> onSuccess) {
+            return this;
+        }
+
+        public T orElse(Supplier<T> t) {
+            return t.get();
         }
     }
 

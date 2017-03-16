@@ -21,7 +21,7 @@ public class TryMonadicTest {
     public void shouldHaveMonadicTry() throws Exception {
         final Monad<Try, Integer, Try<Integer>> integerTry = monad(Try.success(1));
 
-        assertThat(integerTry.self().success()).isEqualTo(1);
+        assertThat(integerTry.self().<Integer>fold(x -> x, __ -> 0)).isEqualTo(1);
     }
 
     @Test
@@ -29,7 +29,7 @@ public class TryMonadicTest {
         final Monad<Try, Integer, Try<Integer>> integerTry = monad(Try.success(1));
         final TApp<Try, Integer, Try<Integer>> mappedIntegerTry = integerTry.map(i -> i + 1);
 
-        assertThat(mappedIntegerTry.self().success()).isEqualTo(2);
+        assertThat(mappedIntegerTry.self().<Integer>fold(x -> x, __ -> 0)).isEqualTo(2);
     }
 
     @Test
@@ -37,15 +37,15 @@ public class TryMonadicTest {
         final Monad<Try, Integer, Try<Integer>> integerTry = monad(Try.success(1));
         final TApp<Try, Integer, Try<Integer>> flatMappedIntegerTry = integerTry.flatmap(i -> Try.success(i + 1));
 
-        assertThat(flatMappedIntegerTry.self().success()).isEqualTo(2);
+        assertThat(flatMappedIntegerTry.self().<Integer>fold(x -> x, __ -> 0)).isEqualTo(2);
     }
 
     @Test
     public void shouldApplypMonadicTry() throws Exception {
         final Monad<Try, Integer, Try<Integer>> integerTry = monad(Try.success(1));
-        final TApp<Try, Integer, Try<Integer>> appliedIntegerTry  = integerTry.apply(monad(Try.success(i -> i + 1)));
+        final TApp<Try, Integer, Try<Integer>> appliedIntegerTry = integerTry.apply(monad(Try.success(i -> i + 1)));
 
-        assertThat(appliedIntegerTry .self().success()).isEqualTo(2);
+        assertThat(appliedIntegerTry.self().<Integer>fold(x -> x, __ -> 0)).isEqualTo(2);
     }
 
 }

@@ -9,7 +9,6 @@
 package org.smallibs.data;
 
 import org.junit.Test;
-import org.smallibs.exception.NoValueException;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -24,17 +23,12 @@ public class MaybeTest {
 
     @Test
     public void shouldHaveSomeValue() throws Exception {
-        assertThat(Maybe.some(1).get()).isEqualTo(1);
+        assertThat(Maybe.some(1).fold(x -> x, () -> 0)).isEqualTo(1);
     }
 
     @Test
     public void shouldHaveNone() throws Exception {
         assertThat(Maybe.none().hasSome()).isFalse();
-    }
-
-    @Test(expected = IllegalAccessError.class)
-    public void shouldHaveNoneException() throws Exception {
-        Maybe.none().get();
     }
 
     @Test
@@ -44,7 +38,7 @@ public class MaybeTest {
 
     @Test
     public void shouldFilterSomeRetrieveValue() throws Exception {
-        assertThat(Maybe.some(1).filter(i -> i == 1).get()).isEqualTo(1);
+        assertThat(Maybe.some(1).filter(i -> i == 1).fold(x -> x, () -> 0)).isEqualTo(1);
     }
 
     @Test
@@ -64,7 +58,7 @@ public class MaybeTest {
 
     @Test
     public void shouldMapSomeRetrieveValue() throws Exception {
-        assertThat(Maybe.some(1).map(i -> i + 1).get()).isEqualTo(2);
+        assertThat(Maybe.some(1).map(i -> i + 1).fold(x -> x, () -> 0)).isEqualTo(2);
     }
 
     @Test
@@ -132,7 +126,7 @@ public class MaybeTest {
 
     @Test
     public void shouldToTrySomeValue() throws Exception {
-        assertThat(MaybeHelper.toTry(Maybe.some(1)).success()).isEqualTo(1);
+        assertThat(MaybeHelper.toTry(Maybe.some(1)).fold((Integer x) -> x, __ -> 0)).isEqualTo(1);
     }
 
     @Test
@@ -140,8 +134,4 @@ public class MaybeTest {
         assertThat(MaybeHelper.toTry(Maybe.none()).isSuccess()).isFalse();
     }
 
-    @Test(expected = NoValueException.class)
-    public void shouldToTryNoneValue() throws Throwable {
-        throw MaybeHelper.toTry(Maybe.none()).failure();
-    }
 }

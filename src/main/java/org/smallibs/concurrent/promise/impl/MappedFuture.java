@@ -44,7 +44,7 @@ class MappedFuture<T, R> implements Future<R> {
     @Override
     public R get() throws InterruptedException, ExecutionException {
         try {
-            return  this.function.apply(this.future.get()).orElseRetrieveAndThrow();
+            return  this.function.apply(this.future.get()).orElseThrow();
         } catch (Throwable throwable) {
             throw new ExecutionException(throwable);
         }
@@ -53,7 +53,7 @@ class MappedFuture<T, R> implements Future<R> {
     @Override
     public R get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
         try {
-            return this.function.apply(this.future.get(timeout, unit)).orElseRetrieveAndThrow();
+            return this.function.apply(this.future.get(timeout, unit)).orElseThrow();
         } catch (Throwable throwable) {
             throw new ExecutionException(throwable);
         }

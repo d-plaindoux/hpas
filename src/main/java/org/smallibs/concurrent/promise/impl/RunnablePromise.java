@@ -59,42 +59,34 @@ public final class RunnablePromise<T> extends AbstractPromise<T> implements Runn
     public void onSuccess(Consumer<T> consumer) {
         Objects.requireNonNull(consumer);
 
-        Maybe<T> success = Maybe.none();
+        final AtomicReference<T> success = new AtomicReference<>();
 
         synchronized (this.responseReference) {
-            if (this.isDone() || this.isCancelled()) {
-                if (this.responseReference.get().isSuccess()) {
-                    success = Maybe.some(this.responseReference.get().success());
-                }
+            if (isPerformed()) {
+                this.responseReference.get().onSuccess(success::set);
             } else {
                 this.onSuccess = consumer;
             }
         }
 
-        if (success.hasSome()) {
-            consumer.accept(success.get());
-        }
+        Maybe.some(success.get()).onSome(consumer);
     }
 
     @Override
     public void onFailure(Consumer<Throwable> consumer) {
         Objects.requireNonNull(consumer);
 
-        Maybe<Throwable> failure = Maybe.none();
+        final AtomicReference<Throwable> failure = new AtomicReference<>();
 
         synchronized (this.responseReference) {
-            if (this.isDone() || this.isCancelled()) {
-                if (!this.responseReference.get().isSuccess()) {
-                    failure = Maybe.some(this.responseReference.get().failure());
-                }
+            if (isPerformed()) {
+                this.responseReference.get().onFailure(failure::set);
             } else {
                 this.onError = consumer;
             }
         }
 
-        if (failure.hasSome()) {
-            consumer.accept(failure.get());
-        }
+        Maybe.some(failure.get()).onSome(consumer);
     }
 
     @Override
@@ -108,7 +100,7 @@ public final class RunnablePromise<T> extends AbstractPromise<T> implements Runn
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
         synchronized (this.responseReference) {
-            if (this.isDone() || this.isCancelled()) {
+            if (isPerformed()) {
                 return false;
             }
 
@@ -178,6 +170,10 @@ public final class RunnablePromise<T> extends AbstractPromise<T> implements Runn
     // Private behaviors
     //
 
+    private boolean isPerformed() {
+        return this.isDone() || this.isCancelled();
+    }
+
     private void manageResponse(final Try<T> response) {
         synchronized (this.responseReference) {
             if (this.isCancelled()) {
@@ -196,10 +192,6 @@ public final class RunnablePromise<T> extends AbstractPromise<T> implements Runn
     }
 
     private T getNow() throws ExecutionException {
-        if (responseReference.get().isSuccess()) {
-            return responseReference.get().success();
-        } else {
-            throw new ExecutionException(responseReference.get().failure());
-        }
+        return responseReference.get().orElseThrow(t -> new ExecutionException(t));
     }
 }

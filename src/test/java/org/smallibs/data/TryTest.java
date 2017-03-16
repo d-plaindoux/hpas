@@ -22,30 +22,14 @@ public class TryTest {
         assertThat(Try.success(1).isSuccess()).isTrue();
     }
 
-    @Test(expected = IllegalAccessError.class)
-    public void shouldHaveSuccessNotFailure() throws Exception {
-        Try.success(1).failure();
-    }
-
-
-    @Test(expected = IllegalAccessError.class)
-    public void shouldHaveFailuerNotSuccess() throws Exception {
-        Try.failure(new SecurityException()).success();
-    }
-
     @Test
     public void shouldHaveSuccessValue() throws Exception {
-        assertThat(Try.success(1).success()).isEqualTo(1);
+        assertThat(Try.success(1).<Integer>fold(x -> x, __ -> 0)).isEqualTo(1);
     }
 
     @Test
     public void shouldHaveFailure() throws Exception {
         assertThat(Try.failure(new Exception()).isSuccess()).isFalse();
-    }
-
-    @Test(expected = IllegalAccessError.class)
-    public void shouldHaveFailureNotSuccess() throws Exception {
-        Try.failure(new Exception()).success();
     }
 
 
@@ -56,7 +40,7 @@ public class TryTest {
 
     @Test
     public void shouldFilterSuccessRetrieveValue() throws Exception {
-        assertThat(Try.success(1).filter(i -> i == 1).success()).isEqualTo(1);
+        assertThat(Try.success(1).filter(i -> i == 1).<Integer>fold(x -> x, __ -> 0)).isEqualTo(1);
     }
 
     @Test
@@ -76,17 +60,12 @@ public class TryTest {
 
     @Test
     public void shouldMapSuccessRetrieveValue() throws Exception {
-        assertThat((Try.success(1).map(i -> i + 1)).success()).isEqualTo(2);
+        assertThat((Try.success(1).map(i -> i + 1)).<Integer>fold(x -> x, __ -> 0)).isEqualTo(2);
     }
 
     @Test
     public void shouldMapFailure() throws Exception {
         assertThat(Try.<Integer>failure(new Exception()).map(i -> i + 1).isSuccess()).isFalse();
-    }
-
-    @Test
-    public void shouldFlatMapSuccessToSuccess() throws Exception {
-        assertThat(Try.success(1).flatmap(Try::success).isSuccess()).isTrue();
     }
 
     @Test
@@ -162,17 +141,12 @@ public class TryTest {
 
     @Test
     public void shouldToTrySuccessValue() throws Exception {
-        assertThat(TryHelper.toMaybe(Try.success(1)).get()).isEqualTo(1);
+        assertThat(TryHelper.toMaybe(Try.success(1)).fold(x -> x, () -> 0)).isEqualTo(1);
     }
 
     @Test
     public void shouldToTryFailure() throws Exception {
         assertThat(TryHelper.toMaybe(Try.failure(new Exception())).hasSome()).isFalse();
-    }
-
-    @Test(expected = IllegalAccessError.class)
-    public void shouldToTryFailureValue() throws Throwable {
-        TryHelper.toMaybe(Try.failure(new Exception())).get();
     }
 
     @Test(expected = IOException.class)
@@ -188,23 +162,23 @@ public class TryTest {
 
     @Test(expected = UnknownError.class)
     public void shouldFailureBeRaised() throws Throwable {
-        Try.failure(new UnknownError()).orElseRetrieveAndThrow();
+        Try.failure(new UnknownError()).orElseThrow();
     }
 
     @Test
     public void shouldSuccessNotRaiseAnError() throws Throwable {
-        Try.success(1).orElseRetrieveAndThrow();
+        Try.success(1).orElseThrow();
         assertThat(true).isTrue();
     }
 
     @Test(expected = IOException.class)
     public void shouldFailureDoAnExceptionRaise() throws Throwable {
-        Try.failure(new UnknownError()).orElseRetrieveAndThrow(x -> new IOException());
+        Try.failure(new UnknownError()).orElseThrow(x -> new IOException());
     }
 
     @Test
     public void shouldSuccessNotDoAnExceptionRaise() throws Throwable {
-        Try.success(1).orElseRetrieveAndThrow(x -> new IOException());
+        Try.success(1).orElseThrow(x -> new IOException());
         assertThat(true).isTrue();
     }
 }

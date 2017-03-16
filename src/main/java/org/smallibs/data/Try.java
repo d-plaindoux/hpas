@@ -17,164 +17,131 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public abstract class Try<T> implements Filter<Try, T, Try<T>>, TApp<Try, T, Try<T>> {
+public interface Try<T> extends Filter<Try, T, Try<T>>, TApp<Try, T, Try<T>> {
 
-    private Try() {
-    }
+    static <T> Try<T> success(T value) {
+        if (Throwable.class.isInstance(value)) {
+            return new Failure<>(Throwable.class.cast(value));
+        }
 
-    public static <T> Try<T> success(T value) {
         return new Success<>(value);
     }
 
-    public static <T> Try<T> failure(Throwable value) {
+    static <T> Try<T> failure(Throwable value) {
         return new Failure<>(value);
     }
 
-    public Try<T> filter(Predicate<? super T> predicate) {
-        if (this.isSuccess() && predicate.test(this.success())) {
-            return this;
-        } else {
-            return Try.failure(new FilterException());
-        }
+    default Try<T> filter(Predicate<? super T> predicate) {
+        return this.flatmap(t -> predicate.test(t) ? this : Try.failure(new FilterException()));
     }
 
     @Override
-    public <R> R accept(Function<TApp<Try, T, Try<T>>, R> f) {
+    default <R> R accept(Function<TApp<Try, T, Try<T>>, R> f) {
         return f.apply(this);
     }
 
-    public <B> Try<B> map(Function<? super T, B> mapper) {
-        if (this.isSuccess()) {
-            return Try.success(mapper.apply(this.success()));
-        } else {
-            return Try.failure(this.failure());
-        }
-    }
-
-    public <B> Try<B> flatmap(Function<? super T, Try<B>> mapper) {
-        if (this.isSuccess()) {
-            return mapper.apply(this.success());
-        } else {
-            return Try.failure(this.failure());
-        }
-    }
-
-    public T recoverWith(T t) {
-        if (this.isSuccess()) {
-            return this.success();
-        } else {
-            return t;
-        }
-    }
-
-    public Try<T> onSuccess(Consumer<T> onSuccess) {
-        if (this.isSuccess()) {
-            onSuccess.accept(this.success());
-        }
-        return this;
-    }
-
-    public Try<T> onFailure(Consumer<Throwable> onFailure) {
-        if (!this.isSuccess()) {
-            onFailure.accept(this.failure());
-        }
-        return this;
-    }
-
-    public T recoverWith(Function<Throwable, T> t) {
-        if (this.isSuccess()) {
-            return this.success();
-        } else {
-            return t.apply(this.failure());
-        }
-    }
-
-    public <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
-        if (this.isSuccess()) {
-            return this.success();
-        } else {
-            throw exceptionSupplier.get();
-        }
-    }
-
-    public <X extends Throwable> T orElseRetrieveAndThrow(Function<Throwable, ? extends X> exceptionSupplier) throws X {
-        if (this.isSuccess()) {
-            return this.success();
-        } else {
-            throw exceptionSupplier.apply(this.failure());
-        }
-    }
-
-    public T orElseRetrieveAndThrow() throws Throwable {
-        if (this.isSuccess()) {
-            return this.success();
-        } else {
-            throw this.failure();
-        }
-    }
-
-    abstract public boolean isSuccess();
-
-    abstract public T success();
-
-    abstract public Throwable failure();
-
     @Override
-    public Try<T> self() {
+    default Try<T> self() {
         return this;
     }
+
+    default <B> Try<B> map(Function<? super T, B> mapper) {
+        return this.flatmap(t -> success(mapper.apply(t)));
+    }
+
+    default <B> B fold(Function<? super T, B> success, Function<? super Throwable, B> failure) {
+        return this.map(success).recoverWith(failure);
+    }
+
+    default T recoverWith(T t) {
+        return this.recoverWith(__ -> t);
+    }
+
+    default <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
+        return this.orElseThrow(__ -> exceptionSupplier.get());
+    }
+
+    default T orElseThrow() throws Throwable {
+        return this.orElseThrow(x -> x);
+    }
+
+    default boolean isSuccess() {
+        return this.fold(__ -> true, __ -> false);
+    }
+
+    T recoverWith(Function<? super Throwable, T> t);
+
+    <X extends Throwable> T orElseThrow(Function<? super Throwable, ? extends X> exceptionSupplier) throws X;
+
+    <B> Try<B> flatmap(Function<? super T, Try<B>> mapper);
+
+    Try<T> onSuccess(Consumer<? super T> onSuccess);
+
+    Try<T> onFailure(Consumer<? super Throwable> onFailure);
 
     /**
      * Success implementation
      */
-    private final static class Success<T> extends Try<T> {
+    final class Success<T> implements Try<T> {
         private final T value;
 
         private Success(T value) {
             this.value = value;
         }
 
-        @Override
-        public boolean isSuccess() {
-            return true;
+        public <B> Try<B> flatmap(Function<? super T, Try<B>> mapper) {
+            return mapper.apply(this.value);
         }
 
-        @Override
-        public T success() {
-            return value;
+        public Try<T> onSuccess(Consumer<? super T> onSuccess) {
+            onSuccess.accept(this.value);
+            return this;
         }
 
-        @Override
-        public Throwable failure() {
-            throw new IllegalAccessError();
+        public Try<T> onFailure(Consumer<? super Throwable> onFailure) {
+            return this;
+        }
+
+        public <X extends Throwable> T orElseThrow(Function<? super Throwable, ? extends X> exceptionSupplier) throws X {
+            return this.value;
+        }
+
+        public T recoverWith(Function<? super Throwable, T> t) {
+            return this.value;
         }
     }
 
     /**
      * Failure implementation
      */
-    private final static class Failure<T> extends Try<T> {
+    final class Failure<T> implements Try<T> {
         private final Throwable value;
 
         private Failure(Throwable value) {
             this.value = value;
         }
 
-        @Override
-        public boolean isSuccess() {
-            return false;
+        public <B> Try<B> flatmap(Function<? super T, Try<B>> mapper) {
+            return Try.failure(this.value);
         }
 
-        @Override
-        public T success() {
-            throw new IllegalAccessError();
+        public Try<T> onSuccess(Consumer<? super T> onSuccess) {
+            return this;
         }
 
-        @Override
-        public Throwable failure() {
-            return value;
+        public Try<T> onFailure(Consumer<? super Throwable> onFailure) {
+            onFailure.accept(this.value);
+            return this;
         }
+
+        public <X extends Throwable> T orElseThrow(Function<? super Throwable, ? extends X> exceptionSupplier) throws X {
+            throw exceptionSupplier.apply(this.value);
+        }
+
+        public T recoverWith(Function<? super Throwable, T> t) {
+            return t.apply(this.value);
+        }
+
     }
-
 
 }
