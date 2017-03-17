@@ -110,7 +110,7 @@ TApp<Promise, Integer, Promise<Integer>> p2  = p1.apply(monad(executor.async(() 
 ```
 ### Monad
 
-In Promise::Monadic&lt;T&gt; apply :: T → Promise&lt;R&gt; → Promise&lt;R&gt;
+In Promise::Monadic&lt;T&gt; apply :: (T → Promise&lt;R&gt;) → Promise&lt;R&gt;
 
 ```java
 Monad<Promise, Integer, Promise<Integer>> p1 = monad(executor.async(() -> 1).map(i -> i + 1));
