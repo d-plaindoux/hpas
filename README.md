@@ -87,6 +87,30 @@ In Promise&lt;T&gt; **onComplete :: (Try&lt;T&gt; &rarr; void) &rarr; Promise&lt
 ```java
 integerPromise.onComplete(t -> t.onSuccess(integerPromise::onSuccess).onFailure(integerPromise::onFailure));
 ```
+
+## Functor, Application and Monad
+
+In addition monadic approach is available for each ADT. As usual `Monad` ihnerits `Applicative` which inherits `Functor`.
+
+### Functor
+
+```java
+Functor<Promise, Integer, Promise<Integer>> p1 = monad(executor.async(() -> 1).map(i -> i + 1));
+TApp<Promise, Integer, Promise<Integer>> p2 = p1.map(i -> i + 1);
+```
+### Applicative
+
+```java
+Applicative<Promise, Integer, Promise<Integer>> p1 = monad(executor.async(() -> 1).map(i -> i + 1));
+TApp<Promise, Integer, Promise<Integer>> p2  = p1.apply(monad(executor.async(() -> i -> i + 1)));
+```
+### Monad
+
+```java
+Monad<Promise, Integer, Promise<Integer>> p1 = monad(executor.async(() -> 1).map(i -> i + 1));
+TApp<Promise, Integer, Promise<Integer>> p2 = p1.flatmap(i -> executor.async(() -> i + 1));
+```
+
 ## Releases
 
 This library is available at Sonatype OSS Repository Hosting service and can be simply used adding the following 
