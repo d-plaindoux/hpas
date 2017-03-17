@@ -88,7 +88,7 @@ In Promise&lt;T&gt; **onComplete :: (Try&lt;T&gt; &rarr; void) &rarr; Promise&lt
 integerPromise.onComplete(t -> t.onSuccess(integerPromise::onSuccess).onFailure(integerPromise::onFailure));
 ```
 
-## Functor, Application and Monad
+## Functor, Applicative and Monad
 
 In addition monadic approach is available for each ADT. As usual `Monad` ihnerits `Applicative` which inherits `Functor`.
 
