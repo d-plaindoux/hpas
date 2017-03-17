@@ -97,7 +97,7 @@ In addition monadic approach is available for each ADT. As usual `Monad` ihnerit
 In Promise::Monadic&lt;T&gt; map :: (T → R) → Promise&lt;R&gt;
 
 ```java
-Functor<Promise, Integer, Promise<Integer>> p1 = monad(executor.async(() -> 1).map(i -> i + 1));
+Functor<Promise, Integer, Promise<Integer>> p1 = monad(executor.async(() -> 1));
 TApp<Promise, Integer, Promise<Integer>> p2 = p1.map(i -> i + 1);
 ```
 ### Applicative
@@ -105,7 +105,7 @@ TApp<Promise, Integer, Promise<Integer>> p2 = p1.map(i -> i + 1);
 In Promise::Monadic&lt;T&gt; apply :: Promise&lt;T → R&gt; → Promise&lt;R&gt;
 
 ```java
-Applicative<Promise, Integer, Promise<Integer>> p1 = monad(executor.async(() -> 1).map(i -> i + 1));
+Applicative<Promise, Integer, Promise<Integer>> p1 = monad(executor.async(() -> 1));
 TApp<Promise, Integer, Promise<Integer>> p2  = p1.apply(monad(executor.async(() -> i -> i + 1)));
 ```
 ### Monad
@@ -113,7 +113,7 @@ TApp<Promise, Integer, Promise<Integer>> p2  = p1.apply(monad(executor.async(() 
 In Promise::Monadic&lt;T&gt; flapmap :: (T → Promise&lt;R&gt;) → Promise&lt;R&gt;
 
 ```java
-Monad<Promise, Integer, Promise<Integer>> p1 = monad(executor.async(() -> 1).map(i -> i + 1));
+Monad<Promise, Integer, Promise<Integer>> p1 = monad(executor.async(() -> 1));
 TApp<Promise, Integer, Promise<Integer>> p2 = p1.flatmap(i -> executor.async(() -> i + 1));
 ```
 
