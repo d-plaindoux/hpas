@@ -62,8 +62,8 @@ public interface Try<T> extends Filter<Try, T, Try<T>>, HoType<Try, T, Try<T>> {
         return this.orElseThrow(x -> exceptionSupplier.get());
     }
 
-    default <X extends Exception> T orElseThrow() throws X {
-        return this.<X>orElseThrow(x -> x);
+    default T orElseThrow() throws Throwable {
+        return this.orElseThrow(x -> x);
     }
 
     default boolean isSuccess() {
