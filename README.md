@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/d-plaindoux/hpas.svg?branch=master)](https://travis-ci.org/d-plaindoux/hpas)
 [![Coverage Status](https://coveralls.io/repos/github/d-plaindoux/hpas/badge.svg?branch=master)](https://coveralls.io/github/d-plaindoux/hpas?branch=master)
 
-HiPeAS has been designed with one basic idea: all data type provided might be also available as monadic structures.
+HiPeAS has been designed with one basic idea: all data type provided might be also available as monadic structure.
 Functional paradigm deeply drives the design with a taste of OO for encapsulation and chaining methods which mimics infix
 operators like Haskell monad function `>>=`.
 

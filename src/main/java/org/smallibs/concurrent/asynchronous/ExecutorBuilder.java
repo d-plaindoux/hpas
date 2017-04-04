@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutorService;
  * Asynchronous execution builder
  */
 public enum ExecutorBuilder {
-    $;
+    ;
 
     /**
      * Factory

@@ -22,7 +22,7 @@ public class ExecutorTest {
 
     @Test
     public void shouldRetrieveAnIntegerValue() throws Exception {
-        final Executor executor = givenAnAsynchronous();
+        final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> 1);
 
         assertThat(executor.await(integerPromise)).isEqualTo(1);
@@ -30,7 +30,7 @@ public class ExecutorTest {
 
     @Test
     public void shouldRetrieveAnIntegerValueNotATimeOut() throws Exception {
-        final Executor executor = givenAnAsynchronous();
+        final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> 1);
 
         assertThat(executor.await(integerPromise, 1, TimeUnit.SECONDS)).isEqualTo(1);
@@ -38,7 +38,7 @@ public class ExecutorTest {
 
     @Test(expected = RuntimeException.class)
     public void shouldHaveARuntimeException() throws Exception {
-        final Executor executor = givenAnAsynchronous();
+        final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> {
             throw new InterruptedException();
         });
@@ -48,7 +48,7 @@ public class ExecutorTest {
 
     @Test(expected = RuntimeException.class)
     public void shouldHaveARuntimeExceptionNotATimeout() throws Exception {
-        final Executor executor = givenAnAsynchronous();
+        final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> {
             throw new InterruptedException();
         });
@@ -58,7 +58,7 @@ public class ExecutorTest {
 
     @Test(expected = TimeoutException.class)
     public void shouldHaveATimeoutException() throws Exception {
-        final Executor executor = givenAnAsynchronous();
+        final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> {
             Thread.sleep(2000);
             return 1;
@@ -69,7 +69,7 @@ public class ExecutorTest {
 
     @Test(expected = CancellationException.class)
     public void shouldHaveARuntimeCancellationException() throws Throwable {
-        final Executor executor = givenAnAsynchronous();
+        final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> {
             Thread.sleep(10000);
             return 1;
@@ -88,7 +88,7 @@ public class ExecutorTest {
     // Private behaviors
     //
 
-    private Executor givenAnAsynchronous() {
+    private Executor givenAnExecutor() {
         return ExecutorBuilder.create(Executors.newSingleThreadScheduledExecutor());
     }
 

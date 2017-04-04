@@ -12,7 +12,7 @@ import org.smallibs.concurrent.promise.impl.SolvedPromise;
 import org.smallibs.control.Functor;
 import org.smallibs.control.Monad;
 import org.smallibs.data.Try;
-import org.smallibs.type.TApp;
+import org.smallibs.type.HoType;
 import org.smallibs.util.FunctionsWithError;
 
 import java.util.function.Function;
@@ -33,13 +33,13 @@ public enum PromiseHelper {
     }
 
     @SuppressWarnings("unchecked")
-    private static <B, Self extends TApp<Promise, B, Self>> TApp<Promise, B, Promise<B>> specialize(TApp<Promise, B, Self> app) {
-        return (TApp<Promise, B, Promise<B>>) app;
+    private static <B, Self extends HoType<Promise, B, Self>> HoType<Promise, B, Promise<B>> specialize(HoType<Promise, B, Self> app) {
+        return (HoType<Promise, B, Promise<B>>) app;
     }
 
     @SuppressWarnings("unchecked")
-    private static <B, Self extends TApp<Promise, B, Self>> TApp<Promise, B, Self> generalize(TApp<Promise, B, Promise<B>> app) {
-        return (TApp<Promise, B, Self>) app;
+    private static <B, Self extends HoType<Promise, B, Self>> HoType<Promise, B, Self> generalize(HoType<Promise, B, Promise<B>> app) {
+        return (HoType<Promise, B, Self>) app;
     }
 
     /**
@@ -53,29 +53,29 @@ public enum PromiseHelper {
         }
 
         @Override
-        public <B, NSelf extends TApp<Promise, B, NSelf>> TApp<Promise, B, NSelf> map(Function<? super T, B> function) {
+        public <B, NSelf extends HoType<Promise, B, NSelf>> HoType<Promise, B, NSelf> map(Function<? super T, B> function) {
             return generalize(new Monadic<>(promise.map(FunctionsWithError.fromFunction(function))));
         }
 
         @Override
-        public <B, NSelf extends TApp<Promise, B, NSelf>> TApp<Promise, B, NSelf> flatmap(Function<? super T, TApp<Promise, B, NSelf>> function) {
+        public <B, NSelf extends HoType<Promise, B, NSelf>> HoType<Promise, B, NSelf> flatmap(Function<? super T, HoType<Promise, B, NSelf>> function) {
             final Function<T, Promise<B>> tPromiseFunction = t -> {
-                final TApp<Promise, B, NSelf> apply = function.apply(t);
+                final HoType<Promise, B, NSelf> apply = function.apply(t);
                 return PromiseHelper.specialize(apply).self();
             };
             return generalize(new Monadic<>(promise.flatmap(tPromiseFunction)));
         }
 
         @Override
-        public <T1> T1 accept(Function<TApp<Promise, T, Promise<T>>, T1> f) {
+        public <T1> T1 accept(Function<HoType<Promise, T, Promise<T>>, T1> f) {
             return promise.accept(f);
         }
 
 
         @Override
-        public <B, NSelf extends TApp<Promise, B, NSelf>> TApp<Promise, B, NSelf> apply(Functor<Promise, Function<? super T, ? extends B>, ?> functor) {
+        public <B, NSelf extends HoType<Promise, B, NSelf>> HoType<Promise, B, NSelf> apply(Functor<Promise, Function<? super T, ? extends B>, ?> functor) {
             return generalize(new Monadic<>(promise.flatmap(a -> {
-                final TApp<Promise, B, NSelf> map = functor.map(bFunction -> bFunction.apply(a));
+                final HoType<Promise, B, NSelf> map = functor.map(bFunction -> bFunction.apply(a));
                 return specialize(map).self();
             })));
         }

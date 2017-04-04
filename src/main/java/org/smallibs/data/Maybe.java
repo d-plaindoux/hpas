@@ -9,14 +9,14 @@
 package org.smallibs.data;
 
 import org.smallibs.control.Filter;
-import org.smallibs.type.TApp;
+import org.smallibs.type.HoType;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, TApp<Maybe, T, Maybe<T>> {
+public interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, HoType<Maybe, T, Maybe<T>> {
 
     static <T> Maybe<T> some(T value) {
         if (value == null) {
@@ -31,7 +31,7 @@ public interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, TApp<Maybe, T, May
     }
 
     @Override
-    default <R> R accept(Function<TApp<Maybe, T, Maybe<T>>, R> f) {
+    default <R> R accept(Function<HoType<Maybe, T, Maybe<T>>, R> f) {
         return f.apply(this);
     }
 

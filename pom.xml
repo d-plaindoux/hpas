@@ -4,7 +4,7 @@
 
     <groupId>org.smallibs</groupId>
     <artifactId>hpas</artifactId>
-    <version>0.3</version>
+    <version>0.4</version>
     <packaging>jar</packaging>
 
     <name>org.smallibs:hpas</name>
@@ -22,7 +22,7 @@
         <connection>scm:git:git@github.com:d-plaindoux/haps.git</connection>
         <developerConnection>scm:git:git@github.com:d-plaindoux/haps.git</developerConnection>
         <url>git@github.com:d-plaindoux/haps.git</url>
-        <tag>v0.3</tag>
+        <tag>v0.4</tag>
     </scm>
 
     <developers>
@@ -41,6 +41,10 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+        <sonar.jacoco.reportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPath>
+        <sonar.language>java</sonar.language>
     </properties>
 
     <dependencies>
@@ -69,6 +73,16 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>3.2</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

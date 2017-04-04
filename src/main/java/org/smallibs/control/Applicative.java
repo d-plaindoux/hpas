@@ -8,12 +8,12 @@
 
 package org.smallibs.control;
 
-import org.smallibs.type.TApp;
+import org.smallibs.type.HoType;
 
 import java.util.function.Function;
 
-public interface Applicative<M, A, Self extends TApp<M, A, Self>> extends Functor<M, A, Self> {
+public interface Applicative<M, A, Self extends HoType<M, A, Self>> extends Functor<M, A, Self> {
 
-    <B, NSelf extends TApp<M, B, NSelf>> TApp<M, B, NSelf> apply(Functor<M, Function<? super A, ? extends B>, ?> functor);
+    <B, NSelf extends HoType<M, B, NSelf>> HoType<M, B, NSelf> apply(Functor<M, Function<? super A, ? extends B>, ?> functor);
 
 }

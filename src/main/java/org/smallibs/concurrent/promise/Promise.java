@@ -10,7 +10,7 @@ package org.smallibs.concurrent.promise;
 
 import org.smallibs.control.Filter;
 import org.smallibs.data.Try;
-import org.smallibs.type.TApp;
+import org.smallibs.type.HoType;
 import org.smallibs.util.FunctionWithError;
 
 import java.util.concurrent.Future;
@@ -22,7 +22,7 @@ import java.util.function.Function;
  * transformations.
  */
 
-public interface Promise<T> extends Filter<Promise, T, Promise<T>>, TApp<Promise, T, Promise<T>> {
+public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HoType<Promise, T, Promise<T>> {
 
     /**
      * Provides the underlying future able to capture and returns the result or the error for a given execution

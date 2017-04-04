@@ -10,9 +10,9 @@ package org.smallibs.type;
 
 import java.util.function.Function;
 
-public interface TApp<M, A, Self extends TApp<M, A, Self>> {
+public interface HoType<M, A, Self extends HoType<M, A, Self>> {
 
-    <T> T accept(Function<TApp<M, A, Self>, T> f);
+    <T> T accept(Function<HoType<M, A, Self>, T> f);
 
     Self self();
 

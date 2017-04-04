@@ -11,7 +11,7 @@ package org.smallibs.data;
 import org.smallibs.control.Functor;
 import org.smallibs.control.Monad;
 import org.smallibs.exception.NoValueException;
-import org.smallibs.type.TApp;
+import org.smallibs.type.HoType;
 
 import java.util.function.Function;
 
@@ -27,13 +27,13 @@ public enum  MaybeHelper {
     }
 
     @SuppressWarnings("unchecked")
-    private static <B, Self extends TApp<Maybe, B, Self>> TApp<Maybe, B, Maybe<B>> specialize(TApp<Maybe, B, Self> app) {
-        return (TApp<Maybe, B, Maybe<B>>) app;
+    private static <B, Self extends HoType<Maybe, B, Self>> HoType<Maybe, B, Maybe<B>> specialize(HoType<Maybe, B, Self> app) {
+        return (HoType<Maybe, B, Maybe<B>>) app;
     }
 
     @SuppressWarnings("unchecked")
-    private static <B, Self extends TApp<Maybe, B, Self>> TApp<Maybe, B, Self> generalize(TApp<Maybe, B, Maybe<B>> app) {
-        return (TApp<Maybe, B, Self>) app;
+    private static <B, Self extends HoType<Maybe, B, Self>> HoType<Maybe, B, Self> generalize(HoType<Maybe, B, Maybe<B>> app) {
+        return (HoType<Maybe, B, Self>) app;
     }
 
     /**
@@ -47,14 +47,14 @@ public enum  MaybeHelper {
         }
 
         @Override
-        public <B, NSelf extends TApp<Maybe, B, NSelf>> TApp<Maybe, B, NSelf> map(Function<? super T, B> function) {
+        public <B, NSelf extends HoType<Maybe, B, NSelf>> HoType<Maybe, B, NSelf> map(Function<? super T, B> function) {
             return generalize(new Monadic<>(aMaybe.map(function)));
         }
 
         @Override
-        public <B, NSelf extends TApp<Maybe, B, NSelf>> TApp<Maybe, B, NSelf> flatmap(Function<? super T, TApp<Maybe, B, NSelf>> function) {
+        public <B, NSelf extends HoType<Maybe, B, NSelf>> HoType<Maybe, B, NSelf> flatmap(Function<? super T, HoType<Maybe, B, NSelf>> function) {
             final Function<T, Maybe<B>> tMaybeFunction = t -> {
-                final TApp<Maybe, B, NSelf> apply = function.apply(t);
+                final HoType<Maybe, B, NSelf> apply = function.apply(t);
                 return specialize(apply).self();
             };
 
@@ -62,14 +62,14 @@ public enum  MaybeHelper {
         }
 
         @Override
-        public <T1> T1 accept(Function<TApp<Maybe, T, Maybe<T>>, T1> f) {
+        public <T1> T1 accept(Function<HoType<Maybe, T, Maybe<T>>, T1> f) {
             return aMaybe.accept(f);
         }
 
         @Override
-        public <B, NSelf extends TApp<Maybe, B, NSelf>> TApp<Maybe, B, NSelf> apply(Functor<Maybe, Function<? super T, ? extends  B>, ?> functor) {
+        public <B, NSelf extends HoType<Maybe, B, NSelf>> HoType<Maybe, B, NSelf> apply(Functor<Maybe, Function<? super T, ? extends  B>, ?> functor) {
             return generalize(new Monadic<>(aMaybe.flatmap(a -> {
-                final TApp<Maybe, B, NSelf> map = functor.map(bFunction -> bFunction.apply(a));
+                final HoType<Maybe, B, NSelf> map = functor.map(bFunction -> bFunction.apply(a));
                 return specialize(map).self();
             })));
         }

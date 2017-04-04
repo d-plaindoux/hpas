@@ -10,14 +10,14 @@ package org.smallibs.data;
 
 import org.smallibs.control.Filter;
 import org.smallibs.exception.FilterException;
-import org.smallibs.type.TApp;
+import org.smallibs.type.HoType;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface Try<T> extends Filter<Try, T, Try<T>>, TApp<Try, T, Try<T>> {
+public interface Try<T> extends Filter<Try, T, Try<T>>, HoType<Try, T, Try<T>> {
 
     static <T> Try<T> success(T value) {
         if (Throwable.class.isInstance(value)) {
@@ -31,12 +31,13 @@ public interface Try<T> extends Filter<Try, T, Try<T>>, TApp<Try, T, Try<T>> {
         return new Failure<>(value);
     }
 
+    @Override
     default Try<T> filter(Predicate<? super T> predicate) {
         return this.flatmap(t -> predicate.test(t) ? this : Try.failure(new FilterException()));
     }
 
     @Override
-    default <R> R accept(Function<TApp<Try, T, Try<T>>, R> f) {
+    default <R> R accept(Function<HoType<Try, T, Try<T>>, R> f) {
         return f.apply(this);
     }
 
@@ -54,19 +55,19 @@ public interface Try<T> extends Filter<Try, T, Try<T>>, TApp<Try, T, Try<T>> {
     }
 
     default T recoverWith(T t) {
-        return this.recoverWith(__ -> t);
+        return this.recoverWith(x -> t);
     }
 
     default <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
-        return this.orElseThrow(__ -> exceptionSupplier.get());
+        return this.orElseThrow(x -> exceptionSupplier.get());
     }
 
-    default T orElseThrow() throws Throwable {
-        return this.orElseThrow(x -> x);
+    default <X extends Exception> T orElseThrow() throws X {
+        return this.<X>orElseThrow(x -> x);
     }
 
     default boolean isSuccess() {
-        return this.fold(__ -> true, __ -> false);
+        return this.fold(t -> true, f -> false);
     }
 
     T recoverWith(Function<? super Throwable, T> t);
@@ -89,23 +90,28 @@ public interface Try<T> extends Filter<Try, T, Try<T>>, TApp<Try, T, Try<T>> {
             this.value = value;
         }
 
+        @Override
         public <B> Try<B> flatmap(Function<? super T, Try<B>> mapper) {
             return mapper.apply(this.value);
         }
 
+        @Override
         public Try<T> onSuccess(Consumer<? super T> onSuccess) {
             onSuccess.accept(this.value);
             return this;
         }
 
+        @Override
         public Try<T> onFailure(Consumer<? super Throwable> onFailure) {
             return this;
         }
 
+        @Override
         public <X extends Throwable> T orElseThrow(Function<? super Throwable, ? extends X> exceptionSupplier) throws X {
             return this.value;
         }
 
+        @Override
         public T recoverWith(Function<? super Throwable, T> t) {
             return this.value;
         }
@@ -121,23 +127,28 @@ public interface Try<T> extends Filter<Try, T, Try<T>>, TApp<Try, T, Try<T>> {
             this.value = value;
         }
 
+        @Override
         public <B> Try<B> flatmap(Function<? super T, Try<B>> mapper) {
             return Try.failure(this.value);
         }
 
+        @Override
         public Try<T> onSuccess(Consumer<? super T> onSuccess) {
             return this;
         }
 
+        @Override
         public Try<T> onFailure(Consumer<? super Throwable> onFailure) {
             onFailure.accept(this.value);
             return this;
         }
 
+        @Override
         public <X extends Throwable> T orElseThrow(Function<? super Throwable, ? extends X> exceptionSupplier) throws X {
             throw exceptionSupplier.apply(this.value);
         }
 
+        @Override
         public T recoverWith(Function<? super Throwable, T> t) {
             return t.apply(this.value);
         }

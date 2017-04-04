@@ -11,10 +11,13 @@ package org.smallibs.concurrent.promise;
 import org.junit.Test;
 import org.smallibs.concurrent.asynchronous.Executor;
 import org.smallibs.concurrent.asynchronous.ExecutorBuilder;
+import org.smallibs.control.Applicative;
+import org.smallibs.control.Functor;
 import org.smallibs.control.Monad;
-import org.smallibs.type.TApp;
+import org.smallibs.type.HoType;
 
 import java.util.concurrent.Executors;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.smallibs.concurrent.promise.PromiseHelper.monad;
@@ -34,18 +37,8 @@ public class PromiseMonadicTest {
     public void shouldMapMonadicPromise() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Monad<Promise, Integer, Promise<Integer>> integerPromise = monad(executor.async(() -> 1).map(i -> i + 1));
-        final TApp<Promise, Integer, Promise<Integer>> mappedIntegerPromise = integerPromise.map(i -> i + 1);
-
-        assertThat(mappedIntegerPromise.self().getFuture().get()).isEqualTo(3);
-    }
-
-    @Test
-    public void shouldFlatmapMonadicPromise() throws Exception {
-        final Executor executor = givenAnExecutor();
-
-        final Monad<Promise, Integer, Promise<Integer>> integerPromise = monad(executor.async(() -> 1).map(i -> i + 1));
-        final TApp<Promise, Integer, Promise<Integer>> mappedIntegerPromise = integerPromise.flatmap(i -> executor.async(() -> i + 1));
+        final Functor<Promise, Integer, Promise<Integer>> integerPromise = monad(executor.async(() -> 1).map(i -> i + 1));
+        final HoType<Promise, Integer, Promise<Integer>> mappedIntegerPromise = integerPromise.map(i -> i + 1);
 
         assertThat(mappedIntegerPromise.self().getFuture().get()).isEqualTo(3);
     }
@@ -54,10 +47,21 @@ public class PromiseMonadicTest {
     public void shouldApplyMonadicPromise() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Monad<Promise, Integer, Promise<Integer>> integerPromise = monad(executor.async(() -> 1).map(i -> i + 1));
-        final TApp<Promise, Integer, Promise<Integer>> appliedIntegerPromise  = integerPromise.apply(monad(executor.async(() -> i -> i + 1)));
+        final Applicative<Promise, Integer, Promise<Integer>> integerPromise = monad(executor.async(() -> 1).map(i -> i + 1));
+        final Functor<Promise, Function<? super Integer, ? extends Integer>, Promise<Function<? super Integer, ? extends Integer>>> f = monad(executor.async(() -> i -> i + 1));
+        final HoType<Promise, Integer, Promise<Integer>> appliedIntegerPromise  = integerPromise.apply(f);
 
         assertThat(appliedIntegerPromise .self().getFuture().get()).isEqualTo(3);
+    }
+
+    @Test
+    public void shouldFlatmapMonadicPromise() throws Exception {
+        final Executor executor = givenAnExecutor();
+
+        final Monad<Promise, Integer, Promise<Integer>> integerPromise = monad(executor.async(() -> 1).map(i -> i + 1));
+        final HoType<Promise, Integer, Promise<Integer>> mappedIntegerPromise = integerPromise.flatmap(i -> executor.async(() -> i + 1));
+
+        assertThat(mappedIntegerPromise.self().getFuture().get()).isEqualTo(3);
     }
 
 

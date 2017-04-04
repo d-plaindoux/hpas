@@ -44,9 +44,9 @@ public final class RunnablePromise<T> extends AbstractPromise<T> implements Runn
         this.currentExecutor = new WeakReference<>(null);
         this.canceled = false;
 
-        this.onSuccess = __ -> {
+        this.onSuccess = s -> {
         };
-        this.onError = __ -> {
+        this.onError = e -> {
         };
     }
 

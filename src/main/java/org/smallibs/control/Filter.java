@@ -8,14 +8,14 @@
 
 package org.smallibs.control;
 
-import org.smallibs.type.TApp;
+import org.smallibs.type.HoType;
 
 import java.util.function.Predicate;
 
 /**
  * Filter interface
  */
-public interface Filter<M, A, Self extends TApp<M, A, Self>> {
+public interface Filter<M, A, Self extends HoType<M, A, Self>>  {
 
     /**
      * Method called when the current data must be filtered using a given predicate.
@@ -23,6 +23,6 @@ public interface Filter<M, A, Self extends TApp<M, A, Self>> {
      * @param predicate The filter
      * @return a filtered data
      */
-    TApp<M, A, Self> filter(Predicate<? super A> predicate);
+    HoType<M, A, Self> filter(Predicate<? super A> predicate);
 
 }
