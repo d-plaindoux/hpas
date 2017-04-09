@@ -11,7 +11,8 @@ package org.smallibs.concurrent.promise;
 import org.junit.Test;
 import org.smallibs.concurrent.asynchronous.Executor;
 import org.smallibs.concurrent.asynchronous.ExecutorBuilder;
-import org.smallibs.type.HoType;
+import org.smallibs.exception.FilterException;
+import org.smallibs.type.Kind;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -137,8 +138,8 @@ public class FlatMappedPromiseTest {
     public void shouldApplyPromiseMap() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final HoType<Promise, Integer, Promise<Integer>> and = executor.async(() -> 1).and(i -> i + 1);
-        final HoType<Promise, Integer, Promise<Integer>> and1 = and.self().and(i -> i + 1);
+        final Kind<Promise, Integer, Promise<Integer>> and = executor.async(() -> 1).and(i -> i + 1);
+        final Kind<Promise, Integer, Promise<Integer>> and1 = and.self().and(i -> i + 1);
 
         assertThat(and1.self().getFuture().get()).isEqualTo(3);
     }
@@ -174,6 +175,30 @@ public class FlatMappedPromiseTest {
         }).then(i -> executor.async(() -> i + 1)).then(i -> executor.async(() -> i + 1));
 
         integerPromise.getFuture().get();
+    }
+
+    @Test
+    public void shouldFilterPromise() throws Exception {
+        final Executor executor = givenAnExecutor();
+
+        final Promise<Integer> integerPromise = executor.async(() -> 1).
+                flatmap(i -> executor.async(() -> i + 1)).
+                filter(i -> i == 2).
+                self();
+
+        assertThat(integerPromise.getFuture().get()).isEqualTo(2);
+    }
+
+    @Test(expected = FilterException.class)
+    public void shouldNotFilterPromise() throws Throwable {
+        final Executor executor = givenAnExecutor();
+
+        final Promise<Integer> integerPromise = executor.async(() -> 1).
+                flatmap(i -> executor.async(() -> i + 1)).
+                filter(i -> i == 3).
+                self();
+
+        executor.await(integerPromise).orElseThrow();
     }
 
     private Executor givenAnExecutor() {

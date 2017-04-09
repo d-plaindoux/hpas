@@ -11,7 +11,7 @@ package org.smallibs.concurrent.promise.impl;
 import org.smallibs.concurrent.promise.Promise;
 import org.smallibs.concurrent.promise.PromiseHelper;
 import org.smallibs.exception.FilterException;
-import org.smallibs.type.HoType;
+import org.smallibs.type.Kind;
 import org.smallibs.util.FunctionWithError;
 
 import java.util.Objects;
@@ -24,7 +24,7 @@ abstract class AbstractPromise<T> implements Promise<T> {
     }
 
     @Override
-    public <R> R accept(Function<HoType<Promise, T, Promise<T>>, R> f) {
+    public <R> R accept(Function<Kind<Promise, T, Promise<T>>, R> f) {
         return f.apply(this);
     }
 
@@ -43,7 +43,7 @@ abstract class AbstractPromise<T> implements Promise<T> {
     }
 
     @Override
-    public HoType<Promise, T, Promise<T>> filter(Predicate<? super T> predicate) {
+    public Kind<Promise, T, Promise<T>> filter(Predicate<? super T> predicate) {
         return this.flatmap(t -> {
             if (predicate.test(t)) {
                 return PromiseHelper.success(t);

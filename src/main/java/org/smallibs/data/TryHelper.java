@@ -10,7 +10,7 @@ package org.smallibs.data;
 
 import org.smallibs.control.Functor;
 import org.smallibs.control.Monad;
-import org.smallibs.type.HoType;
+import org.smallibs.type.Kind;
 
 import java.util.function.Function;
 
@@ -26,13 +26,13 @@ public enum  TryHelper {
     }
 
     @SuppressWarnings("unchecked")
-    private static <B, Self extends HoType<Try, B, Self>> HoType<Try, B, Try<B>> specialize(HoType<Try, B, Self> app) {
-        return (HoType<Try, B, Try<B>>) app;
+    private static <B, Self extends Kind<Try, B, Self>> Kind<Try, B, Try<B>> specialize(Kind<Try, B, Self> app) {
+        return (Kind<Try, B, Try<B>>) app;
     }
 
     @SuppressWarnings("unchecked")
-    private static <B, Self extends HoType<Try, B, Self>> HoType<Try, B, Self> generalize(HoType<Try, B, Try<B>> app) {
-        return (HoType<Try, B, Self>) app;
+    private static <B, Self extends Kind<Try, B, Self>> Kind<Try, B, Self> generalize(Kind<Try, B, Try<B>> app) {
+        return (Kind<Try, B, Self>) app;
     }
 
     /**
@@ -46,14 +46,14 @@ public enum  TryHelper {
         }
 
         @Override
-        public <B, NSelf extends HoType<Try, B, NSelf>> HoType<Try, B, NSelf> map(Function<? super T, B> function) {
+        public <B, NSelf extends Kind<Try, B, NSelf>> Kind<Try, B, NSelf> map(Function<? super T, B> function) {
             return generalize(new Monadic<>(aTry.map(function)));
         }
 
         @Override
-        public <B, NSelf extends HoType<Try, B, NSelf>> HoType<Try, B, NSelf> flatmap(Function<? super T, HoType<Try, B, NSelf>> function) {
+        public <B, NSelf extends Kind<Try, B, NSelf>> Kind<Try, B, NSelf> flatmap(Function<? super T, Kind<Try, B, NSelf>> function) {
             final Function<T, Try<B>> tTryFunction = t -> {
-                final HoType<Try, B, NSelf> apply = function.apply(t);
+                final Kind<Try, B, NSelf> apply = function.apply(t);
                 return specialize(apply).self();
             };
 
@@ -61,14 +61,14 @@ public enum  TryHelper {
         }
 
         @Override
-        public <T1> T1 accept(Function<HoType<Try, T, Try<T>>, T1> f) {
+        public <T1> T1 accept(Function<Kind<Try, T, Try<T>>, T1> f) {
             return aTry.accept(f);
         }
 
         @Override
-        public <B, NSelf extends HoType<Try, B, NSelf>> HoType<Try, B, NSelf> apply(Functor<Try, Function<? super T, ? extends B>, ?> functor) {
+        public <B, NSelf extends Kind<Try, B, NSelf>> Kind<Try, B, NSelf> apply(Functor<Try, Function<? super T, ? extends B>, ?> functor) {
             return generalize(new Monadic<>(aTry.flatmap(a -> {
-                final HoType<Try, B, NSelf> map = functor.map(bFunction -> bFunction.apply(a));
+                final Kind<Try, B, NSelf> map = functor.map(bFunction -> bFunction.apply(a));
                 return specialize(map).self();
             })));
         }

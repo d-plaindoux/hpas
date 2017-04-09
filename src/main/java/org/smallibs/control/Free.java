@@ -8,7 +8,7 @@
 
 package org.smallibs.control;
 
-import org.smallibs.type.HoType;
+import org.smallibs.type.Kind;
 
 /**
  * Free *
@@ -22,7 +22,7 @@ public interface Free<M, A> {
         return new Pure<>(a);
     }
 
-    static <M, A, Self extends HoType<M, Free<M, A>, Self>> Free<M, A> impure(HoType<M, Free<M, A>, Self> s) {
+    static <M, A, Self extends Kind<M, Free<M, A>, Self>> Free<M, A> impure(Kind<M, Free<M, A>, Self> s) {
         return new Impure<>(s);
     }
 
@@ -34,10 +34,10 @@ public interface Free<M, A> {
         }
     }
 
-    class Impure<M, A, Self extends HoType<M, Free<M, A>, Self>> implements Free<M, A> {
-        private final HoType<M, Free<M, A>, Self> s;
+    class Impure<M, A, Self extends Kind<M, Free<M, A>, Self>> implements Free<M, A> {
+        private final Kind<M, Free<M, A>, Self> s;
 
-        private Impure(HoType<M, Free<M, A>, Self> s) {
+        private Impure(Kind<M, Free<M, A>, Self> s) {
             this.s = s;
         }
     }

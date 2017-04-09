@@ -11,6 +11,7 @@ package org.smallibs.concurrent.promise;
 import org.junit.Test;
 import org.smallibs.concurrent.asynchronous.Executor;
 import org.smallibs.concurrent.asynchronous.ExecutorBuilder;
+import org.smallibs.exception.FilterException;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -184,6 +185,24 @@ public class RunnablePromiseTest {
         }).then(i -> executor.async(() -> i + 1));
 
         integerPromise.getFuture().get();
+    }
+
+    @Test
+    public void shouldFilterPromise() throws Exception {
+        final Executor executor = givenAnExecutor();
+
+        final Promise<Integer> integerPromise = executor.<Integer>async(() -> 1).filter(i -> i == 1).self();
+
+        assertThat(integerPromise.getFuture().get()).isEqualTo(1);
+    }
+
+    @Test(expected = FilterException.class)
+    public void shouldNotFilterPromise() throws Throwable {
+        final Executor executor = givenAnExecutor();
+
+        final Promise<Integer> integerPromise = executor.<Integer>async(() -> 1).filter(i -> i == 2).self();
+
+        executor.await(integerPromise).orElseThrow();
     }
 
     private Executor givenAnExecutor() {

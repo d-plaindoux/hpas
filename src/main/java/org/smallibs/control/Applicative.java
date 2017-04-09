@@ -8,12 +8,12 @@
 
 package org.smallibs.control;
 
-import org.smallibs.type.HoType;
+import org.smallibs.type.Kind;
 
 import java.util.function.Function;
 
-public interface Applicative<M, A, Self extends HoType<M, A, Self>> extends Functor<M, A, Self> {
+public interface Applicative<M, A, Self extends Kind<M, A, Self>> extends Functor<M, A, Self> {
 
-    <B, NSelf extends HoType<M, B, NSelf>> HoType<M, B, NSelf> apply(Functor<M, Function<? super A, ? extends B>, ?> functor);
+    <B, NSelf extends Kind<M, B, NSelf>> Kind<M, B, NSelf> apply(Functor<M, Function<? super A, ? extends B>, ?> functor);
 
 }

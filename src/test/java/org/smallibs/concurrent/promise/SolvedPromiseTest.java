@@ -105,4 +105,19 @@ public class SolvedPromiseTest {
         integerPromise.getFuture().get();
     }
 
+
+    @Test
+    public void shouldFilterPromise() throws Exception {
+        final Promise<Integer> integerPromise = PromiseHelper.success(1).filter(i -> i == 1).self();
+
+        assertThat(integerPromise.getFuture().get()).isEqualTo(1);
+    }
+
+    @Test(expected = ExecutionException.class)
+    public void shouldNotFilterPromise() throws Throwable {
+        final Promise<Integer> integerPromise = PromiseHelper.success(1).filter(i -> i == 2).self();
+
+        integerPromise.getFuture().get();
+    }
+
 }

@@ -10,7 +10,6 @@ package org.smallibs.concurrent.promise.impl;
 
 import org.smallibs.data.Maybe;
 import org.smallibs.data.Try;
-import org.smallibs.exception.PromiseException;
 
 import java.lang.ref.WeakReference;
 import java.util.Objects;
@@ -157,8 +156,6 @@ public final class RunnablePromise<T> extends AbstractPromise<T> implements Runn
 
         try {
             manageResponse(Try.success(this.callable.call()));
-        } catch (final PromiseException exception) {
-            manageResponse(Try.failure(exception.getCause()));
         } catch (final Throwable exception) {
             manageResponse(Try.failure(exception));
         }
