@@ -21,50 +21,50 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ExecutorTest {
 
     @Test
-    public void shouldRetrieveAnIntegerValue() throws Exception {
+    public void shouldRetrieveAnIntegerValue() throws Throwable {
         final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> 1);
 
-        assertThat(executor.await(integerPromise)).isEqualTo(1);
+        assertThat(executor.await(integerPromise).orElseThrow()).isEqualTo(1);
     }
 
     @Test
-    public void shouldRetrieveAnIntegerValueNotATimeOut() throws Exception {
+    public void shouldRetrieveAnIntegerValueNotATimeOut() throws Throwable {
         final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> 1);
 
-        assertThat(executor.await(integerPromise, 1, TimeUnit.SECONDS)).isEqualTo(1);
+        assertThat(executor.await(integerPromise, 1, TimeUnit.SECONDS).orElseThrow()).isEqualTo(1);
     }
 
     @Test(expected = RuntimeException.class)
-    public void shouldHaveARuntimeException() throws Exception {
+    public void shouldHaveARuntimeException() throws Throwable {
         final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> {
-            throw new InterruptedException();
+            throw new RuntimeException();
         });
 
-        executor.await(integerPromise);
+        executor.await(integerPromise).orElseThrow();
     }
 
     @Test(expected = RuntimeException.class)
-    public void shouldHaveARuntimeExceptionNotATimeout() throws Exception {
+    public void shouldHaveARuntimeExceptionNotATimeout() throws Throwable {
         final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> {
-            throw new InterruptedException();
+            throw new RuntimeException();
         });
 
-        executor.await(integerPromise, 1, TimeUnit.SECONDS);
+        executor.await(integerPromise, 1, TimeUnit.SECONDS).orElseThrow();
     }
 
     @Test(expected = TimeoutException.class)
-    public void shouldHaveATimeoutException() throws Exception {
+    public void shouldHaveATimeoutException() throws Throwable {
         final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> {
             Thread.sleep(2000);
             return 1;
         });
 
-        executor.await(integerPromise, 1, TimeUnit.SECONDS);
+        executor.await(integerPromise, 1, TimeUnit.SECONDS).orElseThrow();
     }
 
     @Test(expected = CancellationException.class)
@@ -77,11 +77,7 @@ public class ExecutorTest {
 
         integerPromise.getFuture().cancel(true);
 
-        try {
-            executor.await(integerPromise);
-        } catch (RuntimeException e) {
-            throw e.getCause();
-        }
+        executor.await(integerPromise).orElseThrow();
     }
 
     //

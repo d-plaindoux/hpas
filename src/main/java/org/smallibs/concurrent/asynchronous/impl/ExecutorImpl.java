@@ -11,6 +11,7 @@ package org.smallibs.concurrent.asynchronous.impl;
 import org.smallibs.concurrent.asynchronous.Executor;
 import org.smallibs.concurrent.promise.Promise;
 import org.smallibs.concurrent.promise.impl.RunnablePromise;
+import org.smallibs.data.Try;
 
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -48,28 +49,28 @@ public final class ExecutorImpl implements Executor {
     }
 
     @Override
-    public <T> T await(Promise<T> promise) {
+    public <T> Try<T> await(Promise<T> promise) {
         Objects.requireNonNull(promise);
 
         try {
-            return promise.getFuture().get();
+            return Try.success(promise.getFuture().get());
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            return Try.failure(e);
         } catch (ExecutionException e) {
-            throw new RuntimeException(e.getCause());
+            return Try.failure(e.getCause());
         }
     }
 
     @Override
-    public <T> T await(Promise<T> promise, long duration, TimeUnit timeUnit) throws TimeoutException {
+    public <T> Try<T> await(Promise<T> promise, long duration, TimeUnit timeUnit) throws TimeoutException {
         Objects.requireNonNull(promise);
 
         try {
-            return promise.getFuture().get(duration, timeUnit);
+            return Try.success(promise.getFuture().get(duration, timeUnit));
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            return Try.failure(e);
         } catch (ExecutionException e) {
-            throw new RuntimeException(e.getCause());
+            return Try.failure(e.getCause());
         }
     }
 }

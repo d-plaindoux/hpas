@@ -32,6 +32,15 @@ In Executor **&lt;T&gt; async :: (() -> T) &rarr; Promise&lt;T&gt;**
 final Promise<Integer> integerPromise = executor.async(() -> 1);
 ```
 
+#### `await`
+
+In Executor **&lt;T&gt; await :: (Promise&lt;T&gt;) &rarr; Try&lt;T&gt;**
+
+```java
+
+final Try<Integer> result = executor.await(integerPromise);
+```
+
 ### Promise
 
 #### `and` or `map` 
@@ -63,7 +72,7 @@ In Promise&lt;T&gt; **getFuture :: () &rarr; Future&lt;T&gt;**
 ```java
 integerPromise.getFuture();
 ```
-
+ 
 ### Conclude on success
 
 In Promise&lt;T&gt; **onSuccess :: (T &rarr; void) &rarr; Promise&lt;T&gt;**

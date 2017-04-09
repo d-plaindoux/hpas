@@ -9,6 +9,7 @@
 package org.smallibs.concurrent.asynchronous;
 
 import org.smallibs.concurrent.promise.Promise;
+import org.smallibs.data.Try;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -28,9 +29,9 @@ public interface Executor {
      * Await method
      *
      * @param promise The promise to await for
-     * @return a result or a runtime exception
+     * @return a result or a failure
      */
-    <T> T await(Promise<T> promise);
+    <T> Try<T> await(Promise<T> promise);
 
     /**
      * Await method for a given duration
@@ -39,5 +40,5 @@ public interface Executor {
      * @return a result or a runtime exception
      * @throws TimeoutException raised when no result is available after a given delay
      */
-    <T> T await(Promise<T> promise, long duration, TimeUnit timeUnit) throws TimeoutException;
+    <T> Try<T> await(Promise<T> promise, long duration, TimeUnit timeUnit) throws TimeoutException;
 }
