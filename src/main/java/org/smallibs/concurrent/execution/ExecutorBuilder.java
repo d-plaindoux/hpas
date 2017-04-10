@@ -2,13 +2,13 @@
  * HPAS
  * https://github.com/d-plaindoux/hpas
  *
- * Copyright (c) 2016 Didier Plaindoux
+ * Copyright (c) 2016-2017 Didier Plaindoux
  * Licensed under the LGPL2 license.
  */
 
-package org.smallibs.concurrent.asynchronous;
+package org.smallibs.concurrent.execution;
 
-import org.smallibs.concurrent.asynchronous.impl.ExecutorImpl;
+import org.smallibs.concurrent.execution.impl.ExecutorImpl;
 
 import java.util.concurrent.ExecutorService;
 
