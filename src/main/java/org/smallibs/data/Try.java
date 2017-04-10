@@ -10,14 +10,14 @@ package org.smallibs.data;
 
 import org.smallibs.control.Filter;
 import org.smallibs.exception.FilterException;
-import org.smallibs.type.Kind;
+import org.smallibs.type.HK;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface Try<T> extends Filter<Try, T, Try<T>>, Kind<Try, T, Try<T>> {
+public interface Try<T> extends Filter<Try, T, Try<T>>, HK<Try, T, Try<T>> {
 
     static <T> Try<T> success(T value) {
         if (Throwable.class.isInstance(value)) {
@@ -37,7 +37,7 @@ public interface Try<T> extends Filter<Try, T, Try<T>>, Kind<Try, T, Try<T>> {
     }
 
     @Override
-    default <R> R accept(Function<Kind<Try, T, Try<T>>, R> f) {
+    default <R> R accept(Function<HK<Try, T, Try<T>>, R> f) {
         return f.apply(this);
     }
 

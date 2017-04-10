@@ -2,12 +2,14 @@
 
 [![Build Status](https://travis-ci.org/d-plaindoux/hpas.svg?branch=master)](https://travis-ci.org/d-plaindoux/hpas)
 [![Coverage Status](https://coveralls.io/repos/github/d-plaindoux/hpas/badge.svg?branch=master)](https://coveralls.io/github/d-plaindoux/hpas?branch=master)
+[![stable](http://badges.github.io/stability-badges/dist/stable.svg)](http://github.com/badges/stability-badges)
+[![Maven Central](https://img.shields.io/maven-central/v/org.smallibs/suitcase.svg)](http://search.maven.org/#artifactdetails%7Corg.smallibs%7Csuitcase%7C0.3%7Cjar)
 
 HiPeAS has been designed with one basic idea: all data type provided might be also available as monadic structure.
 Functional paradigm deeply drives the design with a taste of OO for encapsulation and chaining methods which mimics infix
 operators like Haskell monad function `>>=`.
 
-Since such ADT provides traditional map, flapmap etc. functions a DSL perspective is also given in order to increase the code readability.
+Since such ADT provides traditional map, flapmap etc. functions for a DSL perspective are also given in order to increase the code readability.
 
 ## A taste of HiPeAS
 
@@ -21,7 +23,7 @@ of this library.
 ### Executors
 
 ```java
-final Executor executor = ExecutorBuilder.create(Executors.newSingleThreadExecutor());
+Executor executor = ExecutorHelper.create(Executors.newSingleThreadExecutor());
 ```
 
 #### `async`
@@ -29,16 +31,16 @@ final Executor executor = ExecutorBuilder.create(Executors.newSingleThreadExecut
 In Executor **&lt;T&gt; async :: (() -> T) &rarr; Promise&lt;T&gt;**
 
 ```java
-final Promise<Integer> integerPromise = executor.async(() -> 1);
+Promise<Integer> integerPromise = executor.async(() -> 1);
 ```
 
 #### `await`
 
-In Executor **&lt;T&gt; await :: (Promise&lt;T&gt;) &rarr; Try&lt;T&gt;**
+In ExecutorHelper **&lt;T&gt; await :: (Promise&lt;T&gt;) &rarr; Try&lt;T&gt;**
 
 ```java
 
-final Try<Integer> result = executor.await(integerPromise);
+Try<Integer> result = ExecutorHelper.await(integerPromise);
 ```
 
 ### Promise
@@ -107,7 +109,7 @@ In Promise::Monadic&lt;T&gt; map :: (T → R) → Promise&lt;R&gt;
 
 ```java
 Functor<Promise, Integer, Promise<Integer>> p1 = monad(executor.async(() -> 1));
-Kind<Promise, Integer, Promise<Integer>> p2 = p1.map(i -> i + 1);
+HK<Promise, Integer, Promise<Integer>> p2 = p1.map(i -> i + 1);
 ```
 ### Applicative
 
@@ -115,7 +117,7 @@ In Promise::Monadic&lt;T&gt; apply :: Promise&lt;T → R&gt; → Promise&lt;R&gt
 
 ```java
 Applicative<Promise, Integer, Promise<Integer>> p1 = monad(executor.async(() -> 1));
-Kind<Promise, Integer, Promise<Integer>> p2  = p1.apply(monad(executor.async(() -> i -> i + 1)));
+HK<Promise, Integer, Promise<Integer>> p2  = p1.apply(monad(executor.async(() -> i -> i + 1)));
 ```
 ### Monad
 
@@ -123,7 +125,7 @@ In Promise::Monadic&lt;T&gt; flapmap :: (T → Promise&lt;R&gt;) → Promise&lt;
 
 ```java
 Monad<Promise, Integer, Promise<Integer>> p1 = monad(executor.async(() -> 1));
-Kind<Promise, Integer, Promise<Integer>> p2 = p1.flatmap(i -> executor.async(() -> i + 1));
+HK<Promise, Integer, Promise<Integer>> p2 = p1.flatmap(i -> executor.async(() -> i + 1));
 ```
 
 ## Releases

@@ -10,7 +10,7 @@ package org.smallibs.concurrent.promise;
 
 import org.junit.Test;
 import org.smallibs.concurrent.execution.Executor;
-import org.smallibs.concurrent.execution.ExecutorBuilder;
+import org.smallibs.concurrent.execution.ExecutorHelper;
 import org.smallibs.exception.FilterException;
 
 import java.util.concurrent.ExecutionException;
@@ -18,6 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.smallibs.concurrent.execution.ExecutorHelper.await;
 
 public class RunnablePromiseTest {
 
@@ -202,11 +203,11 @@ public class RunnablePromiseTest {
 
         final Promise<Integer> integerPromise = executor.<Integer>async(() -> 1).filter(i -> i == 2).self();
 
-        executor.await(integerPromise).orElseThrow();
+        await(integerPromise).orElseThrow();
     }
 
     private Executor givenAnExecutor() {
-        return ExecutorBuilder.create(Executors.newSingleThreadExecutor());
+        return ExecutorHelper.create(Executors.newSingleThreadExecutor());
     }
 
 

@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.smallibs.concurrent.execution.ExecutorHelper.await;
 
 public class ExecutorTest {
 
@@ -25,7 +26,7 @@ public class ExecutorTest {
         final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> 1);
 
-        assertThat(executor.await(integerPromise).orElseThrow()).isEqualTo(1);
+        assertThat(await(integerPromise).orElseThrow()).isEqualTo(1);
     }
 
     @Test
@@ -33,7 +34,7 @@ public class ExecutorTest {
         final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> 1);
 
-        assertThat(executor.await(integerPromise, 1, TimeUnit.SECONDS).orElseThrow()).isEqualTo(1);
+        assertThat(await(integerPromise, 1, TimeUnit.SECONDS).orElseThrow()).isEqualTo(1);
     }
 
     @Test(expected = RuntimeException.class)
@@ -43,7 +44,7 @@ public class ExecutorTest {
             throw new RuntimeException();
         });
 
-        executor.await(integerPromise).orElseThrow();
+        await(integerPromise).orElseThrow();
     }
 
     @Test(expected = RuntimeException.class)
@@ -53,7 +54,7 @@ public class ExecutorTest {
             throw new RuntimeException();
         });
 
-        executor.await(integerPromise, 1, TimeUnit.SECONDS).orElseThrow();
+        await(integerPromise, 1, TimeUnit.SECONDS).orElseThrow();
     }
 
     @Test(expected = TimeoutException.class)
@@ -64,7 +65,7 @@ public class ExecutorTest {
             return 1;
         });
 
-        executor.await(integerPromise, 1, TimeUnit.SECONDS).orElseThrow();
+        await(integerPromise, 1, TimeUnit.SECONDS).orElseThrow();
     }
 
     @Test(expected = CancellationException.class)
@@ -77,7 +78,7 @@ public class ExecutorTest {
 
         integerPromise.getFuture().cancel(true);
 
-        executor.await(integerPromise).orElseThrow();
+        await(integerPromise).orElseThrow();
     }
 
     //
@@ -85,7 +86,7 @@ public class ExecutorTest {
     //
 
     private Executor givenAnExecutor() {
-        return ExecutorBuilder.create(Executors.newSingleThreadScheduledExecutor());
+        return ExecutorHelper.create(Executors.newSingleThreadScheduledExecutor());
     }
 
 }

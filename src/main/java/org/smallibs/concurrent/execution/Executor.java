@@ -9,11 +9,8 @@
 package org.smallibs.concurrent.execution;
 
 import org.smallibs.concurrent.promise.Promise;
-import org.smallibs.data.Try;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public interface Executor {
 
@@ -25,20 +22,4 @@ public interface Executor {
      */
     <T> Promise<T> async(Callable<T> task);
 
-    /**
-     * Await method
-     *
-     * @param promise The promise to await for
-     * @return a result or a failure
-     */
-    <T> Try<T> await(Promise<T> promise);
-
-    /**
-     * Await method for a given duration
-     *
-     * @param promise The promise to await for
-     * @return a result or a runtime exception
-     * @throws TimeoutException raised when no result is available after a given delay
-     */
-    <T> Try<T> await(Promise<T> promise, long duration, TimeUnit timeUnit) throws TimeoutException;
 }

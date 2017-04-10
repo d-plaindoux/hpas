@@ -8,12 +8,12 @@
 
 package org.smallibs.control;
 
-import org.smallibs.type.Kind;
+import org.smallibs.type.HK;
 
 import java.util.function.Function;
 
-public interface Monad<M, A, Self extends Kind<M, A, Self>> extends Applicative<M, A, Self> {
+public interface Monad<M, A, Self extends HK<M, A, Self>> extends Applicative<M, A, Self> {
 
-    <B, NSelf extends Kind<M, B, NSelf>> Kind<M, B, NSelf> flatmap(Function<? super A, Kind<M, B, NSelf>> function);
+    <B, NSelf extends HK<M, B, NSelf>> HK<M, B, NSelf> flatmap(Function<? super A, HK<M, B, NSelf>> function);
 
 }

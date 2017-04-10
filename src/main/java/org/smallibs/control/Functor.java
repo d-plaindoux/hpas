@@ -8,12 +8,12 @@
 
 package org.smallibs.control;
 
-import org.smallibs.type.Kind;
+import org.smallibs.type.HK;
 
 import java.util.function.Function;
 
-public interface Functor<M, A, Self extends Kind<M, A, Self>> extends Kind<M, A, Self> {
+public interface Functor<M, A, Self extends HK<M, A, Self>> extends HK<M, A, Self> {
 
-    <B, NSelf extends Kind<M, B, NSelf>> Kind<M, B, NSelf> map(Function<? super A, B> function);
+    <B, NSelf extends HK<M, B, NSelf>> HK<M, B, NSelf> map(Function<? super A, B> function);
 
 }

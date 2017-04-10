@@ -10,9 +10,9 @@ package org.smallibs.type;
 
 import java.util.function.Function;
 
-public interface Kind<M, A, Self extends Kind<M, A, Self>> {
+public interface HK<M, A, Self extends HK<M, A, Self>> {
 
-    <T> T accept(Function<Kind<M, A, Self>, T> f);
+    <T> T accept(Function<HK<M, A, Self>, T> f);
 
     Self self();
 

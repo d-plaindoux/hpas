@@ -10,15 +10,16 @@ package org.smallibs.concurrent.promise;
 
 import org.junit.Test;
 import org.smallibs.concurrent.execution.Executor;
-import org.smallibs.concurrent.execution.ExecutorBuilder;
+import org.smallibs.concurrent.execution.ExecutorHelper;
 import org.smallibs.exception.FilterException;
-import org.smallibs.type.Kind;
+import org.smallibs.type.HK;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.smallibs.concurrent.execution.ExecutorHelper.await;
 
 public class FlatMappedPromiseTest {
 
@@ -138,8 +139,8 @@ public class FlatMappedPromiseTest {
     public void shouldApplyPromiseMap() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Kind<Promise, Integer, Promise<Integer>> and = executor.async(() -> 1).and(i -> i + 1);
-        final Kind<Promise, Integer, Promise<Integer>> and1 = and.self().and(i -> i + 1);
+        final HK<Promise, Integer, Promise<Integer>> and = executor.async(() -> 1).and(i -> i + 1);
+        final HK<Promise, Integer, Promise<Integer>> and1 = and.self().and(i -> i + 1);
 
         assertThat(and1.self().getFuture().get()).isEqualTo(3);
     }
@@ -198,11 +199,11 @@ public class FlatMappedPromiseTest {
                 filter(i -> i == 3).
                 self();
 
-        executor.await(integerPromise).orElseThrow();
+        await(integerPromise).orElseThrow();
     }
 
     private Executor givenAnExecutor() {
-        return ExecutorBuilder.create(Executors.newSingleThreadExecutor());
+        return ExecutorHelper.create(Executors.newSingleThreadExecutor());
     }
 
 }
