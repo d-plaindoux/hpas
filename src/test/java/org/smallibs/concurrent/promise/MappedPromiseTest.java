@@ -177,7 +177,6 @@ public class MappedPromiseTest {
         integerPromise.getFuture().get();
     }
 
-
     @Test
     public void shouldFilterPromise() throws Exception {
         final Executor executor = givenAnExecutor();

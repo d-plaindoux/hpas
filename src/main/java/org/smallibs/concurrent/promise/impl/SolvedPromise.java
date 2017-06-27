@@ -49,7 +49,7 @@ public final class SolvedPromise<T> extends AbstractPromise<T> {
 
             @Override
             public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-                return null;
+                return get();
             }
         };
     }

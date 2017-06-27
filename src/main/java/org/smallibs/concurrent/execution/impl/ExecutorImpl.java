@@ -11,6 +11,7 @@ package org.smallibs.concurrent.execution.impl;
 import org.smallibs.concurrent.execution.Executor;
 import org.smallibs.concurrent.promise.Promise;
 import org.smallibs.concurrent.promise.impl.RunnablePromise;
+import org.smallibs.data.Unit;
 
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -40,6 +41,20 @@ public final class ExecutorImpl implements Executor {
         Objects.requireNonNull(task);
 
         final RunnablePromise<T> runnablePromise = new RunnablePromise<>(task);
+
+        this.executorService.execute(runnablePromise);
+        return runnablePromise;
+    }
+
+    @Override
+    public Promise<Unit> async(RunnableWithError task) {
+        Objects.requireNonNull(task);
+
+        final RunnablePromise<Unit> runnablePromise = new RunnablePromise<>(() -> {
+            task.run();
+            return Unit.unit;
+        });
+
         this.executorService.execute(runnablePromise);
         return runnablePromise;
     }
