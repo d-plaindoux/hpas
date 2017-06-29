@@ -8,10 +8,12 @@
 
 package org.smallibs.concurrent.promise;
 
+import org.smallibs.concurrent.promise.impl.PromisesSet;
 import org.smallibs.concurrent.promise.impl.SolvedPromise;
 import org.smallibs.control.Functor;
 import org.smallibs.control.Monad;
 import org.smallibs.data.Try;
+import org.smallibs.data.Unit;
 import org.smallibs.type.HK;
 import org.smallibs.util.FunctionsWithError;
 
@@ -30,6 +32,18 @@ public enum PromiseHelper {
 
     public static <T> Promise<T> failure(Throwable t) {
         return new SolvedPromise<T>(Try.failure(t));
+    }
+
+    public static Promise<Unit> join(Promise<?>... promises) {
+        return new PromisesSet(PromisesSet.Strategy.NO_STOP, promises);
+    }
+
+    public static Promise<Unit> forall(Promise<?>... promises) {
+        return new PromisesSet(PromisesSet.Strategy.STOP_ON_ERROR, promises);
+    }
+
+    public static Promise<Unit> exists(Promise<?>... promises) {
+        return new PromisesSet(PromisesSet.Strategy.STOP_ON_SUCCESS, promises);
     }
 
     @SuppressWarnings("unchecked")

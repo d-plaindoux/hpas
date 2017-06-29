@@ -138,7 +138,7 @@ public class PassivePromise<T> extends AbstractPromise<T> implements Future<T> {
 
     public void response(final Try<T> response) {
         synchronized (this.responseReference) {
-            if (this.isCancelled()) {
+            if (this.isDone() || this.isCancelled()) {
                 return;
             }
 

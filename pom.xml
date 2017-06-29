@@ -4,7 +4,7 @@
 
     <groupId>org.smallibs</groupId>
     <artifactId>hpas</artifactId>
-    <version>0.4</version>
+    <version>0.5</version>
     <packaging>jar</packaging>
 
     <name>org.smallibs:hpas</name>
@@ -22,7 +22,7 @@
         <connection>scm:git:git@github.com:d-plaindoux/haps.git</connection>
         <developerConnection>scm:git:git@github.com:d-plaindoux/haps.git</developerConnection>
         <url>git@github.com:d-plaindoux/haps.git</url>
-        <tag>v0.4</tag>
+        <tag>v0.5</tag>
     </scm>
 
     <developers>
