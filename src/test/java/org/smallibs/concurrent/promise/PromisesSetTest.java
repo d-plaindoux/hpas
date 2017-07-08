@@ -4,7 +4,7 @@ import com.jayway.awaitility.Duration;
 import org.junit.Test;
 import org.smallibs.concurrent.execution.Executor;
 import org.smallibs.concurrent.execution.ExecutorHelper;
-import org.smallibs.concurrent.promise.impl.PassivePromise;
+import org.smallibs.concurrent.promise.impl.SolvablePromise;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -46,7 +46,7 @@ public class PromisesSetTest {
     @Test
     public void shouldNotJoinWhenUnsolvedPromise() throws Exception {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
-        final PassivePromise<Object> passivePromise = new PassivePromise<>();
+        final SolvablePromise<Object> passivePromise = new SolvablePromise<>();
 
         PromiseHelper.join(passivePromise).onSuccess(unit -> aBoolean.set(true));
 
@@ -100,7 +100,7 @@ public class PromisesSetTest {
     @Test
     public void shouldNotExistsWhenUnsolvedPromise() throws Exception {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
-        final PassivePromise<Object> passivePromise = new PassivePromise<>();
+        final SolvablePromise<Object> passivePromise = new SolvablePromise<>();
 
         PromiseHelper.exists(passivePromise).onComplete(unit -> aBoolean.set(true));
 
@@ -164,7 +164,7 @@ public class PromisesSetTest {
     @Test
     public void shouldNotForallWhenUnsolvedPromise() throws Exception {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
-        final PassivePromise<Object> passivePromise = new PassivePromise<>();
+        final SolvablePromise<Object> passivePromise = new SolvablePromise<>();
 
         PromiseHelper.forall(passivePromise).onComplete(unit -> aBoolean.set(true));
 

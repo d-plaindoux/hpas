@@ -1,19 +1,7 @@
-/*
- * HPAS
- * https://github.com/d-plaindoux/hpas
- *
- * Copyright (c) 2016 Didier Plaindoux
- * Licensed under the LGPL2 license.
- */
-
 package org.smallibs.concurrent.promise.impl;
 
-import org.smallibs.data.Maybe;
 import org.smallibs.data.Try;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -22,68 +10,17 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-public class PassivePromise<T> extends AbstractPromise<T> implements Future<T> {
+public class SolvableFuture<T> implements Future<T> {
 
     private final AtomicReference<Try<T>> responseReference;
-    private final List<Consumer<T>> onSuccess;
-    private final List<Consumer<Throwable>> onError;
-
+    private final Consumer<Try<T>> callbackOnComplete;
     private volatile boolean canceled;
 
-    public PassivePromise() {
+    public SolvableFuture(Consumer<Try<T>> callbackOnComplete) {
+        this.callbackOnComplete = callbackOnComplete;
         this.responseReference = new AtomicReference<>();
 
         this.canceled = false;
-
-        this.onSuccess = new ArrayList<>();
-        this.onError = new ArrayList<>();
-    }
-
-    @Override
-    public Future<T> getFuture() {
-        return this;
-    }
-
-    @Override
-    public void onSuccess(Consumer<T> consumer) {
-        Objects.requireNonNull(consumer);
-
-        final AtomicReference<T> success = new AtomicReference<>();
-
-        synchronized (this.responseReference) {
-            if (isPerformed()) {
-                this.responseReference.get().onSuccess(success::set);
-            } else {
-                this.onSuccess.add(consumer);
-            }
-        }
-
-        Maybe.some(success.get()).onSome(consumer);
-    }
-
-    @Override
-    public void onFailure(Consumer<Throwable> consumer) {
-        Objects.requireNonNull(consumer);
-
-        final AtomicReference<Throwable> failure = new AtomicReference<>();
-
-        synchronized (this.responseReference) {
-            if (isPerformed()) {
-                this.responseReference.get().onFailure(failure::set);
-            } else {
-                this.onError.add(consumer);
-            }
-        }
-
-        Maybe.some(failure.get()).onSome(consumer);
-    }
-
-    @Override
-    public void onComplete(final Consumer<Try<T>> consumer) {
-        Objects.requireNonNull(consumer);
-
-        this.onSuccess(t -> consumer.accept(Try.success(t)));
-        this.onFailure(throwable -> consumer.accept(Try.failure(throwable)));
     }
 
     @Override
@@ -136,22 +73,16 @@ public class PassivePromise<T> extends AbstractPromise<T> implements Future<T> {
         return getNow();
     }
 
-    public void response(final Try<T> response) {
+    public void solve(final Try<T> response) {
         synchronized (this.responseReference) {
-            if (this.isDone() || this.isCancelled()) {
+            if (this.isPerformed()) {
                 return;
             }
 
             this.responseReference.set(response);
         }
 
-        response.onSuccess(s -> {
-            onSuccess.forEach(c -> c.accept(s));
-            onSuccess.clear();
-        }).onFailure(t -> {
-            onError.forEach(c -> c.accept(t));
-            onError.clear();
-        });
+        callbackOnComplete.accept(response);
 
         synchronized (this.responseReference) {
             this.responseReference.notifyAll();
@@ -167,6 +98,12 @@ public class PassivePromise<T> extends AbstractPromise<T> implements Future<T> {
     }
 
     private T getNow() throws ExecutionException {
-        return responseReference.get().orElseThrow(t -> new ExecutionException(t));
+        return responseReference.get().orElseThrow(t -> {
+            if (t instanceof ExecutionException) {
+                return (ExecutionException) t;
+            } else {
+                return new ExecutionException(t);
+            }
+        });
     }
 }

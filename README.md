@@ -131,13 +131,13 @@ HK<Promise, Integer, Promise<Integer>> p2 = p1.flatmap(i -> executor.async(() ->
 ## Releases
 
 This library is available at Sonatype OSS Repository Hosting service and can be simply used adding the following 
-dependency to your pom project.
+dependency - for instance - to your pom project.
 
 ```
 <dependency>
   <groupId>org.smallibs</groupId>
   <artifactId>hpas</artifactId>
-  <version>0.5</version>
+  <version>0.6</version>
 </dependency>
 ```
 

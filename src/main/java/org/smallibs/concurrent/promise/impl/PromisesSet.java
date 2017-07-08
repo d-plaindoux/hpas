@@ -7,7 +7,7 @@ import org.smallibs.data.Unit;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PromisesSet extends PassivePromise<Unit> {
+public class PromisesSet extends SolvablePromise<Unit> {
 
     private final Strategy strategy;
     private final Promise<?>[] promises;
@@ -19,7 +19,7 @@ public class PromisesSet extends PassivePromise<Unit> {
         this.activePromises = new AtomicInteger(this.promises.length);
 
         if (this.promises.length == 0) {
-            response(Try.success(Unit.unit));
+            solve(Try.success(Unit.unit));
             return;
         }
 
@@ -39,15 +39,15 @@ public class PromisesSet extends PassivePromise<Unit> {
     private final void manageSuccess() {
         switch (strategy) {
             case STOP_ON_SUCCESS:
-            response(Try.success(Unit.unit));
+                solve(Try.success(Unit.unit));
 
-            Arrays.asList(promises).forEach(promise -> {
-                promise.getFuture().cancel(true);
-            });
-            break;
+                Arrays.asList(promises).forEach(promise -> {
+                    promise.getFuture().cancel(true);
+                });
+                break;
             default:
                 if (activePromises.get() == 0) {
-                    response(Try.success(Unit.unit));
+                    solve(Try.success(Unit.unit));
                 }
                 break;
         }
@@ -56,20 +56,20 @@ public class PromisesSet extends PassivePromise<Unit> {
     private final void manageError(Throwable t) {
         switch (strategy) {
             case STOP_ON_ERROR:
-            response(Try.failure(t));
+                solve(Try.failure(t));
 
-            Arrays.asList(promises).forEach(promise -> {
-                promise.getFuture().cancel(true);
-            });
-            break;
+                Arrays.asList(promises).forEach(promise -> {
+                    promise.getFuture().cancel(true);
+                });
+                break;
             case STOP_ON_SUCCESS:
                 if (activePromises.get() == 0) {
-                    response(Try.failure(t));
+                    solve(Try.failure(t));
                 }
                 break;
             default:
                 if (activePromises.get() == 0) {
-                    response(Try.success(Unit.unit));
+                    solve(Try.success(Unit.unit));
                 }
                 break;
         }

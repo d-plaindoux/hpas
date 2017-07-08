@@ -12,6 +12,7 @@ import org.smallibs.concurrent.execution.impl.ExecutorImpl;
 import org.smallibs.concurrent.promise.Promise;
 import org.smallibs.data.Try;
 
+import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -37,34 +38,17 @@ public enum ExecutorHelper {
     /**
      * Await method
      *
-     * @param promise The promise to await for
+     * @param <T>      The promised value type
+     * @param promise  The promise to await for
+     * @param duration The wait duration before timeout
      * @return a result or a failure
      */
-    public static <T> Try<T> await(Promise<T> promise) {
+    public static <T> Try<T> await(Promise<T> promise, Duration duration) {
         Objects.requireNonNull(promise);
 
         try {
-            return Try.success(promise.getFuture().get());
-        } catch (InterruptedException e) {
-            return Try.failure(e);
-        } catch (ExecutionException e) {
-            return Try.failure(e.getCause());
-        }
-    }
-
-    /**
-     * Await method for a given duration
-     *
-     * @param promise The promise to await for
-     * @return a result or a runtime exception
-     * @throws TimeoutException raised when no result is available after a given delay
-     */
-    public static <T> Try<T> await(Promise<T> promise, long duration, TimeUnit timeUnit) throws TimeoutException {
-        Objects.requireNonNull(promise);
-
-        try {
-            return Try.success(promise.getFuture().get(duration, timeUnit));
-        } catch (InterruptedException e) {
+            return Try.success(promise.getFuture().get(duration.toMillis(), TimeUnit.MILLISECONDS));
+        } catch (InterruptedException | TimeoutException e) {
             return Try.failure(e);
         } catch (ExecutionException e) {
             return Try.failure(e.getCause());

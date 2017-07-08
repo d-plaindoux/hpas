@@ -4,7 +4,7 @@
 
     <groupId>org.smallibs</groupId>
     <artifactId>hpas</artifactId>
-    <version>0.5</version>
+    <version>0.6</version>
     <packaging>jar</packaging>
 
     <name>org.smallibs:hpas</name>

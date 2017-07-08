@@ -23,6 +23,7 @@ public interface Executor {
     /**
      * Async method
      *
+     * @param <T> the promised value type
      * @param task the task to be asynchronously executed
      * @return a promise
      */

@@ -13,14 +13,25 @@ import org.smallibs.concurrent.execution.Executor;
 import org.smallibs.concurrent.execution.ExecutorHelper;
 import org.smallibs.exception.FilterException;
 
+import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.smallibs.concurrent.execution.ExecutorHelper.await;
 
 public class MappedPromiseTest {
+
+    @Test
+    public void shouldApplyMap() throws Exception {
+        final Executor executor = givenAnExecutor();
+
+        final Promise<Integer> integerPromise = executor.async(() -> 1).and(i -> i + 1);
+
+        assertThat(integerPromise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(2);
+    }
 
     @Test
     public void shouldApplyOnSuccess() throws Exception {
@@ -30,7 +41,7 @@ public class MappedPromiseTest {
         final Promise<Integer> integerPromise = executor.async(() -> 1).and(i -> i + 1);
 
         integerPromise.onSuccess(i -> aBoolean.set(true));
-        integerPromise.getFuture().get();
+        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
 
         assertThat(aBoolean.get()).isTrue();
     }
@@ -46,7 +57,7 @@ public class MappedPromiseTest {
         }).and(i -> i + 1);
 
         integerPromise.onSuccess(i -> aBoolean.set(true));
-        integerPromise.getFuture().get();
+        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
 
         assertThat(aBoolean.get()).isTrue();
     }
@@ -63,7 +74,7 @@ public class MappedPromiseTest {
         integerPromise.onFailure(i -> aBoolean.set(true));
 
         try {
-            integerPromise.getFuture().get();
+            integerPromise.getFuture().get(5, TimeUnit.SECONDS);
         } catch (ExecutionException e) {
             // consume
         }
@@ -84,7 +95,7 @@ public class MappedPromiseTest {
         integerPromise.onFailure(i -> aBoolean.set(true));
 
         try {
-            integerPromise.getFuture().get();
+            integerPromise.getFuture().get(5, TimeUnit.SECONDS);
         } catch (ExecutionException e) {
             // consume
         }
@@ -104,7 +115,7 @@ public class MappedPromiseTest {
         integerPromise.onComplete(i -> aBoolean.set(true));
 
         try {
-            integerPromise.getFuture().get();
+            integerPromise.getFuture().get(5, TimeUnit.SECONDS);
         } catch (ExecutionException e) {
             // consume
         }
@@ -125,7 +136,7 @@ public class MappedPromiseTest {
         integerPromise.onComplete(i -> aBoolean.set(true));
 
         try {
-            integerPromise.getFuture().get();
+            integerPromise.getFuture().get(5, TimeUnit.SECONDS);
         } catch (ExecutionException e) {
             // consume
         }
@@ -141,7 +152,7 @@ public class MappedPromiseTest {
                 and(i -> i + 1).
                 and(i -> i + 1);
 
-        assertThat(integerPromise.getFuture().get()).isEqualTo(3);
+        assertThat(integerPromise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(3);
     }
 
     @Test(expected = ExecutionException.class)
@@ -152,7 +163,7 @@ public class MappedPromiseTest {
             throw new SecurityException();
         }).and(i -> i + 1).and(i -> i + 1);
 
-        integerPromise.getFuture().get();
+        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
     }
 
     @Test
@@ -163,7 +174,7 @@ public class MappedPromiseTest {
                 and(i -> i + 1).
                 then(i -> executor.async(() -> i + 1));
 
-        assertThat(integerPromise.getFuture().get()).isEqualTo(3);
+        assertThat(integerPromise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(3);
     }
 
     @Test(expected = ExecutionException.class)
@@ -174,7 +185,7 @@ public class MappedPromiseTest {
             throw new SecurityException();
         }).and(i -> i + 1).then(i -> executor.async(() -> i + 1));
 
-        integerPromise.getFuture().get();
+        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
     }
 
     @Test
@@ -186,7 +197,7 @@ public class MappedPromiseTest {
                 filter(i -> i == 2).
                 self();
 
-        assertThat(integerPromise.getFuture().get()).isEqualTo(2);
+        assertThat(integerPromise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(2);
     }
 
     @Test(expected = FilterException.class)
@@ -198,7 +209,7 @@ public class MappedPromiseTest {
                 filter(i -> i == 3).
                 self();
 
-        await(integerPromise).orElseThrow();
+        await(integerPromise, Duration.ofSeconds(5)).orElseThrow();
     }
 
     private Executor givenAnExecutor() {

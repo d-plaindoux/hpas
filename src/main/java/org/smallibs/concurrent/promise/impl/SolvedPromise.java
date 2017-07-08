@@ -10,10 +10,10 @@ package org.smallibs.concurrent.promise.impl;
 
 import org.smallibs.data.Try;
 
-public final class SolvedPromise<T> extends PassivePromise<T> {
+public final class SolvedPromise<T> extends SolvablePromise<T> {
 
     public SolvedPromise(Try<T> value) {
-        this.response(value);
+        this.solve(value);
     }
 
 }

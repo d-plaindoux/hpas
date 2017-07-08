@@ -35,27 +35,31 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
      * Callback called when the computation succeed
      *
      * @param consumer The callback to be activated on success
+     * @return the current promise
      */
-    void onSuccess(Consumer<T> consumer);
+    Promise<T> onSuccess(Consumer<T> consumer);
 
     /**
      * Callback called when the computation fails
      *
      * @param consumer The callback to be activated on error
+     * @return the current promise
      */
-    void onFailure(Consumer<Throwable> consumer);
+    Promise<T> onFailure(Consumer<Throwable> consumer);
 
     /**
      * Callback called when the computation terminates
      *
      * @param consumer The callback to be activated on completion
+     * @return the current promise
      */
-    void onComplete(Consumer<Try<T>> consumer);
+    Promise<T> onComplete(Consumer<Try<T>> consumer);
 
     /**
      * Method use to map a function. This mapping is done when the operation is a success. The result of this mapping
      * is a new promise component.
      *
+     * @param <R> the promised value type
      * @param function The function to applied on success which can raise an error
      * @return a new promise
      */
@@ -65,6 +69,7 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
      * Method use when a new computation must be done when the current one succeed. The current one and the chained one
      * are done sequentially in the same context.
      *
+     * @param <R> the promised value type
      * @param function The function to applied on success
      * @return a new promise
      */
@@ -76,6 +81,7 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
      * Method use to flatmap a function. This mapping is done when the operation is a success. The result of this mapping
      * is a new promise component.
      *
+     * @param <R> the promised value type
      * @param function The function to applied on success
      * @return a new promise
      */
@@ -85,6 +91,7 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
      * Method use when a new asynchronous computation must be done when the current one succeed. The current one and the
      * chained one are not done sequentially in the same context.
      *
+     * @param <R> the promised value type
      * @param function The function to applied on success
      * @return a new promise
      */

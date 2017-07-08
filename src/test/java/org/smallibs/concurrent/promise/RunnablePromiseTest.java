@@ -13,8 +13,10 @@ import org.smallibs.concurrent.execution.Executor;
 import org.smallibs.concurrent.execution.ExecutorHelper;
 import org.smallibs.exception.FilterException;
 
+import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +31,7 @@ public class RunnablePromiseTest {
 
         final Promise<Integer> integerPromise = executor.async(() -> 1);
         integerPromise.onSuccess(i -> aBoolean.set(true));
-        integerPromise.getFuture().get();
+        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
 
         assertThat(aBoolean.get()).isTrue();
     }
@@ -45,7 +47,7 @@ public class RunnablePromiseTest {
         });
 
         integerPromise.onSuccess(i -> aBoolean.set(true));
-        integerPromise.getFuture().get();
+        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
 
         assertThat(aBoolean.get()).isTrue();
     }
@@ -62,7 +64,7 @@ public class RunnablePromiseTest {
         integerPromise.onFailure(i -> aBoolean.set(true));
 
         try {
-            integerPromise.getFuture().get();
+            integerPromise.getFuture().get(5, TimeUnit.SECONDS);
             assertThat(true).isFalse();
         } catch (ExecutionException e) {
             // consume
@@ -84,7 +86,7 @@ public class RunnablePromiseTest {
         integerPromise.onFailure(i -> aBoolean.set(true));
 
         try {
-            integerPromise.getFuture().get();
+            integerPromise.getFuture().get(5, TimeUnit.SECONDS);
             assertThat(true).isFalse();
         } catch (ExecutionException e) {
             // consume
@@ -105,7 +107,7 @@ public class RunnablePromiseTest {
         integerPromise.onComplete(i -> aBoolean.set(true));
 
         try {
-            integerPromise.getFuture().get();
+            integerPromise.getFuture().get(5, TimeUnit.SECONDS);
             assertThat(true).isFalse();
         } catch (ExecutionException e) {
             // consume
@@ -127,7 +129,7 @@ public class RunnablePromiseTest {
         integerPromise.onComplete(i -> aBoolean.set(true));
 
         try {
-            integerPromise.getFuture().get();
+            integerPromise.getFuture().get(5, TimeUnit.SECONDS);
             assertThat(true).isFalse();
         } catch (ExecutionException e) {
             // consume
@@ -142,7 +144,7 @@ public class RunnablePromiseTest {
 
         final Promise<Integer> integerPromise = executor.async(() -> 1).and(i -> i + 1);
 
-        assertThat(integerPromise.getFuture().get()).isEqualTo(2);
+        assertThat(integerPromise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(2);
     }
 
     @Test(expected = ExecutionException.class)
@@ -153,7 +155,7 @@ public class RunnablePromiseTest {
             throw new SecurityException();
         }).and(i -> i + 1);
 
-        integerPromise.getFuture().get();
+        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
     }
 
     @Test
@@ -163,7 +165,7 @@ public class RunnablePromiseTest {
         final Promise<Integer> integerPromise = executor.async(() -> 1).
                 then(i -> executor.async(() -> i + 1));
 
-        assertThat(integerPromise.getFuture().get()).isEqualTo(2);
+        assertThat(integerPromise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(2);
     }
 
     @Test
@@ -174,7 +176,7 @@ public class RunnablePromiseTest {
                 then(i -> executor.async(() -> i + 1)).
                 and(i -> i + 1);
 
-        assertThat(integerPromise.getFuture().get()).isEqualTo(3);
+        assertThat(integerPromise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(3);
     }
 
     @Test(expected = ExecutionException.class)
@@ -185,7 +187,7 @@ public class RunnablePromiseTest {
             throw new SecurityException();
         }).then(i -> executor.async(() -> i + 1));
 
-        integerPromise.getFuture().get();
+        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
     }
 
     @Test
@@ -194,7 +196,7 @@ public class RunnablePromiseTest {
 
         final Promise<Integer> integerPromise = executor.<Integer>async(() -> 1).filter(i -> i == 1).self();
 
-        assertThat(integerPromise.getFuture().get()).isEqualTo(1);
+        assertThat(integerPromise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(1);
     }
 
     @Test(expected = FilterException.class)
@@ -203,7 +205,7 @@ public class RunnablePromiseTest {
 
         final Promise<Integer> integerPromise = executor.<Integer>async(() -> 1).filter(i -> i == 2).self();
 
-        await(integerPromise).orElseThrow();
+        await(integerPromise, Duration.ofSeconds(5)).orElseThrow();
     }
 
     private Executor givenAnExecutor() {

@@ -17,6 +17,7 @@ import org.smallibs.control.Monad;
 import org.smallibs.type.HK;
 
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,7 +31,7 @@ public class PromiseMonadicTest {
 
         final Monad<Promise, Integer, Promise<Integer>> integerPromise = monad(executor.async(() -> 1).map(i -> i + 1));
 
-        assertThat(integerPromise.self().getFuture().get()).isEqualTo(2);
+        assertThat(integerPromise.self().getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(2);
     }
 
     @Test
@@ -40,7 +41,7 @@ public class PromiseMonadicTest {
         final Functor<Promise, Integer, Promise<Integer>> integerPromise = monad(executor.async(() -> 1).map(i -> i + 1));
         final HK<Promise, Integer, Promise<Integer>> mappedIntegerPromise = integerPromise.map(i -> i + 1);
 
-        assertThat(mappedIntegerPromise.self().getFuture().get()).isEqualTo(3);
+        assertThat(mappedIntegerPromise.self().getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(3);
     }
 
     @Test
@@ -51,7 +52,7 @@ public class PromiseMonadicTest {
         final Functor<Promise, Function<? super Integer, ? extends Integer>, Promise<Function<? super Integer, ? extends Integer>>> f = monad(executor.async(() -> i -> i + 1));
         final HK<Promise, Integer, Promise<Integer>> appliedIntegerPromise  = integerPromise.apply(f);
 
-        assertThat(appliedIntegerPromise .self().getFuture().get()).isEqualTo(3);
+        assertThat(appliedIntegerPromise .self().getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(3);
     }
 
     @Test
@@ -61,7 +62,7 @@ public class PromiseMonadicTest {
         final Monad<Promise, Integer, Promise<Integer>> integerPromise = monad(executor.async(() -> 1).map(i -> i + 1));
         final HK<Promise, Integer, Promise<Integer>> mappedIntegerPromise = integerPromise.flatmap(i -> executor.async(() -> i + 1));
 
-        assertThat(mappedIntegerPromise.self().getFuture().get()).isEqualTo(3);
+        assertThat(mappedIntegerPromise.self().getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(3);
     }
 
     private Executor givenAnExecutor() {

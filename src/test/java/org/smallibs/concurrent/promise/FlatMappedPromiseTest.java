@@ -14,8 +14,10 @@ import org.smallibs.concurrent.execution.ExecutorHelper;
 import org.smallibs.exception.FilterException;
 import org.smallibs.type.HK;
 
+import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,15 +26,23 @@ import static org.smallibs.concurrent.execution.ExecutorHelper.await;
 public class FlatMappedPromiseTest {
 
     @Test
+    public void shouldApplyFlatmap() throws Exception {
+        final Executor executor = givenAnExecutor();
+
+        final Promise<Integer> integerPromise = executor.async(() -> 1).then(i -> executor.async(() -> i + 1));
+
+        assertThat(integerPromise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(2);
+    }
+
+    @Test
     public void shouldApplyOnSuccess() throws Exception {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
         final Executor executor = givenAnExecutor();
 
-        final Promise<Integer> integerPromise = executor.async(() -> 1).
-                then(i -> executor.async(() -> i + 1));
+        final Promise<Integer> integerPromise = executor.async(() -> 1).then(i -> executor.async(() -> i + 1));
 
         integerPromise.onSuccess(i -> aBoolean.set(true));
-        integerPromise.getFuture().get();
+        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
 
         assertThat(aBoolean.get()).isTrue();
     }
@@ -48,7 +58,7 @@ public class FlatMappedPromiseTest {
         }).then(i -> executor.async(() -> i + 1));
 
         integerPromise.onSuccess(i -> aBoolean.set(true));
-        integerPromise.getFuture().get();
+        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
 
         assertThat(aBoolean.get()).isTrue();
     }
@@ -65,7 +75,7 @@ public class FlatMappedPromiseTest {
         integerPromise.onFailure(i -> aBoolean.set(true));
 
         try {
-            integerPromise.getFuture().get();
+            integerPromise.getFuture().get(5, TimeUnit.SECONDS);
         } catch (ExecutionException e) {
             // consume
         }
@@ -86,7 +96,7 @@ public class FlatMappedPromiseTest {
         integerPromise.onFailure(i -> aBoolean.set(true));
 
         try {
-            integerPromise.getFuture().get();
+            integerPromise.getFuture().get(5, TimeUnit.SECONDS);
         } catch (ExecutionException e) {
             // consume
         }
@@ -106,7 +116,7 @@ public class FlatMappedPromiseTest {
         integerPromise.onComplete(i -> aBoolean.set(true));
 
         try {
-            integerPromise.getFuture().get();
+            integerPromise.getFuture().get(5, TimeUnit.SECONDS);
         } catch (ExecutionException e) {
             // consume
         }
@@ -127,7 +137,7 @@ public class FlatMappedPromiseTest {
         integerPromise.onComplete(i -> aBoolean.set(true));
 
         try {
-            integerPromise.getFuture().get();
+            integerPromise.getFuture().get(5, TimeUnit.SECONDS);
         } catch (ExecutionException e) {
             // consume
         }
@@ -142,7 +152,7 @@ public class FlatMappedPromiseTest {
         final HK<Promise, Integer, Promise<Integer>> and = executor.async(() -> 1).and(i -> i + 1);
         final HK<Promise, Integer, Promise<Integer>> and1 = and.self().and(i -> i + 1);
 
-        assertThat(and1.self().getFuture().get()).isEqualTo(3);
+        assertThat(and1.self().getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(3);
     }
 
     @Test(expected = ExecutionException.class)
@@ -153,7 +163,7 @@ public class FlatMappedPromiseTest {
             throw new SecurityException();
         }).then(i -> executor.async(() -> i + 1)).and(i -> i + 1);
 
-        integerPromise.getFuture().get();
+        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
     }
 
     @Test
@@ -164,7 +174,7 @@ public class FlatMappedPromiseTest {
                 executor.async(() -> 1).and(i -> i + 1).
                         then(i -> executor.async(() -> i + 1));
 
-        assertThat(integerPromise.getFuture().get()).isEqualTo(3);
+        assertThat(integerPromise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(3);
     }
 
     @Test(expected = ExecutionException.class)
@@ -175,7 +185,7 @@ public class FlatMappedPromiseTest {
             throw new SecurityException();
         }).then(i -> executor.async(() -> i + 1)).then(i -> executor.async(() -> i + 1));
 
-        integerPromise.getFuture().get();
+        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
     }
 
     @Test
@@ -187,7 +197,7 @@ public class FlatMappedPromiseTest {
                 filter(i -> i == 2).
                 self();
 
-        assertThat(integerPromise.getFuture().get()).isEqualTo(2);
+        assertThat(integerPromise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(2);
     }
 
     @Test(expected = FilterException.class)
@@ -199,7 +209,7 @@ public class FlatMappedPromiseTest {
                 filter(i -> i == 3).
                 self();
 
-        await(integerPromise).orElseThrow();
+        await(integerPromise, Duration.ofSeconds(5)).orElseThrow();
     }
 
     private Executor givenAnExecutor() {

@@ -11,42 +11,17 @@ package org.smallibs.concurrent.promise.impl;
 import org.smallibs.concurrent.promise.Promise;
 import org.smallibs.data.Try;
 
-import java.util.concurrent.Future;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
-final class FlatMappedPromise<T, R> extends AbstractPromise<R> {
-
-    private final Promise<T> promise;
-    private final Function<? super T, Promise<R>> transform;
+final class FlatMappedPromise<T, R> extends SolvablePromise<R> {
 
     FlatMappedPromise(Promise<T> promise, Function<? super T, Promise<R>> transform) {
         super();
 
-        this.promise = promise;
-        this.transform = transform;
+        promise.onComplete(response ->
+                response.onSuccess(s -> transform.apply(s).onComplete(this::solve))
+                        .onFailure(f -> this.solve(Try.failure(f)))
+        );
     }
 
-    @Override
-    public Future<R> getFuture() {
-        return new FlatMappedFuture<>(promise.getFuture(), transform);
-    }
-
-    @Override
-    public void onSuccess(final Consumer<R> consumer) {
-        promise.onSuccess(t -> transform.apply(t).onSuccess(consumer));
-    }
-
-    @Override
-    public void onFailure(final Consumer<Throwable> consumer) {
-        promise.onFailure(consumer);
-    }
-
-    @Override
-    public void onComplete(Consumer<Try<R>> consumer) {
-        promise.onComplete(value ->
-                value.map(transform).
-                onSuccess(o -> o.onComplete(consumer)).
-                onFailure(t -> consumer.accept(Try.failure(t))));
-    }
 }

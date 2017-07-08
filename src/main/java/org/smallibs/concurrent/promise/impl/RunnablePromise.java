@@ -14,9 +14,9 @@ import org.smallibs.data.Try;
 import java.lang.ref.WeakReference;
 import java.util.Objects;
 import java.util.concurrent.Callable;
-import java.util.concurrent.RunnableFuture;
+import java.util.function.Consumer;
 
-public final class RunnablePromise<T> extends PassivePromise<T> implements RunnableFuture<T> {
+public final class RunnablePromise<T> extends SolvablePromise<T> implements Runnable {
 
     private final Callable<T> callable;
 
@@ -29,24 +29,33 @@ public final class RunnablePromise<T> extends PassivePromise<T> implements Runna
     }
 
     @Override
-    public boolean cancel(boolean mayInterruptIfRunning) {
-        if (mayInterruptIfRunning) {
-            Maybe.some(this.currentExecutor.get()).onSome(Thread::interrupt);
-        }
-
-        return super.cancel(mayInterruptIfRunning);
-    }
-
-    @Override
     public void run() {
         this.currentExecutor = new WeakReference<>(Thread.currentThread());
 
         try {
-            response(Try.success(this.callable.call()));
+            solve(Try.success(this.callable.call()));
         } catch (final Throwable exception) {
-            response(Try.failure(exception));
+            solve(Try.failure(exception));
         }
 
         this.currentExecutor.clear();
+    }
+
+    //
+    // Protected behaviors
+    //
+
+    @Override
+    protected SolvableFuture<T> createFuture(Consumer<Try<T>> callbackOnComplete) {
+        return new SolvableFuture<T>(callbackOnComplete) {
+            @Override
+            public boolean cancel(boolean mayInterruptIfRunning) {
+                if (mayInterruptIfRunning) {
+                    Maybe.some(currentExecutor.get()).onSome(Thread::interrupt);
+                }
+
+                return super.cancel(mayInterruptIfRunning);
+            }
+        };
     }
 }
