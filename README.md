@@ -15,7 +15,7 @@ Since such ADT provides traditional map, flapmap etc. functions for a DSL perspe
 
 ```java
 Executor executor = ExecutorHelper.create(Executors.newSingleThreadExecutor());
-Promise<String> integerPromise = executor.async(() -> "Hello").and(s -> s + " world!")
+Promise<String> helloWorldPromise = executor.async(() -> "Hello").and(s -> s + " world!")
 ```
 
 ## HiPeAS overview
