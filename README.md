@@ -18,7 +18,7 @@ Executor executor = ExecutorHelper.create(Executors.newSingleThreadExecutor());
 Promise<String> integerPromise = executor.async(() -> "Hello").and(s -> s + " world!")
 ```
 
-## HipeaS overview
+## HiPeAS overview
 
 ### Synchronous data types
 
