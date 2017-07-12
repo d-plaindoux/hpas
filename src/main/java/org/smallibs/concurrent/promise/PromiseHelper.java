@@ -10,20 +10,29 @@ package org.smallibs.concurrent.promise;
 
 import org.smallibs.concurrent.promise.impl.PromisesSet;
 import org.smallibs.concurrent.promise.impl.SolvedPromise;
+import org.smallibs.control.Applicative;
 import org.smallibs.control.Functor;
 import org.smallibs.control.Monad;
 import org.smallibs.data.Try;
 import org.smallibs.data.Unit;
 import org.smallibs.type.HK;
-import org.smallibs.util.FunctionsWithError;
+import org.smallibs.util.FunctionsHelper;
 
 import java.util.function.Function;
 
 public enum PromiseHelper {
     ;
 
+    public static <T> Functor<Promise, T, Promise<T>> functor(Promise<T> promise) {
+        return (Functor4Promise<T>) () -> promise;
+    }
+
+    public static <T> Applicative<Promise, T, Promise<T>> applicative(Promise<T> promise) {
+        return (Applicative4Promise<T>) () -> promise;
+    }
+
     public static <T> Monad<Promise, T, Promise<T>> monad(Promise<T> promise) {
-        return new Monadic<>(promise);
+        return (Monad4Promise<T>) () -> promise;
     }
 
     public static <T> Promise<T> success(T t) {
@@ -56,48 +65,50 @@ public enum PromiseHelper {
         return (HK<Promise, B, Self>) app;
     }
 
-    /**
-     * @param <T>
-     */
-    private final static class Monadic<T> implements Monad<Promise, T, Promise<T>> {
-        private final Promise<T> promise;
+    //
+    // Internal classes
+    //
 
-        Monadic(Promise<T> promise) {
-            this.promise = promise;
+    @FunctionalInterface
+    private interface Functor4Promise<T> extends Functor<Promise, T, Promise<T>> {
+
+        @Override
+        default <B, NSelf extends HK<Promise, B, NSelf>> HK<Promise, B, NSelf> map(Function<? super T, ? extends B> function) {
+            return generalize((Functor4Promise<B>) () -> self().map(FunctionsHelper.fromFunction(function)));
         }
 
         @Override
-        public <B, NSelf extends HK<Promise, B, NSelf>> HK<Promise, B, NSelf> map(Function<? super T, B> function) {
-            return generalize(new Monadic<>(promise.map(FunctionsWithError.fromFunction(function))));
+        default <T1> T1 accept(Function<HK<Promise, T, Promise<T>>, T1> f) {
+            return self().accept(f);
         }
 
-        @Override
-        public <B, NSelf extends HK<Promise, B, NSelf>> HK<Promise, B, NSelf> flatmap(Function<? super T, HK<Promise, B, NSelf>> function) {
-            final Function<T, Promise<B>> tPromiseFunction = t -> {
-                final HK<Promise, B, NSelf> apply = function.apply(t);
-                return PromiseHelper.specialize(apply).self();
-            };
-            return generalize(new Monadic<>(promise.flatmap(tPromiseFunction)));
-        }
+    }
+
+    @FunctionalInterface
+    private interface Applicative4Promise<T> extends Functor4Promise<T>, Applicative<Promise, T, Promise<T>> {
 
         @Override
-        public <T1> T1 accept(Function<HK<Promise, T, Promise<T>>, T1> f) {
-            return promise.accept(f);
-        }
-
-
-        @Override
-        public <B, NSelf extends HK<Promise, B, NSelf>> HK<Promise, B, NSelf> apply(Functor<Promise, Function<? super T, ? extends B>, ?> functor) {
-            return generalize(new Monadic<>(promise.flatmap(a -> {
+        default <B, NSelf extends HK<Promise, B, NSelf>> HK<Promise, B, NSelf> apply(Functor<Promise, Function<? super T, ? extends B>, ?> functor) {
+            return generalize((Applicative4Promise<B>) () -> self().flatmap(a -> {
                 final HK<Promise, B, NSelf> map = functor.map(bFunction -> bFunction.apply(a));
                 return specialize(map).self();
-            })));
-        }
-
-        @Override
-        public Promise<T> self() {
-            return promise;
+            }));
         }
     }
 
+    /**
+     * @param <T>
+     */
+    private interface Monad4Promise<T> extends Applicative4Promise<T>, Monad<Promise, T, Promise<T>> {
+
+        @Override
+        default <B, NSelf extends HK<Promise, B, NSelf>> HK<Promise, B, NSelf> flatmap(Function<? super T, HK<Promise, B, NSelf>> function) {
+            final Function<T, Promise<B>> tPromiseFunction = t -> {
+                final HK<Promise, B, NSelf> apply = function.apply(t);
+                return specialize(apply).self();
+            };
+
+            return generalize((Monad4Promise<B>) () -> self().flatmap(tPromiseFunction));
+        }
+    }
 }

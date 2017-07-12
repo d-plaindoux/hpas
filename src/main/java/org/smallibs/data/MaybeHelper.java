@@ -19,7 +19,7 @@ public enum MaybeHelper {
     ;
 
     public static <T> Monad<Maybe, T, Maybe<T>> monad(Maybe<T> maybe) {
-        return new MaybeHelper.Monadic<T>(maybe);
+        return new Monadic<T>(maybe);
     }
 
     public static <T> Try<T> toTry(Maybe<T> maybe) {
@@ -47,7 +47,7 @@ public enum MaybeHelper {
         }
 
         @Override
-        public <B, NSelf extends HK<Maybe, B, NSelf>> HK<Maybe, B, NSelf> map(Function<? super T, B> function) {
+        public <B, NSelf extends HK<Maybe, B, NSelf>> HK<Maybe, B, NSelf> map(Function<? super T, ? extends B> function) {
             return generalize(new Monadic<>(aMaybe.map(function)));
         }
 

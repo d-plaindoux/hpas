@@ -100,6 +100,24 @@ public class MaybeTest {
     }
 
     @Test
+    public void shouldOnNoneSome() throws Exception {
+        final AtomicInteger integer = new AtomicInteger(0);
+
+        Maybe.some(1).onNone(() -> integer.set(1));
+
+        assertThat(integer.get()).isEqualTo(0);
+    }
+
+    @Test
+    public void shouldOnNoneNone() throws Exception {
+        final AtomicInteger integer = new AtomicInteger(0);
+
+        Maybe.none().onNone(() -> integer.set(1));
+
+        assertThat(integer.get()).isEqualTo(1);
+    }
+
+    @Test
     public void shouldOrElseSome() throws Exception {
         assertThat(Maybe.some(1).orElse(0)).isEqualTo(1);
     }

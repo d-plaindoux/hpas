@@ -14,6 +14,6 @@ import java.util.function.Function;
 
 public interface Functor<M, A, Self extends HK<M, A, Self>> extends HK<M, A, Self> {
 
-    <B, NSelf extends HK<M, B, NSelf>> HK<M, B, NSelf> map(Function<? super A, B> function);
+    <B, NSelf extends HK<M, B, NSelf>> HK<M, B, NSelf> map(Function<? super A, ? extends B> function);
 
 }

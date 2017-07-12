@@ -1,10 +1,18 @@
+/*
+ * HPAS
+ * https://github.com/d-plaindoux/hpas
+ *
+ * Copyright (c) 2016-2017 Didier Plaindoux
+ * Licensed under the LGPL2 license.
+ */
+
 package org.smallibs.util;
 
 import org.smallibs.data.Try;
 
 import java.util.function.Function;
 
-public interface FunctionsWithError {
+public interface FunctionsHelper {
 
     static <T, R> FunctionWithError<T, R> fromFunction(Function<T, R> function) {
         return function::apply;

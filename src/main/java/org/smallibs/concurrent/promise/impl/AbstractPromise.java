@@ -29,7 +29,7 @@ abstract class AbstractPromise<T> implements Promise<T> {
     }
 
     @Override
-    public final <R> Promise<R> map(FunctionWithError<? super T, R> function) {
+    public final <R> Promise<R> map(FunctionWithError<? super T, ? extends R> function) {
         Objects.requireNonNull(function);
 
         return new MappedPromise<>(this, function);

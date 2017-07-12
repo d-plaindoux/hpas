@@ -44,7 +44,7 @@ public interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, HK<Maybe, T, Maybe
         return this.flatmap(t -> predicate.test(t) ? this : Maybe.none());
     }
 
-    default <B> Maybe<B> map(Function<? super T, B> mapper) {
+    default <B> Maybe<B> map(Function<? super T, ? extends B> mapper) {
         return this.flatmap(x -> some(mapper.apply(x)));
     }
 
@@ -61,6 +61,8 @@ public interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, HK<Maybe, T, Maybe
     }
 
     Maybe<T> onSome(Consumer<T> onSuccess);
+
+    Maybe<T> onNone(Runnable onNone);
 
     <B> Maybe<B> flatmap(Function<? super T, Maybe<B>> mapper);
 
@@ -91,6 +93,11 @@ public interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, HK<Maybe, T, Maybe
             return this;
         }
 
+        @Override
+        public Maybe<T> onNone(Runnable onNone) {
+            return this;
+        }
+
         public T orElse(Supplier<T> t) {
             return this.value;
         }
@@ -113,6 +120,12 @@ public interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, HK<Maybe, T, Maybe
         }
 
         public Maybe<T> onSome(Consumer<T> onSuccess) {
+            return this;
+        }
+
+        @Override
+        public Maybe<T> onNone(Runnable onNone) {
+            onNone.run();
             return this;
         }
 

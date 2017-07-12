@@ -14,7 +14,7 @@ import org.smallibs.util.FunctionWithError;
 
 final class MappedPromise<T, R> extends SolvablePromise<R> {
 
-    MappedPromise(Promise<T> promise, FunctionWithError<? super T, R> transform) {
+    MappedPromise(Promise<T> promise, FunctionWithError<? super T, ? extends R> transform) {
         super();
 
         promise.onComplete(c ->

@@ -21,6 +21,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.smallibs.concurrent.promise.PromiseHelper.applicative;
+import static org.smallibs.concurrent.promise.PromiseHelper.functor;
 import static org.smallibs.concurrent.promise.PromiseHelper.monad;
 
 public class PromiseMonadicTest {
@@ -38,7 +40,7 @@ public class PromiseMonadicTest {
     public void shouldMapMonadicPromise() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Functor<Promise, Integer, Promise<Integer>> integerPromise = monad(executor.async(() -> 1).map(i -> i + 1));
+        final Functor<Promise, Integer, Promise<Integer>> integerPromise = functor(executor.async(() -> 1).map(i -> i + 1));
         final HK<Promise, Integer, Promise<Integer>> mappedIntegerPromise = integerPromise.map(i -> i + 1);
 
         assertThat(mappedIntegerPromise.self().getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(3);
@@ -48,7 +50,7 @@ public class PromiseMonadicTest {
     public void shouldApplyMonadicPromise() throws Exception {
         final Executor executor = givenAnExecutor();
 
-        final Applicative<Promise, Integer, Promise<Integer>> integerPromise = monad(executor.async(() -> 1).map(i -> i + 1));
+        final Applicative<Promise, Integer, Promise<Integer>> integerPromise = applicative(executor.async(() -> 1).map(i -> i + 1));
         final Functor<Promise, Function<? super Integer, ? extends Integer>, Promise<Function<? super Integer, ? extends Integer>>> f = monad(executor.async(() -> i -> i + 1));
         final HK<Promise, Integer, Promise<Integer>> appliedIntegerPromise  = integerPromise.apply(f);
 

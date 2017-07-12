@@ -46,7 +46,7 @@ public interface Try<T> extends Filter<Try, T, Try<T>>, HK<Try, T, Try<T>> {
         return this;
     }
 
-    default <B> Try<B> map(Function<? super T, B> mapper) {
+    default <B> Try<B> map(Function<? super T, ? extends B> mapper) {
         return this.flatmap(t -> success(mapper.apply(t)));
     }
 
