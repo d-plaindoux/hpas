@@ -13,6 +13,13 @@ Since such ADT provides traditional map, flapmap etc. functions for a DSL perspe
 
 ## A taste of HiPeAS
 
+```java
+Executor executor = ExecutorHelper.create(Executors.newSingleThreadExecutor());
+Promise<String> helloWorldPromise = executor.async(() -> "Hello").and(s -> s + " world!")
+```
+
+## HiPeAS overview
+
 ### Synchronous data types
 
 Basically well known `MayBe` and `Try` are available for this purpose. Theses ADT are also the basis for the asynchronous part
@@ -36,11 +43,10 @@ Promise<Integer> integerPromise = executor.async(() -> 1);
 
 #### `await`
 
-In ExecutorHelper **&lt;T&gt; await :: (Promise&lt;T&gt;) &rarr; Try&lt;T&gt;**
+In ExecutorHelper **&lt;T&gt; await :: (Promise&lt;T&gt;, Duration) &rarr; Try&lt;T&gt;**
 
 ```java
-
-Try<Integer> result = ExecutorHelper.await(integerPromise);
+Try<Integer> result = ExecutorHelper.await(integerPromise, Duration.TWO_SECONDS);
 ```
 
 ### Promise
