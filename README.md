@@ -111,7 +111,7 @@ In addition monadic approach is available for each ADT. As usual `Monad` ihnerit
 
 ### Functor
 
-In PromiseHelper functor&lt;T&gt; :: Promise&lt;R&gt; → Functor<T>;
+In PromiseHelper functor&lt;T&gt; :: Promise&lt;T&gt; → Functor<T>;
 
 ```java
 Functor<Promise, Integer, Promise<Integer>> p1 = functor(executor.async(() -> 1));
@@ -119,7 +119,7 @@ HK<Promise, Integer, Promise<Integer>> p2 = p1.map(i -> i + 1);
 ```
 ### Applicative
 
-In PromiseHelper applicative&lt;T&gt; :: Promise&lt;R&gt; → Applicative<T>;
+In PromiseHelper applicative&lt;T&gt; :: Promise&lt;T&gt; → Applicative<T>;
 
 ```java
 Applicative<Promise, Integer, Promise<Integer>> p1 = applicative(executor.async(() -> 1));
@@ -127,7 +127,7 @@ HK<Promise, Integer, Promise<Integer>> p2  = p1.apply(functor(executor.async(() 
 ```
 ### Monad
 
-In PromiseHelper monad&lt;T&gt; :: Promise&lt;R&gt; → Monad<T>;
+In PromiseHelper monad&lt;T&gt; :: Promise&lt;T&gt; → Monad<T>;
 
 ```java
 Monad<Promise, Integer, Promise<Integer>> p1 = monad(executor.async(() -> 1));
