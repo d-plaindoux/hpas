@@ -21,11 +21,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.smallibs.concurrent.execution.ExecutorHelper.await;
 
-public class PassivePromiseTest {
+public class SolvablePromiseTest {
 
     @Test
     public void shouldApplyOnSuccess() throws Exception {
@@ -113,6 +114,46 @@ public class PassivePromiseTest {
         }
 
         assertThat(aBoolean.get()).isTrue();
+    }
+
+    @Test
+    public void shouldApplyOnFailureAfterResolution() throws Exception {
+        final AtomicReference<Throwable> reference = new AtomicReference<>();
+
+        final SolvablePromise<Integer> integerPromise = new SolvablePromise<>();
+
+        integerPromise.solve(Try.failure(new SecurityException()));
+
+        integerPromise.onFailure(reference::set);
+
+        try {
+            integerPromise.getFuture().get(5, TimeUnit.SECONDS);
+            assertThat(true).isFalse();
+        } catch (ExecutionException e) {
+            // consume
+        }
+
+        assertThat(reference.get()).isInstanceOf(SecurityException.class);
+    }
+
+    @Test
+    public void shouldApplyOnFailureBeforeResolution() throws Exception {
+        final AtomicReference<Throwable> reference = new AtomicReference<>();
+
+        final SolvablePromise<Integer> integerPromise = new SolvablePromise<>();
+
+        integerPromise.onFailure(reference::set);
+
+        integerPromise.solve(Try.failure(new SecurityException()));
+
+        try {
+            integerPromise.getFuture().get(5, TimeUnit.SECONDS);
+            assertThat(true).isFalse();
+        } catch (ExecutionException e) {
+            // consume
+        }
+
+        assertThat(reference.get()).isInstanceOf(SecurityException.class);
     }
 
     @Test

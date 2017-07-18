@@ -70,7 +70,9 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
             if (future.isDone() || future.isCancelled()) {
                 try {
                     this.future.get();
-                } catch (InterruptedException | ExecutionException e) {
+                } catch (ExecutionException e) {
+                    failure.set(e.getCause());
+                } catch (InterruptedException e) {
                     failure.set(e);
                 }
             } else {
