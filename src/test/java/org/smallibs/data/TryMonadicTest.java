@@ -25,6 +25,13 @@ public class TryMonadicTest {
     }
 
     @Test
+    public void shouldHaveAcceptedMonadicTry() throws Exception {
+        final Monad<Try, Integer, Try<Integer>> integerTry = monad(monad(Try.success(1)).accept(HK::self));
+
+        assertThat(integerTry.self().<Integer>fold(x -> x, __ -> 0)).isEqualTo(1);
+    }
+
+    @Test
     public void shouldMapMonadicTry() throws Exception {
         final Monad<Try, Integer, Try<Integer>> integerTry = monad(Try.success(1));
         final HK<Try, Integer, Try<Integer>> mappedIntegerTry = integerTry.map(i -> i + 1);

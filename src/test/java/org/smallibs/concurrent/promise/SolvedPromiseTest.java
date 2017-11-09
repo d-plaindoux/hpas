@@ -9,6 +9,7 @@
 package org.smallibs.concurrent.promise;
 
 import org.junit.Test;
+import org.smallibs.type.HK;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +29,20 @@ public class SolvedPromiseTest {
 
         assertThat(aBoolean.get()).isTrue();
     }
+
+    @Test
+    public void shouldApplyAndAcceptOnSuccess() throws Exception {
+        final AtomicBoolean aBoolean = new AtomicBoolean(false);
+
+        final Promise<Integer> solvedPromise = PromiseHelper.success(1);
+        final Promise<Integer> integerPromise = solvedPromise.accept(HK::self);
+
+        integerPromise.onSuccess(i -> aBoolean.set(true));
+        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
+
+        assertThat(aBoolean.get()).isTrue();
+    }
+
 
     @Test
     public void shouldApplyOnFailure() throws Exception {

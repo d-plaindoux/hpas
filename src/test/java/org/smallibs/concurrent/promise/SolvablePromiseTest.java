@@ -14,6 +14,7 @@ import org.smallibs.concurrent.execution.ExecutorHelper;
 import org.smallibs.concurrent.promise.impl.SolvablePromise;
 import org.smallibs.data.Try;
 import org.smallibs.exception.FilterException;
+import org.smallibs.type.HK;
 
 import java.time.Duration;
 import java.util.concurrent.ExecutionException;
@@ -35,6 +36,20 @@ public class SolvablePromiseTest {
         final SolvablePromise<Integer> integerPromise = new SolvablePromise<>();
 
         integerPromise.solve(Try.success(1));
+        integerPromise.onSuccess(i -> aBoolean.set(true));
+        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
+
+        assertThat(aBoolean.get()).isTrue();
+    }
+
+    @Test
+    public void shouldApplyAndAcceptOnSuccess() throws Exception {
+        final AtomicBoolean aBoolean = new AtomicBoolean(false);
+
+        final SolvablePromise<Integer> solvablePromise = new SolvablePromise<>();
+        final Promise<Integer> integerPromise = solvablePromise.accept(HK::self);
+
+        solvablePromise.solve(Try.success(1));
         integerPromise.onSuccess(i -> aBoolean.set(true));
         integerPromise.getFuture().get(5, TimeUnit.SECONDS);
 
