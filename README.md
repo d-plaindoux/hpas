@@ -127,16 +127,16 @@ HK<Promise, Integer, Promise<Integer>> p2  = p1.apply(functor(executor.async(() 
 ```
 ### Monad
 
-In PromiseHelper **monad&lt;T&gt; :: Promise&lt;T&gt; → Monadlt;T&gt;**
+In PromiseHelper **monad&lt;T&gt; :: Promise&lt;T&gt; → Monad&lt;T&gt;**
 
 ```java
 Monad<Promise, Integer, Promise<Integer>> p1 = monad(executor.async(() -> 1));
 HK<Promise, Integer, Promise<Integer>> p2 = p1.flatmap(i -> executor.async(() -> i + 1));
 ```
 
-## Link with standard
+## CompletableFuture and Promise
 
-In CompletableFutureHelper **completableFuture&lt;T&gt; :: Promise&lt;T&gt; → CompletableFuturelt;T&gt;**
+In CompletableFutureHelper **completableFuture&lt;T&gt; :: Promise&lt;T&gt; → CompletableFuture&lt;T&gt;**
 
 ```java
 Executor executor = ExecutorHelper.create(Executors.newSingleThreadExecutor());
@@ -144,7 +144,7 @@ Promise<String> helloWorldPromise = executor.async(() -> "Hello").and(s -> s + "
 CompletableFuture<String> completable = CompletableFutureHelper.completableFuture(helloWorldPromise);
 ```
 
-In CompletableFutureHelper **promise&lt;T&gt; :: CompletableFuture&lt;T&gt; → Promiselt;T&gt;**
+In CompletableFutureHelper **promise&lt;T&gt; :: CompletableFuture&lt;T&gt; → Promise&lt;T&gt;**
 
 ```java
 CompletableFuture<String> completable = CompletableFutureHelper.supplyAsync(() -> "Hello World");
