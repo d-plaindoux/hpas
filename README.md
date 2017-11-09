@@ -134,7 +134,7 @@ Monad<Promise, Integer, Promise<Integer>> p1 = monad(executor.async(() -> 1));
 HK<Promise, Integer, Promise<Integer>> p2 = p1.flatmap(i -> executor.async(() -> i + 1));
 ```
 
-## Link with standard
+## CompletableFuture and Promise
 
 In CompletableFutureHelper **completableFuture&lt;T&gt; :: Promise&lt;T&gt; → CompletableFuturelt;T&gt;**
 
