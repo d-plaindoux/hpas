@@ -102,7 +102,7 @@ integerPromise.onFailure(t -> t.printStackTrace(System.err))
 In Promise&lt;T&gt; **onComplete :: (Try&lt;T&gt; &rarr; void) &rarr; Promise&lt;T&gt;**
 
 ```java
-integerPromise.onComplete(t -> t.onSuccess(integerPromise::onSuccess).onFailure(integerPromise::onFailure));
+integerPromise.onComplete(t -> t.fold(integerPromise::onSuccess, integerPromise::onFailure));
 ```
 
 ## Functor, Applicative and Monad
@@ -134,6 +134,11 @@ Monad<Promise, Integer, Promise<Integer>> p1 = monad(executor.async(() -> 1));
 HK<Promise, Integer, Promise<Integer>> p2 = p1.flatmap(i -> executor.async(() -> i + 1));
 ```
 
+## Link with standard
+
+In CompletableFutureHelper completableFuture&lt;T&gt; :: Promise&lt;T&gt; → CompletableFuture<T>;
+In CompletableFutureHelper promise&lt;T&gt; :: CompletableFuture&lt;T&gt; → Promise<T>;
+
 ## Releases
 
 This library is available at Sonatype OSS Repository Hosting service and can be simply used adding the following 
@@ -143,7 +148,7 @@ dependency - for instance - to your pom project.
 <dependency>
   <groupId>org.smallibs</groupId>
   <artifactId>hpas</artifactId>
-  <version>0.7</version>
+  <version>0.8</version>
 </dependency>
 ```
 
