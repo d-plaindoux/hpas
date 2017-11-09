@@ -111,7 +111,7 @@ In addition monadic approach is available for each ADT. As usual `Monad` ihnerit
 
 ### Functor
 
-In PromiseHelper functor&lt;T&gt; :: Promise&lt;T&gt; → Functor<T>;
+In PromiseHelper **functor&lt;T&gt; :: Promise&lt;T&gt; → Functor&lt;T&gt;**
 
 ```java
 Functor<Promise, Integer, Promise<Integer>> p1 = functor(executor.async(() -> 1));
@@ -119,7 +119,7 @@ HK<Promise, Integer, Promise<Integer>> p2 = p1.map(i -> i + 1);
 ```
 ### Applicative
 
-In PromiseHelper applicative&lt;T&gt; :: Promise&lt;T&gt; → Applicative<T>;
+In PromiseHelper **applicative&lt;T&gt; :: Promise&lt;T&gt; → Applicative&lt;T&gt;**
 
 ```java
 Applicative<Promise, Integer, Promise<Integer>> p1 = applicative(executor.async(() -> 1));
@@ -127,7 +127,7 @@ HK<Promise, Integer, Promise<Integer>> p2  = p1.apply(functor(executor.async(() 
 ```
 ### Monad
 
-In PromiseHelper monad&lt;T&gt; :: Promise&lt;T&gt; → Monad<T>;
+In PromiseHelper **monad&lt;T&gt; :: Promise&lt;T&gt; → Monadlt;T&gt;**
 
 ```java
 Monad<Promise, Integer, Promise<Integer>> p1 = monad(executor.async(() -> 1));
@@ -136,8 +136,20 @@ HK<Promise, Integer, Promise<Integer>> p2 = p1.flatmap(i -> executor.async(() ->
 
 ## Link with standard
 
-In CompletableFutureHelper completableFuture&lt;T&gt; :: Promise&lt;T&gt; → CompletableFuture<T>;
-In CompletableFutureHelper promise&lt;T&gt; :: CompletableFuture&lt;T&gt; → Promise<T>;
+In CompletableFutureHelper **completableFuture&lt;T&gt; :: Promise&lt;T&gt; → CompletableFuturelt;T&gt;**
+
+```java
+Executor executor = ExecutorHelper.create(Executors.newSingleThreadExecutor());
+Promise<String> helloWorldPromise = executor.async(() -> "Hello").and(s -> s + " world!");
+CompletableFuture<String> completable = CompletableFutureHelper.completableFuture(helloWorldPromise);
+```
+
+In CompletableFutureHelper **promise&lt;T&gt; :: CompletableFuture&lt;T&gt; → Promiselt;T&gt;**
+
+```java
+CompletableFuture<String> completable = CompletableFutureHelper.supplyAsync(() -> "Hello World");
+Promise<String> helloWorldPromise = CompletableFutureHelper.promise(completable);
+```
 
 ## Releases
 
