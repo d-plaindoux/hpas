@@ -172,7 +172,7 @@ For more information follow [this link](https://gist.github.com/jdegoes/6842d471
 
 ## License
 
-Copyright (C)2016-2017 D. Plaindoux.
+Copyright (C)2016-2020 D. Plaindoux.
 
 This program is  free software; you can redistribute  it and/or modify
 it  under the  terms  of  the GNU  Lesser  General  Public License  as
