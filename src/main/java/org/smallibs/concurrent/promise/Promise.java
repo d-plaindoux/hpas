@@ -32,7 +32,7 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
     Future<T> getFuture();
 
     /**
-     * Callback called when the computation succeed
+     * Method called when the computation succeed
      *
      * @param consumer The callback to be activated on success
      * @return the current promise
@@ -40,7 +40,7 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
     Promise<T> onSuccess(Consumer<T> consumer);
 
     /**
-     * Callback called when the computation fails
+     * Method called when the computation fails
      *
      * @param consumer The callback to be activated on error
      * @return the current promise
@@ -56,20 +56,20 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
     Promise<T> onComplete(Consumer<Try<T>> consumer);
 
     /**
-     * Method use to map a function. This mapping is done when the operation is a success. The result of this mapping
+     * Method used to map a function. This mapping is done when the operation is a success. The result of this mapping
      * is a new promise component.
      *
-     * @param <R> the promised value type
+     * @param <R>      the promised value type
      * @param function The function to applied on success which can raise an error
      * @return a new promise
      */
     <R> Promise<R> map(FunctionWithError<? super T, ? extends R> function);
 
     /**
-     * Method use when a new computation must be done when the current one succeed. The current one and the chained one
+     * Method used when a new computation must be done when the current one succeed. The current one and the chained one
      * are done sequentially in the same context.
      *
-     * @param <R> the promised value type
+     * @param <R>      the promised value type
      * @param function The function to applied on success
      * @return a new promise
      */
@@ -78,24 +78,25 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
     }
 
     /**
-     * Method use to flatmap a function. This mapping is done when the operation is a success. The result of this mapping
+     * Method used to flatmap a function. This mapping is done when the operation is a success. The result of this mapping
      * is a new promise component.
      *
-     * @param <R> the promised value type
+     * @param <R>      the promised value type
      * @param function The function to applied on success
      * @return a new promise
      */
     <R> Promise<R> flatmap(Function<? super T, Promise<R>> function);
 
     /**
-     * Method use when a new asynchronous computation must be done when the current one succeed. The current one and the
+     * Method used when a new asynchronous computation must be done when the current one succeed. The current one and the
      * chained one are not done sequentially in the same context.
      *
-     * @param <R> the promised value type
+     * @param <R>      the promised value type
      * @param function The function to applied on success
      * @return a new promise
      */
     default <R> Promise<R> then(Function<? super T, Promise<R>> function) {
         return this.flatmap(function);
     }
+
 }

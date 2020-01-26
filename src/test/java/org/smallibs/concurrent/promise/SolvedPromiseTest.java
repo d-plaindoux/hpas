@@ -31,6 +31,17 @@ public class SolvedPromiseTest {
     }
 
     @Test
+    public void shouldApplyOnSuccessWhenSettingNull() throws Exception {
+        final AtomicBoolean aBoolean = new AtomicBoolean(false);
+
+        final Promise<Integer> integerPromise = PromiseHelper.success(null);
+        integerPromise.onSuccess(i -> aBoolean.set(true));
+        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
+
+        assertThat(aBoolean.get()).isTrue();
+    }
+
+    @Test
     public void shouldApplyAndAcceptOnSuccess() throws Exception {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
 

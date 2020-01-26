@@ -14,7 +14,11 @@ import org.smallibs.concurrent.execution.Executor;
 import org.smallibs.concurrent.execution.ExecutorHelper;
 import org.smallibs.concurrent.promise.impl.SolvablePromise;
 
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.jayway.awaitility.Awaitility.await;
@@ -25,7 +29,7 @@ import static org.smallibs.concurrent.promise.PromiseHelper.success;
 public class PromisesSetTest {
 
     @Test
-    public void shouldJoinWhenEmpty() throws Exception {
+    public void shouldJoinWhenEmpty() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
 
         PromiseHelper.join().onSuccess(unit -> aBoolean.set(true));
@@ -34,7 +38,16 @@ public class PromisesSetTest {
     }
 
     @Test
-    public void shouldJoinWhenSuccessPromise() throws Exception {
+    public void shouldJoinAndReturnListWhenEmpty() throws InterruptedException, ExecutionException, TimeoutException {
+        final Promise<List<Object>> promise = PromiseHelper.join();
+
+        promise.getFuture().get(5, TimeUnit.SECONDS);
+
+        assertThat(promise.getFuture().get()).isEmpty();
+    }
+
+    @Test
+    public void shouldJoinWhenSuccessPromise() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
 
         PromiseHelper.join(success(1)).onSuccess(unit -> aBoolean.set(true));
@@ -43,7 +56,16 @@ public class PromisesSetTest {
     }
 
     @Test
-    public void shouldJoinWhenFailurePromise() throws Exception {
+    public void shouldJoinAndReturnListWhenSuccessPromise() throws InterruptedException, ExecutionException, TimeoutException {
+        final Promise<List<Object>> promise = PromiseHelper.join(success(1));
+
+        promise.getFuture().get(5, TimeUnit.SECONDS);
+
+        assertThat(promise.getFuture().get()).containsExactly(1);
+    }
+
+    @Test
+    public void shouldJoinWhenFailurePromise() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
 
         PromiseHelper.join(failure(new SecurityException())).onSuccess(unit -> aBoolean.set(true));
@@ -52,7 +74,7 @@ public class PromisesSetTest {
     }
 
     @Test
-    public void shouldNotJoinWhenUnsolvedPromise() throws Exception {
+    public void shouldNotJoinWhenUnsolvedPromise() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
         final SolvablePromise<Object> passivePromise = new SolvablePromise<>();
 
@@ -62,7 +84,7 @@ public class PromisesSetTest {
     }
 
     @Test
-    public void shouldJoinWhenSolvedPromiseAfter() throws Exception {
+    public void shouldJoinWhenSolvedPromiseAfter() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
         final Executor executor = givenAnExecutor();
 
@@ -79,7 +101,7 @@ public class PromisesSetTest {
     }
 
     @Test
-    public void shouldExistsWhenEmpty() throws Exception {
+    public void shouldExistsWhenEmpty() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
 
         PromiseHelper.exists().onSuccess(unit -> aBoolean.set(true));
@@ -88,7 +110,7 @@ public class PromisesSetTest {
     }
 
     @Test
-    public void shouldExistsWhenSuccessPromise() throws Exception {
+    public void shouldExistsWhenSuccessPromise() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
 
         PromiseHelper.exists(success(1)).onSuccess(unit -> aBoolean.set(true));
@@ -97,7 +119,7 @@ public class PromisesSetTest {
     }
 
     @Test
-    public void shouldExistsWhenFailurePromise() throws Exception {
+    public void shouldExistsWhenFailurePromise() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
 
         PromiseHelper.exists(failure(new SecurityException())).onFailure(unit -> aBoolean.set(true));
@@ -106,7 +128,7 @@ public class PromisesSetTest {
     }
 
     @Test
-    public void shouldNotExistsWhenUnsolvedPromise() throws Exception {
+    public void shouldNotExistsWhenUnsolvedPromise() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
         final SolvablePromise<Object> passivePromise = new SolvablePromise<>();
 
@@ -116,7 +138,7 @@ public class PromisesSetTest {
     }
 
     @Test
-    public void shouldExistsWheOneSolvedPromise() throws Exception {
+    public void shouldExistsWheOneSolvedPromise() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
 
         PromiseHelper.exists(success(1), failure(new SecurityException())).onSuccess(unit -> aBoolean.set(true));
@@ -125,7 +147,7 @@ public class PromisesSetTest {
     }
 
     @Test
-    public void shouldExistsWhenSolvedPromiseAfter() throws Exception {
+    public void shouldExistsWhenSolvedPromiseAfter() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
         final Executor executor = givenAnExecutor();
 
@@ -143,7 +165,7 @@ public class PromisesSetTest {
 
 
     @Test
-    public void shouldForallWhenEmpty() throws Exception {
+    public void shouldForallWhenEmpty() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
 
         PromiseHelper.forall().onSuccess(unit -> aBoolean.set(true));
@@ -152,7 +174,7 @@ public class PromisesSetTest {
     }
 
     @Test
-    public void shouldForallWhenSuccessPromise() throws Exception {
+    public void shouldForallWhenSuccessPromise() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
 
         PromiseHelper.forall(success(1)).onSuccess(unit -> aBoolean.set(true));
@@ -161,7 +183,7 @@ public class PromisesSetTest {
     }
 
     @Test
-    public void shouldForallWhenFailurePromise() throws Exception {
+    public void shouldForallWhenFailurePromise() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
 
         PromiseHelper.forall(failure(new SecurityException())).onFailure(unit -> aBoolean.set(true));
@@ -170,7 +192,7 @@ public class PromisesSetTest {
     }
 
     @Test
-    public void shouldNotForallWhenUnsolvedPromise() throws Exception {
+    public void shouldNotForallWhenUnsolvedPromise() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
         final SolvablePromise<Object> passivePromise = new SolvablePromise<>();
 
@@ -180,7 +202,7 @@ public class PromisesSetTest {
     }
 
     @Test
-    public void shouldForallWheOneSolvedPromise() throws Exception {
+    public void shouldForallWheOneSolvedPromise() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
 
         PromiseHelper.forall(success(1), failure(new SecurityException())).onFailure(unit -> aBoolean.set(true));
@@ -189,7 +211,7 @@ public class PromisesSetTest {
     }
 
     @Test
-    public void shouldForallWhenSolvedPromiseAfter() throws Exception {
+    public void shouldForallWhenSolvedPromiseAfter() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
         final Executor executor = givenAnExecutor();
 

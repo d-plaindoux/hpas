@@ -14,10 +14,10 @@ import org.smallibs.control.Applicative;
 import org.smallibs.control.Functor;
 import org.smallibs.control.Monad;
 import org.smallibs.data.Try;
-import org.smallibs.data.Unit;
 import org.smallibs.type.HK;
 import org.smallibs.util.FunctionsHelper;
 
+import java.util.List;
 import java.util.function.Function;
 
 public enum PromiseHelper {
@@ -36,23 +36,26 @@ public enum PromiseHelper {
     }
 
     public static <T> Promise<T> success(T t) {
-        return new SolvedPromise<T>(Try.success(t));
+        return new SolvedPromise<>(Try.success(t));
     }
 
     public static <T> Promise<T> failure(Throwable t) {
-        return new SolvedPromise<T>(Try.failure(t));
+        return new SolvedPromise<>(Try.failure(t));
     }
 
-    public static Promise<Unit> join(Promise<?>... promises) {
-        return new PromisesSet(PromisesSet.Strategy.NO_STOP, promises);
+    @SafeVarargs
+    public static <T> Promise<List<T>> join(Promise<T>... promises) {
+        return new PromisesSet<>(PromisesSet.Strategy.NO_STOP, promises);
     }
 
-    public static Promise<Unit> forall(Promise<?>... promises) {
-        return new PromisesSet(PromisesSet.Strategy.STOP_ON_ERROR, promises);
+    @SafeVarargs
+    public static <T> Promise<List<T>> forall(Promise<T>... promises) {
+        return new PromisesSet<>(PromisesSet.Strategy.STOP_ON_ERROR, promises);
     }
 
-    public static Promise<Unit> exists(Promise<?>... promises) {
-        return new PromisesSet(PromisesSet.Strategy.STOP_ON_SUCCESS, promises);
+    @SafeVarargs
+    public static <T> Promise<List<T>> exists(Promise<T>... promises) {
+        return new PromisesSet<>(PromisesSet.Strategy.STOP_ON_SUCCESS, promises);
     }
 
     @SuppressWarnings("unchecked")

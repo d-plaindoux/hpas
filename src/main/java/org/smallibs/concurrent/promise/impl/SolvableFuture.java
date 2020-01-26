@@ -20,46 +20,48 @@ import java.util.function.Consumer;
 
 public class SolvableFuture<T> implements Future<T> {
 
+    private enum Status {
+        WAITING, SOLVED, CANCELLED
+    }
+
     private final AtomicReference<Try<T>> responseReference;
     private final Consumer<Try<T>> callbackOnComplete;
-    private volatile boolean canceled;
+    private final AtomicReference<Status> status;
 
     public SolvableFuture(Consumer<Try<T>> callbackOnComplete) {
         this.callbackOnComplete = callbackOnComplete;
         this.responseReference = new AtomicReference<>();
-
-        this.canceled = false;
+        this.status = new AtomicReference<>(Status.WAITING);
     }
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
         synchronized (this.responseReference) {
-            if (isPerformed()) {
-                return false;
+            final boolean isCancelled = this.status.compareAndSet(Status.WAITING, Status.CANCELLED);
+
+            if (isCancelled) {
+                this.responseReference.set(Try.failure(new CancellationException()));
             }
 
-            this.responseReference.set(Try.failure(new CancellationException()));
-            this.canceled = true;
-
-            return true;
+            return isCancelled;
         }
     }
 
     @Override
     public boolean isCancelled() {
-        return this.canceled;
+        return this.status.get() == Status.CANCELLED;
     }
 
     @Override
     public boolean isDone() {
-        return this.responseReference.get() != null;
+        return this.status.get() == Status.SOLVED;
     }
 
     @Override
     public T get() throws InterruptedException, ExecutionException {
         synchronized (responseReference) {
-            if (responseReference.get() == null) {
-                responseReference.wait();
+            if (this.status.get() == Status.WAITING) {
+                this.responseReference.wait();
             }
         }
 
@@ -69,11 +71,11 @@ public class SolvableFuture<T> implements Future<T> {
     @Override
     public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
         synchronized (responseReference) {
-            if (responseReference.get() == null) {
-                responseReference.wait(unit.toMillis(timeout));
+            if (this.status.get() == Status.WAITING) {
+                this.responseReference.wait(unit.toMillis(timeout));
             }
 
-            if (responseReference.get() == null) {
+            if (this.status.get() == Status.WAITING) {
                 throw new TimeoutException();
             }
         }
@@ -83,14 +85,14 @@ public class SolvableFuture<T> implements Future<T> {
 
     public void solve(final Try<T> response) {
         synchronized (this.responseReference) {
-            if (this.isPerformed()) {
-                return;
-            }
+            final boolean isSolved = this.status.compareAndSet(Status.WAITING, Status.SOLVED);
 
-            this.responseReference.set(response);
+            if (isSolved) {
+                this.responseReference.set(response);
+            }
         }
 
-        callbackOnComplete.accept(response);
+        this.callbackOnComplete.accept(response);
 
         synchronized (this.responseReference) {
             this.responseReference.notifyAll();
@@ -100,10 +102,6 @@ public class SolvableFuture<T> implements Future<T> {
     //
     // Private behaviors
     //
-
-    private boolean isPerformed() {
-        return this.isDone() || this.isCancelled();
-    }
 
     private T getNow() throws ExecutionException {
         return responseReference.get().orElseThrow(t -> {

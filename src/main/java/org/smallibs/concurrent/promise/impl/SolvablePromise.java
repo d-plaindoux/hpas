@@ -9,7 +9,6 @@
 package org.smallibs.concurrent.promise.impl;
 
 import org.smallibs.concurrent.promise.Promise;
-import org.smallibs.data.Maybe;
 import org.smallibs.data.Try;
 
 import java.util.ArrayList;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class SolvablePromise<T> extends AbstractPromise<T> {
@@ -42,21 +40,23 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
     public Promise<T> onSuccess(Consumer<T> consumer) {
         Objects.requireNonNull(consumer);
 
-        final AtomicReference<T> success = new AtomicReference<>();
+        final T value;
 
         synchronized (this.future) {
             if (future.isDone() || future.isCancelled()) {
                 try {
-                    success.set(this.future.get());
-                } catch (InterruptedException | ExecutionException consume) {
-                    // Ignore
+                    value = future.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    return this;
                 }
             } else {
                 this.onSuccess.add(consumer);
+                return this;
             }
         }
 
-        Maybe.some(success.get()).onSome(consumer);
+        consumer.accept(value);
+
         return this;
     }
 
@@ -64,23 +64,25 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
     public Promise<T> onFailure(Consumer<Throwable> consumer) {
         Objects.requireNonNull(consumer);
 
-        final AtomicReference<Throwable> failure = new AtomicReference<>();
+        Throwable value = null;
 
         synchronized (this.future) {
             if (future.isDone() || future.isCancelled()) {
                 try {
                     this.future.get();
-                } catch (ExecutionException e) {
-                    failure.set(e.getCause());
+                    return this;
                 } catch (InterruptedException e) {
-                    failure.set(e);
+                    value = e;
+                } catch (ExecutionException e) {
+                    value = e.getCause();
                 }
             } else {
                 this.onError.add(consumer);
+                return this;
             }
         }
 
-        Maybe.some(failure.get()).onSome(consumer);
+        consumer.accept(value);
 
         return this;
     }
@@ -89,10 +91,8 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
     public Promise<T> onComplete(final Consumer<Try<T>> consumer) {
         Objects.requireNonNull(consumer);
 
-        this.onSuccess(t -> consumer.accept(Try.success(t)));
-        this.onFailure(throwable -> consumer.accept(Try.failure(throwable)));
-
-        return this;
+        return this.onSuccess(t -> consumer.accept(Try.success(t)))
+                .onFailure(throwable -> consumer.accept(Try.failure(throwable)));
     }
 
     public void solve(final Try<T> response) {
