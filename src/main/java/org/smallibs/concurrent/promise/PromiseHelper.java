@@ -43,18 +43,15 @@ public enum PromiseHelper {
         return new SolvedPromise<>(Try.failure(t));
     }
 
-    @SafeVarargs
-    public static <T> Promise<Unit> join(Promise<T>... promises) {
+    public static Promise<Unit> join(Promise... promises) {
         return new PromisesSet(PromisesSet.Strategy.NO_STOP, promises);
     }
 
-    @SafeVarargs
-    public static <T> Promise<Unit> forall(Promise... promises) {
+    public static Promise<Unit> forall(Promise... promises) {
         return new PromisesSet(PromisesSet.Strategy.STOP_ON_ERROR, promises);
     }
 
-    @SafeVarargs
-    public static <T> Promise<Unit> exists(Promise... promises) {
+    public static  Promise<Unit> exists(Promise... promises) {
         return new PromisesSet(PromisesSet.Strategy.STOP_ON_SUCCESS, promises);
     }
 

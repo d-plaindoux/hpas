@@ -12,6 +12,7 @@ import org.smallibs.concurrent.promise.Promise;
 import org.smallibs.data.Try;
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -99,8 +100,6 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
         synchronized (this.future) {
             this.future.solve(response);
         }
-
-        this.notifyResponse(response);
     }
 
     //
