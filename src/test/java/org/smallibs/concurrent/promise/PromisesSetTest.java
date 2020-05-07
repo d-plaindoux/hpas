@@ -139,7 +139,7 @@ public class PromisesSetTest {
     }
 
     @Test
-    public void shouldExistsWheOneSolvedPromise() {
+    public void shouldExistsWhenOneSolvedPromise() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
 
         PromiseHelper.exists(success(1), failure(new SecurityException())).onSuccess(unit -> aBoolean.set(true));

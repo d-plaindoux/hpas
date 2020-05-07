@@ -12,7 +12,6 @@ import org.smallibs.concurrent.promise.Promise;
 import org.smallibs.data.Try;
 
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -96,9 +95,9 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
                 .onFailure(throwable -> consumer.accept(Try.failure(throwable)));
     }
 
-    public void solve(final Try<T> response) {
+    public boolean solve(final Try<T> response) {
         synchronized (this.future) {
-            this.future.solve(response);
+            return this.future.solve(response);
         }
     }
 

@@ -83,15 +83,17 @@ public class SolvableFuture<T> implements Future<T> {
         return getNow();
     }
 
-    public void solve(final Try<T> response) {
+    public boolean solve(final Try<T> response) {
         if (this.status.compareAndSet(Status.WAITING, Status.SOLVED)) {
             this.responseReference.set(response);
             this.callbackOnComplete.accept(response);
             synchronized (this) {
                 this.notifyAll();
             }
+
+            return true;
         } else {
-            throw new RuntimeException("Future has already been solved");
+            return false;
         }
     }
 
