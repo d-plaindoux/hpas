@@ -14,10 +14,10 @@ import org.smallibs.control.Applicative;
 import org.smallibs.control.Functor;
 import org.smallibs.control.Monad;
 import org.smallibs.data.Try;
+import org.smallibs.data.Unit;
 import org.smallibs.type.HK;
 import org.smallibs.util.FunctionsHelper;
 
-import java.util.List;
 import java.util.function.Function;
 
 public enum PromiseHelper {
@@ -44,18 +44,18 @@ public enum PromiseHelper {
     }
 
     @SafeVarargs
-    public static <T> Promise<List<T>> join(Promise<T>... promises) {
-        return new PromisesSet<>(PromisesSet.Strategy.NO_STOP, promises);
+    public static <T> Promise<Unit> join(Promise<T>... promises) {
+        return new PromisesSet(PromisesSet.Strategy.NO_STOP, promises);
     }
 
     @SafeVarargs
-    public static <T> Promise<List<T>> forall(Promise<T>... promises) {
-        return new PromisesSet<>(PromisesSet.Strategy.STOP_ON_ERROR, promises);
+    public static <T> Promise<Unit> forall(Promise... promises) {
+        return new PromisesSet(PromisesSet.Strategy.STOP_ON_ERROR, promises);
     }
 
     @SafeVarargs
-    public static <T> Promise<List<T>> exists(Promise<T>... promises) {
-        return new PromisesSet<>(PromisesSet.Strategy.STOP_ON_SUCCESS, promises);
+    public static <T> Promise<Unit> exists(Promise... promises) {
+        return new PromisesSet(PromisesSet.Strategy.STOP_ON_SUCCESS, promises);
     }
 
     @SuppressWarnings("unchecked")
@@ -81,8 +81,8 @@ public enum PromiseHelper {
         }
 
         @Override
-        default <T1> T1 accept(Function<HK<Promise, T, Promise<T>>, T1> f) {
-            return self().accept(f);
+        default <T1> T1 apply(Function<HK<Promise, T, Promise<T>>, T1> f) {
+            return self().apply(f);
         }
 
     }

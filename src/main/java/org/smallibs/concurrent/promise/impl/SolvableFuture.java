@@ -36,7 +36,7 @@ public class SolvableFuture<T> implements Future<T> {
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        synchronized (this.responseReference) {
+        synchronized (this) {
             final boolean isCancelled = this.status.compareAndSet(Status.WAITING, Status.CANCELLED);
 
             if (isCancelled) {
@@ -59,9 +59,9 @@ public class SolvableFuture<T> implements Future<T> {
 
     @Override
     public T get() throws InterruptedException, ExecutionException {
-        synchronized (responseReference) {
+        synchronized (this) {
             if (this.status.get() == Status.WAITING) {
-                this.responseReference.wait();
+                this.wait();
             }
         }
 
@@ -70,9 +70,9 @@ public class SolvableFuture<T> implements Future<T> {
 
     @Override
     public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        synchronized (responseReference) {
+        synchronized (this) {
             if (this.status.get() == Status.WAITING) {
-                this.responseReference.wait(unit.toMillis(timeout));
+                this.wait(unit.toMillis(timeout));
             }
 
             if (this.status.get() == Status.WAITING) {
@@ -84,7 +84,7 @@ public class SolvableFuture<T> implements Future<T> {
     }
 
     public void solve(final Try<T> response) {
-        synchronized (this.responseReference) {
+        synchronized (this) {
             final boolean isSolved = this.status.compareAndSet(Status.WAITING, Status.SOLVED);
 
             if (isSolved) {
@@ -94,8 +94,8 @@ public class SolvableFuture<T> implements Future<T> {
 
         this.callbackOnComplete.accept(response);
 
-        synchronized (this.responseReference) {
-            this.responseReference.notifyAll();
+        synchronized (this) {
+            this.notifyAll();
         }
     }
 

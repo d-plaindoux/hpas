@@ -31,7 +31,7 @@ public interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, HK<Maybe, T, Maybe
     }
 
     @Override
-    default <R> R accept(Function<HK<Maybe, T, Maybe<T>>, R> f) {
+    default <R> R apply(Function<HK<Maybe, T, Maybe<T>>, R> f) {
         return f.apply(this);
     }
 

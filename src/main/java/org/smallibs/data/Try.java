@@ -37,7 +37,7 @@ public interface Try<T> extends Filter<Try, T, Try<T>>, HK<Try, T, Try<T>> {
     }
 
     @Override
-    default <R> R accept(Function<HK<Try, T, Try<T>>, R> f) {
+    default <R> R apply(Function<HK<Try, T, Try<T>>, R> f) {
         return f.apply(this);
     }
 

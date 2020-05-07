@@ -61,8 +61,8 @@ public enum  TryHelper {
         }
 
         @Override
-        public <T1> T1 accept(Function<HK<Try, T, Try<T>>, T1> f) {
-            return aTry.accept(f);
+        public <T1> T1 apply(Function<HK<Try, T, Try<T>>, T1> f) {
+            return aTry.apply(f);
         }
 
         @Override

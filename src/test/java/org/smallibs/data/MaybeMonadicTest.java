@@ -28,7 +28,7 @@ public class MaybeMonadicTest {
 
     @Test
     public void shouldHaveAcceptedMonadicMaybe() throws Exception {
-        final Monad<Maybe, Integer, Maybe<Integer>> integerMaybe = monad(monad(Maybe.some(1)).accept(HK::self));
+        final Monad<Maybe, Integer, Maybe<Integer>> integerMaybe = monad(monad(Maybe.some(1)).apply(HK::self));
 
         assertThat(integerMaybe.self().fold(x -> x, () -> 0)).isEqualTo(1);
     }

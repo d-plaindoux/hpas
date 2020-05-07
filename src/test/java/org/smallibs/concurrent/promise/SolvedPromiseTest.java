@@ -46,7 +46,7 @@ public class SolvedPromiseTest {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
 
         final Promise<Integer> solvedPromise = PromiseHelper.success(1);
-        final Promise<Integer> integerPromise = solvedPromise.accept(HK::self);
+        final Promise<Integer> integerPromise = solvedPromise.apply(HK::self);
 
         integerPromise.onSuccess(i -> aBoolean.set(true));
         integerPromise.getFuture().get(5, TimeUnit.SECONDS);

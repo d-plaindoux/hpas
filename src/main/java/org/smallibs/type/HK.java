@@ -12,7 +12,7 @@ import java.util.function.Function;
 
 public interface HK<M, A, Self extends HK<M, A, Self>> {
 
-    <T> T accept(Function<HK<M, A, Self>, T> f);
+    <T> T apply(Function<HK<M, A, Self>, T> f);
 
     Self self();
 

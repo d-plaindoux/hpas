@@ -47,7 +47,7 @@ public class SolvablePromiseTest {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
 
         final SolvablePromise<Integer> solvablePromise = new SolvablePromise<>();
-        final Promise<Integer> integerPromise = solvablePromise.accept(HK::self);
+        final Promise<Integer> integerPromise = solvablePromise.apply(HK::self);
 
         solvablePromise.solve(Try.success(1));
         integerPromise.onSuccess(i -> aBoolean.set(true));

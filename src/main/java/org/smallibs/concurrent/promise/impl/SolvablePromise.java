@@ -64,7 +64,7 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
     public Promise<T> onFailure(Consumer<Throwable> consumer) {
         Objects.requireNonNull(consumer);
 
-        Throwable value = null;
+        Throwable value;
 
         synchronized (this.future) {
             if (future.isDone() || future.isCancelled()) {

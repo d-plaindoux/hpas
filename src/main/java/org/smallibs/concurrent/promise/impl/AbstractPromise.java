@@ -24,7 +24,7 @@ abstract class AbstractPromise<T> implements Promise<T> {
     }
 
     @Override
-    public <R> R accept(Function<HK<Promise, T, Promise<T>>, R> f) {
+    public <R> R apply(Function<HK<Promise, T, Promise<T>>, R> f) {
         return f.apply(this);
     }
 

@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.smallibs.concurrent.execution.Executor;
 import org.smallibs.concurrent.execution.ExecutorHelper;
 import org.smallibs.concurrent.promise.impl.SolvablePromise;
+import org.smallibs.data.Unit;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -39,11 +40,11 @@ public class PromisesSetTest {
 
     @Test
     public void shouldJoinAndReturnListWhenEmpty() throws InterruptedException, ExecutionException, TimeoutException {
-        final Promise<List<Object>> promise = PromiseHelper.join();
+        final Promise<Unit> promise = PromiseHelper.join();
 
         promise.getFuture().get(5, TimeUnit.SECONDS);
 
-        assertThat(promise.getFuture().get()).isEmpty();
+        assertThat(promise.getFuture().get()).isEqualTo(Unit.unit);
     }
 
     @Test
@@ -57,11 +58,11 @@ public class PromisesSetTest {
 
     @Test
     public void shouldJoinAndReturnListWhenSuccessPromise() throws InterruptedException, ExecutionException, TimeoutException {
-        final Promise<List<Object>> promise = PromiseHelper.join(success(1));
+        final Promise<Unit> promise = PromiseHelper.join(success(1));
 
         promise.getFuture().get(5, TimeUnit.SECONDS);
 
-        assertThat(promise.getFuture().get()).containsExactly(1);
+        assertThat(promise.getFuture().get()).isEqualTo(Unit.unit);
     }
 
     @Test
@@ -104,7 +105,7 @@ public class PromisesSetTest {
     public void shouldExistsWhenEmpty() {
         final AtomicBoolean aBoolean = new AtomicBoolean(false);
 
-        PromiseHelper.exists().onSuccess(unit -> aBoolean.set(true));
+        PromiseHelper.exists().onFailure(unit -> aBoolean.set(true));
 
         assertThat(aBoolean.get()).isTrue();
     }

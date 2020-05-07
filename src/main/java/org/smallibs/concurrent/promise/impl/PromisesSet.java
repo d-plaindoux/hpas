@@ -10,34 +10,41 @@ package org.smallibs.concurrent.promise.impl;
 
 import org.smallibs.concurrent.promise.Promise;
 import org.smallibs.data.Try;
+import org.smallibs.data.Unit;
+import org.smallibs.exception.NoValueException;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PromisesSet<T> extends SolvablePromise<List<T>> {
+public class PromisesSet extends SolvablePromise<Unit> {
 
     private final Strategy strategy;
-    private final Promise<T>[] promises;
+    private final Promise<?>[] promises;
     private final AtomicInteger activePromises;
-    private final List<T> collectedResult;
 
-    public PromisesSet(Strategy strategy, Promise<T>... promises) {
+    public PromisesSet(Strategy strategy, Promise... promises) {
+
         this.strategy = strategy;
         this.promises = promises;
         this.activePromises = new AtomicInteger(this.promises.length);
-        this.collectedResult = new ArrayList<>();
 
         if (this.promises.length == 0) {
-            solve(Try.success(this.collectedResult));
+            switch (strategy) {
+                case NO_STOP:
+                case STOP_ON_ERROR:
+                    solve(Try.success(Unit.unit));
+                    break;
+                case STOP_ON_SUCCESS:
+                    solve(Try.failure(new NoValueException()));
+                    break;
+            }
             return;
         }
 
         Arrays.asList(this.promises).forEach(promise -> {
             promise.onSuccess(t -> {
                 activePromises.decrementAndGet();
-                manageSuccess(t);
+                manageSuccess();
             });
             promise.onFailure(e -> {
                 activePromises.decrementAndGet();
@@ -47,26 +54,21 @@ public class PromisesSet<T> extends SolvablePromise<List<T>> {
 
     }
 
-    private final void manageSuccess(T t) {
-        this.collectedResult.add(t);
+    private void manageSuccess() {
+        if (strategy == Strategy.STOP_ON_SUCCESS) {
+            solve(Try.success(Unit.unit));
 
-        switch (strategy) {
-            case STOP_ON_SUCCESS:
-                solve(Try.success(this.collectedResult));
-
-                Arrays.asList(promises).forEach(promise -> {
-                    promise.getFuture().cancel(true);
-                });
-                break;
-            default:
-                if (activePromises.get() == 0) {
-                    solve(Try.success(this.collectedResult));
-                }
-                break;
+            Arrays.asList(promises).forEach(promise -> {
+                promise.getFuture().cancel(true);
+            });
+        } else {
+            if (activePromises.get() == 0) {
+                solve(Try.success(Unit.unit));
+            }
         }
     }
 
-    private final void manageError(Throwable t) {
+    private void manageError(Throwable t) {
         switch (strategy) {
             case STOP_ON_ERROR:
                 solve(Try.failure(t));
@@ -82,7 +84,7 @@ public class PromisesSet<T> extends SolvablePromise<List<T>> {
                 break;
             default:
                 if (activePromises.get() == 0) {
-                    solve(Try.success(this.collectedResult));
+                    solve(Try.success(Unit.unit));
                 }
                 break;
         }
