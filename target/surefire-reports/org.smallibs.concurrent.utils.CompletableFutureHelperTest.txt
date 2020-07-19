@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: org.smallibs.concurrent.utils.CompletableFutureHelperTest
--------------------------------------------------------------------------------
-Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.195 sec
