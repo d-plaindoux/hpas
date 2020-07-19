@@ -1,5 +1,6 @@
 # HiPeAS
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/052bbdb13acf4b35bd5bbb485f6cad25)](https://app.codacy.com/manual/d-plaindoux/hpas?utm_source=github.com&utm_medium=referral&utm_content=d-plaindoux/hpas&utm_campaign=Badge_Grade_Dashboard)
 [![Build Status](https://travis-ci.org/d-plaindoux/hpas.svg?branch=master)](https://travis-ci.org/d-plaindoux/hpas)
 [![Coverage Status](https://coveralls.io/repos/github/d-plaindoux/hpas/badge.svg?branch=master)](https://coveralls.io/github/d-plaindoux/hpas?branch=master)
 [![stable](http://badges.github.io/stability-badges/dist/stable.svg)](http://github.com/badges/stability-badges)
