@@ -6,9 +6,10 @@ import org.smallibs.data.Try;
 
 import java.util.concurrent.CompletableFuture;
 
-public interface CompletableFutureHelper {
+public enum CompletableFutureHelper {
+    ;
 
-    static  <T> CompletableFuture<T> completableFuture(Promise<T> promise) {
+    public static <T> CompletableFuture<T> completableFuture(Promise<T> promise) {
         final CompletableFuture<T> future = new CompletableFuture<>();
 
         promise.onComplete(tTry ->
@@ -18,7 +19,7 @@ public interface CompletableFutureHelper {
         return future;
     }
 
-    static  <T> Promise<T> promise(CompletableFuture<T> completableFuture) {
+    public static <T> Promise<T> promise(CompletableFuture<T> completableFuture) {
         final SolvablePromise<T> promise = new SolvablePromise<>();
 
         completableFuture.whenComplete((v, e) -> {

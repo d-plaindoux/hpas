@@ -12,13 +12,14 @@ import org.smallibs.data.Try;
 
 import java.util.function.Function;
 
-public interface FunctionsHelper {
+public enum FunctionsHelper {
+    ;
 
-    static <T, R> FunctionWithError<T, R> fromFunction(Function<T, R> function) {
+    public static <T, R> FunctionWithError<T, R> fromFunction(Function<T, R> function) {
         return function::apply;
     }
 
-    static <T, R> Function<T, Try<R>> toFunction(FunctionWithError<T, R> function) {
+    public static <T, R> Function<T, Try<R>> toFunction(FunctionWithError<T, R> function) {
         return t -> {
             try {
                 return Try.success(function.apply(t));
@@ -28,4 +29,11 @@ public interface FunctionsHelper {
         };
     }
 
+    public static <A, B, C> Function<A, C> compose(Function<B, C> f, Function<A, B> g) {
+        return x -> f.apply(g.apply(x));
+    }
+
+    public static <A> Function<A, A> id() {
+        return Function.identity();
+    }
 }

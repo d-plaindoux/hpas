@@ -11,12 +11,17 @@ package org.smallibs.data;
 import org.smallibs.control.Filter;
 import org.smallibs.type.HK;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, HK<Maybe, T, Maybe<T>> {
+
+    static <T> Maybe<T> pure(T value) {
+        return some(value);
+    }
 
     static <T> Maybe<T> some(T value) {
         if (value == null) {
@@ -28,11 +33,6 @@ public interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, HK<Maybe, T, Maybe
 
     static <T> Maybe<T> none() {
         return new None<>();
-    }
-
-    @Override
-    default <R> R apply(Function<HK<Maybe, T, Maybe<T>>, R> f) {
-        return f.apply(this);
     }
 
     @Override
@@ -102,6 +102,18 @@ public interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, HK<Maybe, T, Maybe
             return this.value;
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Some<?> some = (Some<?>) o;
+            return Objects.equals(value, some.value);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
+        }
     }
 
     /**
@@ -131,6 +143,18 @@ public interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, HK<Maybe, T, Maybe
 
         public T orElse(Supplier<T> t) {
             return t.get();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return 13;
         }
     }
 

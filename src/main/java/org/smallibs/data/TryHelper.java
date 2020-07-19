@@ -12,9 +12,10 @@ import org.smallibs.control.Functor;
 import org.smallibs.control.Monad;
 import org.smallibs.type.HK;
 
+import java.util.Objects;
 import java.util.function.Function;
 
-public enum  TryHelper {
+public enum TryHelper {
     ;
 
     public static <T> Monad<Try, T, Try<T>> monad(Try<T> aTry) {
@@ -61,11 +62,6 @@ public enum  TryHelper {
         }
 
         @Override
-        public <T1> T1 apply(Function<HK<Try, T, Try<T>>, T1> f) {
-            return aTry.apply(f);
-        }
-
-        @Override
         public <B, NSelf extends HK<Try, B, NSelf>> HK<Try, B, NSelf> apply(Functor<Try, Function<? super T, ? extends B>, ?> functor) {
             return generalize(new Monadic<>(aTry.flatmap(a -> {
                 final HK<Try, B, NSelf> map = functor.map(bFunction -> bFunction.apply(a));
@@ -76,6 +72,19 @@ public enum  TryHelper {
         @Override
         public Try<T> self() {
             return aTry;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Monadic<?> monadic = (Monadic<?>) o;
+            return Objects.equals(aTry, monadic.aTry);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(aTry);
         }
     }
 }

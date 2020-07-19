@@ -13,6 +13,7 @@ import org.smallibs.control.Monad;
 import org.smallibs.exception.NoValueException;
 import org.smallibs.type.HK;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 public enum MaybeHelper {
@@ -62,11 +63,6 @@ public enum MaybeHelper {
         }
 
         @Override
-        public <T1> T1 apply(Function<HK<Maybe, T, Maybe<T>>, T1> f) {
-            return aMaybe.apply(f);
-        }
-
-        @Override
         public <B, NSelf extends HK<Maybe, B, NSelf>> HK<Maybe, B, NSelf> apply(Functor<Maybe, Function<? super T, ? extends B>, ?> functor) {
             return generalize(new Monadic<>(aMaybe.flatmap(a -> {
                 final HK<Maybe, B, NSelf> map = functor.map(bFunction -> bFunction.apply(a));
@@ -77,6 +73,19 @@ public enum MaybeHelper {
         @Override
         public Maybe<T> self() {
             return aMaybe;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Monadic<?> monadic = (Monadic<?>) o;
+            return Objects.equals(aMaybe, monadic.aMaybe);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(aMaybe);
         }
     }
 }

@@ -12,12 +12,17 @@ import org.smallibs.control.Filter;
 import org.smallibs.exception.FilterException;
 import org.smallibs.type.HK;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public interface Try<T> extends Filter<Try, T, Try<T>>, HK<Try, T, Try<T>> {
+
+    static <T> Try<T> pure(T value) {
+        return success(value);
+    }
 
     static <T> Try<T> success(T value) {
         if (Throwable.class.isInstance(value)) {
@@ -34,11 +39,6 @@ public interface Try<T> extends Filter<Try, T, Try<T>>, HK<Try, T, Try<T>> {
     @Override
     default Try<T> filter(Predicate<? super T> predicate) {
         return this.flatmap(t -> predicate.test(t) ? this : Try.failure(new FilterException()));
-    }
-
-    @Override
-    default <R> R apply(Function<HK<Try, T, Try<T>>, R> f) {
-        return f.apply(this);
     }
 
     @Override
@@ -115,6 +115,19 @@ public interface Try<T> extends Filter<Try, T, Try<T>>, HK<Try, T, Try<T>> {
         public T recoverWith(Function<? super Throwable, T> t) {
             return this.value;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Success<?> success = (Success<?>) o;
+            return Objects.equals(value, success.value);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
+        }
     }
 
     /**
@@ -153,6 +166,17 @@ public interface Try<T> extends Filter<Try, T, Try<T>>, HK<Try, T, Try<T>> {
             return t.apply(this.value);
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return 13;
+        }
     }
 
 }

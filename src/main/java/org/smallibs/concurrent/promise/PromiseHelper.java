@@ -77,11 +77,6 @@ public enum PromiseHelper {
             return generalize((Functor4Promise<B>) () -> self().map(FunctionsHelper.fromFunction(function)));
         }
 
-        @Override
-        default <T1> T1 apply(Function<HK<Promise, T, Promise<T>>, T1> f) {
-            return self().apply(f);
-        }
-
     }
 
     @FunctionalInterface

@@ -17,12 +17,24 @@ import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static org.smallibs.util.FunctionsHelper.fromFunction;
+
 /**
  * A promise is a component denoting an asynchronous computation. Such component can be mapped in order to chain
  * transformations.
  */
 
 public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, T, Promise<T>> {
+
+    /**
+     * Constructor
+     *
+     * @param value The captured value
+     * @return a solved promise
+     */
+    static <T> Promise<T> pure(T value) {
+        return PromiseHelper.success(value);
+    }
 
     /**
      * Provides the underlying future able to capture and returns the result or the error for a given execution
