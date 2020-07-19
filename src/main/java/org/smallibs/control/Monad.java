@@ -12,8 +12,8 @@ import org.smallibs.type.HK;
 
 import java.util.function.Function;
 
-public interface Monad<M, A, Self extends HK<M, A, Self>> extends Applicative<M, A, Self> {
+public interface Monad<M, A, S extends HK<M, A, S>> extends Applicative<M, A, S> {
 
-    <B, NSelf extends HK<M, B, NSelf>> HK<M, B, NSelf> flatmap(Function<? super A, HK<M, B, NSelf>> function);
+    <B, NS extends HK<M, B, NS>> HK<M, B, NS> flatmap(Function<? super A, HK<M, B, NS>> function);
 
 }

@@ -28,13 +28,13 @@ public enum MaybeHelper {
     }
 
     @SuppressWarnings("unchecked")
-    private static <B, Self extends HK<Maybe, B, Self>> HK<Maybe, B, Maybe<B>> specialize(HK<Maybe, B, Self> app) {
+    private static <B, S extends HK<Maybe, B, S>> HK<Maybe, B, Maybe<B>> specialize(HK<Maybe, B, S> app) {
         return (HK<Maybe, B, Maybe<B>>) app;
     }
 
     @SuppressWarnings("unchecked")
-    private static <B, Self extends HK<Maybe, B, Self>> HK<Maybe, B, Self> generalize(HK<Maybe, B, Maybe<B>> app) {
-        return (HK<Maybe, B, Self>) app;
+    private static <B, S extends HK<Maybe, B, S>> HK<Maybe, B, S> generalize(HK<Maybe, B, Maybe<B>> app) {
+        return (HK<Maybe, B, S>) app;
     }
 
     /**
@@ -48,14 +48,14 @@ public enum MaybeHelper {
         }
 
         @Override
-        public <B, NSelf extends HK<Maybe, B, NSelf>> HK<Maybe, B, NSelf> map(Function<? super T, ? extends B> function) {
+        public <B, NS extends HK<Maybe, B, NS>> HK<Maybe, B, NS> map(Function<? super T, ? extends B> function) {
             return generalize(new Monadic<>(aMaybe.map(function)));
         }
 
         @Override
-        public <B, NSelf extends HK<Maybe, B, NSelf>> HK<Maybe, B, NSelf> flatmap(Function<? super T, HK<Maybe, B, NSelf>> function) {
+        public <B, NS extends HK<Maybe, B, NS>> HK<Maybe, B, NS> flatmap(Function<? super T, HK<Maybe, B, NS>> function) {
             final Function<T, Maybe<B>> tMaybeFunction = t -> {
-                final HK<Maybe, B, NSelf> applied = function.apply(t);
+                final HK<Maybe, B, NS> applied = function.apply(t);
                 return specialize(applied).self();
             };
 
@@ -63,9 +63,9 @@ public enum MaybeHelper {
         }
 
         @Override
-        public <B, NSelf extends HK<Maybe, B, NSelf>> HK<Maybe, B, NSelf> apply(Functor<Maybe, Function<? super T, ? extends B>, ?> functor) {
+        public <B, NS extends HK<Maybe, B, NS>> HK<Maybe, B, NS> apply(Functor<Maybe, Function<? super T, ? extends B>, ?> functor) {
             return generalize(new Monadic<>(aMaybe.flatmap(a -> {
-                final HK<Maybe, B, NSelf> map = functor.map(bFunction -> bFunction.apply(a));
+                final HK<Maybe, B, NS> map = functor.map(bFunction -> bFunction.apply(a));
                 return specialize(map).self();
             })));
         }

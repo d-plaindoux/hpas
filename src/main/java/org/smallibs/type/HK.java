@@ -10,12 +10,12 @@ package org.smallibs.type;
 
 import java.util.function.Function;
 
-public interface HK<M, A, Self extends HK<M, A, Self>> {
+public interface HK<M, A, S extends HK<M, A, S>> {
 
-    default <T> T apply(Function<HK<M, A, Self>, T> f) {
+    default <T> T apply(Function<HK<M, A, S>, T> f) {
         return f.apply(self());
     }
 
-    Self self();
+    S self();
 
 }

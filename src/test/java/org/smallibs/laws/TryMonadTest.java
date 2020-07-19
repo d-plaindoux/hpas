@@ -3,7 +3,6 @@ package org.smallibs.laws;
 import com.pholser.junit.quickcheck.Property;
 import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
 import org.junit.runner.RunWith;
-import org.smallibs.data.Maybe;
 import org.smallibs.data.Try;
 
 import java.util.function.Function;

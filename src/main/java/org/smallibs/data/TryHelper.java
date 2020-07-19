@@ -27,13 +27,13 @@ public enum TryHelper {
     }
 
     @SuppressWarnings("unchecked")
-    private static <B, Self extends HK<Try, B, Self>> HK<Try, B, Try<B>> specialize(HK<Try, B, Self> app) {
+    private static <B, S extends HK<Try, B, S>> HK<Try, B, Try<B>> specialize(HK<Try, B, S> app) {
         return (HK<Try, B, Try<B>>) app;
     }
 
     @SuppressWarnings("unchecked")
-    private static <B, Self extends HK<Try, B, Self>> HK<Try, B, Self> generalize(HK<Try, B, Try<B>> app) {
-        return (HK<Try, B, Self>) app;
+    private static <B, S extends HK<Try, B, S>> HK<Try, B, S> generalize(HK<Try, B, Try<B>> app) {
+        return (HK<Try, B, S>) app;
     }
 
     /**
@@ -47,14 +47,14 @@ public enum TryHelper {
         }
 
         @Override
-        public <B, NSelf extends HK<Try, B, NSelf>> HK<Try, B, NSelf> map(Function<? super T, ? extends B> function) {
+        public <B, NS extends HK<Try, B, NS>> HK<Try, B, NS> map(Function<? super T, ? extends B> function) {
             return generalize(new Monadic<>(aTry.map(function)));
         }
 
         @Override
-        public <B, NSelf extends HK<Try, B, NSelf>> HK<Try, B, NSelf> flatmap(Function<? super T, HK<Try, B, NSelf>> function) {
+        public <B, NS extends HK<Try, B, NS>> HK<Try, B, NS> flatmap(Function<? super T, HK<Try, B, NS>> function) {
             final Function<T, Try<B>> tTryFunction = t -> {
-                final HK<Try, B, NSelf> apply = function.apply(t);
+                final HK<Try, B, NS> apply = function.apply(t);
                 return specialize(apply).self();
             };
 
@@ -62,9 +62,9 @@ public enum TryHelper {
         }
 
         @Override
-        public <B, NSelf extends HK<Try, B, NSelf>> HK<Try, B, NSelf> apply(Functor<Try, Function<? super T, ? extends B>, ?> functor) {
+        public <B, NS extends HK<Try, B, NS>> HK<Try, B, NS> apply(Functor<Try, Function<? super T, ? extends B>, ?> functor) {
             return generalize(new Monadic<>(aTry.flatmap(a -> {
-                final HK<Try, B, NSelf> map = functor.map(bFunction -> bFunction.apply(a));
+                final HK<Try, B, NS> map = functor.map(bFunction -> bFunction.apply(a));
                 return specialize(map).self();
             })));
         }

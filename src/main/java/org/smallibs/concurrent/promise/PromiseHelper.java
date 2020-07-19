@@ -55,13 +55,13 @@ public enum PromiseHelper {
     }
 
     @SuppressWarnings("unchecked")
-    private static <B, Self extends HK<Promise, B, Self>> HK<Promise, B, Promise<B>> specialize(HK<Promise, B, Self> app) {
+    private static <B, S extends HK<Promise, B, S>> HK<Promise, B, Promise<B>> specialize(HK<Promise, B, S> app) {
         return (HK<Promise, B, Promise<B>>) app;
     }
 
     @SuppressWarnings("unchecked")
-    private static <B, Self extends HK<Promise, B, Self>> HK<Promise, B, Self> generalize(HK<Promise, B, Promise<B>> app) {
-        return (HK<Promise, B, Self>) app;
+    private static <B, S extends HK<Promise, B, S>> HK<Promise, B, S> generalize(HK<Promise, B, Promise<B>> app) {
+        return (HK<Promise, B, S>) app;
     }
 
     //
@@ -72,7 +72,7 @@ public enum PromiseHelper {
     private interface Functor4Promise<T> extends Functor<Promise, T, Promise<T>> {
 
         @Override
-        default <B, NSelf extends HK<Promise, B, NSelf>> HK<Promise, B, NSelf> map(Function<? super T, ? extends B> function) {
+        default <B, NS extends HK<Promise, B, NS>> HK<Promise, B, NS> map(Function<? super T, ? extends B> function) {
             return generalize((Functor4Promise<B>) () -> self().map(function));
         }
 
@@ -82,9 +82,9 @@ public enum PromiseHelper {
     private interface Applicative4Promise<T> extends Functor4Promise<T>, Applicative<Promise, T, Promise<T>> {
 
         @Override
-        default <B, NSelf extends HK<Promise, B, NSelf>> HK<Promise, B, NSelf> apply(Functor<Promise, Function<? super T, ? extends B>, ?> functor) {
+        default <B, NS extends HK<Promise, B, NS>> HK<Promise, B, NS> apply(Functor<Promise, Function<? super T, ? extends B>, ?> functor) {
             return generalize((Applicative4Promise<B>) () -> self().flatmap(a -> {
-                final HK<Promise, B, NSelf> map = functor.map(bFunction -> bFunction.apply(a));
+                final HK<Promise, B, NS> map = functor.map(bFunction -> bFunction.apply(a));
                 return specialize(map).self();
             }));
         }
@@ -96,9 +96,9 @@ public enum PromiseHelper {
     private interface Monad4Promise<T> extends Applicative4Promise<T>, Monad<Promise, T, Promise<T>> {
 
         @Override
-        default <B, NSelf extends HK<Promise, B, NSelf>> HK<Promise, B, NSelf> flatmap(Function<? super T, HK<Promise, B, NSelf>> function) {
+        default <B, NS extends HK<Promise, B, NS>> HK<Promise, B, NS> flatmap(Function<? super T, HK<Promise, B, NS>> function) {
             final Function<T, Promise<B>> tPromiseFunction = t -> {
-                final HK<Promise, B, NSelf> apply = function.apply(t);
+                final HK<Promise, B, NS> apply = function.apply(t);
                 return specialize(apply).self();
             };
 

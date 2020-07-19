@@ -52,9 +52,9 @@ public class PromiseMonadicTest {
 
         final Applicative<Promise, Integer, Promise<Integer>> integerPromise = applicative(executor.async(() -> 1).map(i -> i + 1));
         final Functor<Promise, Function<? super Integer, ? extends Integer>, Promise<Function<? super Integer, ? extends Integer>>> f = monad(executor.async(() -> i -> i + 1));
-        final HK<Promise, Integer, Promise<Integer>> appliedIntegerPromise  = integerPromise.apply(f);
+        final HK<Promise, Integer, Promise<Integer>> appliedIntegerPromise = integerPromise.apply(f);
 
-        assertThat(appliedIntegerPromise .self().getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(3);
+        assertThat(appliedIntegerPromise.self().getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(3);
     }
 
     @Test

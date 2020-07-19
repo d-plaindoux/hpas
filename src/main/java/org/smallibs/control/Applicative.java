@@ -12,8 +12,8 @@ import org.smallibs.type.HK;
 
 import java.util.function.Function;
 
-public interface Applicative<M, A, Self extends HK<M, A, Self>> extends Functor<M, A, Self> {
+public interface Applicative<M, A, S extends HK<M, A, S>> extends Functor<M, A, S> {
 
-    <B, NSelf extends HK<M, B, NSelf>> HK<M, B, NSelf> apply(Functor<M, Function<? super A, ? extends B>, ?> functor);
+    <B, NS extends HK<M, B, NS>> HK<M, B, NS> apply(Functor<M, Function<? super A, ? extends B>, ?> functor);
 
 }

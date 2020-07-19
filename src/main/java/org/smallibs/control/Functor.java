@@ -12,8 +12,8 @@ import org.smallibs.type.HK;
 
 import java.util.function.Function;
 
-public interface Functor<M, A, Self extends HK<M, A, Self>> extends HK<M, A, Self> {
+public interface Functor<M, A, S extends HK<M, A, S>> extends HK<M, A, S> {
 
-    <B, NSelf extends HK<M, B, NSelf>> HK<M, B, NSelf> map(Function<? super A, ? extends B> function);
+    <B, NS extends HK<M, B, NS>> HK<M, B, NS> map(Function<? super A, ? extends B> function);
 
 }

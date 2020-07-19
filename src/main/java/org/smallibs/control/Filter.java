@@ -15,7 +15,7 @@ import java.util.function.Predicate;
 /**
  * Filter interface
  */
-public interface Filter<M, A, Self extends HK<M, A, Self>> {
+public interface Filter<M, A, S extends HK<M, A, S>> {
 
     /**
      * Method called when the current data must be filtered using a given predicate.
@@ -23,6 +23,6 @@ public interface Filter<M, A, Self extends HK<M, A, Self>> {
      * @param predicate The filter
      * @return a filtered data
      */
-    HK<M, A, Self> filter(Predicate<? super A> predicate);
+    HK<M, A, S> filter(Predicate<? super A> predicate);
 
 }
