@@ -16,7 +16,6 @@ import org.smallibs.control.Monad;
 import org.smallibs.data.Try;
 import org.smallibs.data.Unit;
 import org.smallibs.type.HK;
-import org.smallibs.util.FunctionsHelper;
 
 import java.util.function.Function;
 
@@ -51,7 +50,7 @@ public enum PromiseHelper {
         return new PromisesSet(PromisesSet.Strategy.STOP_ON_ERROR, promises);
     }
 
-    public static  Promise<Unit> exists(Promise... promises) {
+    public static Promise<Unit> exists(Promise... promises) {
         return new PromisesSet(PromisesSet.Strategy.STOP_ON_SUCCESS, promises);
     }
 
@@ -74,7 +73,7 @@ public enum PromiseHelper {
 
         @Override
         default <B, NSelf extends HK<Promise, B, NSelf>> HK<Promise, B, NSelf> map(Function<? super T, ? extends B> function) {
-            return generalize((Functor4Promise<B>) () -> self().map(FunctionsHelper.fromFunction(function)));
+            return generalize((Functor4Promise<B>) () -> self().map(function));
         }
 
     }

@@ -10,11 +10,12 @@ package org.smallibs.concurrent.promise.impl;
 
 import org.smallibs.concurrent.promise.Promise;
 import org.smallibs.data.Try;
-import org.smallibs.util.FunctionWithError;
+
+import java.util.function.Function;
 
 final class MappedPromise<T, R> extends SolvablePromise<R> {
 
-    MappedPromise(Promise<T> promise, FunctionWithError<? super T, ? extends R> transform) {
+    MappedPromise(Promise<T> promise, Function<? super T, ? extends R> transform) {
         super();
 
         promise.onComplete(c ->
