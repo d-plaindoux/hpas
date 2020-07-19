@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 
 abstract class AbstractPromise<T> implements Promise<T> {
 
-    AbstractPromise() {
+    protected AbstractPromise() {
     }
 
     @Override

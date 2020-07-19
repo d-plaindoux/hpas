@@ -11,6 +11,7 @@ package org.smallibs.concurrent.execution;
 import org.junit.Test;
 import org.smallibs.concurrent.promise.Promise;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executors;
@@ -47,11 +48,11 @@ public class ExecutorTest {
         await(integerPromise, Duration.ofSeconds(5)).orElseThrow();
     }
 
-    @Test(expected = RuntimeException.class)
-    public void shouldHaveARuntimeExceptionNotATimeout() throws Throwable {
+    @Test(expected = IOException.class)
+    public void shouldHaveAnIOExceptionNotATimeout() throws Throwable {
         final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> {
-            throw new RuntimeException();
+            throw new IOException();
         });
 
         await(integerPromise, Duration.ofSeconds(1)).orElseThrow();
