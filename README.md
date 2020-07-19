@@ -5,7 +5,6 @@
 [![stable](http://badges.github.io/stability-badges/dist/stable.svg)](http://github.com/badges/stability-badges)
 [![Maven Central](https://img.shields.io/maven-central/v/org.smallibs/hpas.svg)](http://search.maven.org/#artifactdetails%7Corg.smallibs%7Chpas%7C0.5%7Cjar)
 
-HiPeAS has been designed with one basic idea: all data type provided might be also available as monadic structure.
 Functional paradigm deeply drives the design with a taste of OO for encapsulation and chaining methods which mimics infix
 operators like Haskell monad function `>>=`.
 
