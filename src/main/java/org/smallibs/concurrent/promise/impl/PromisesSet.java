@@ -37,6 +37,8 @@ public class PromisesSet extends SolvablePromise<Unit> {
                 case STOP_ON_SUCCESS:
                     solve(Try.failure(new NoValueException()));
                     break;
+                default:
+                    throw new IllegalArgumentException();
             }
             return;
         }

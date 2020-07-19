@@ -38,11 +38,11 @@ public class ExecutorTest {
         assertThat(await(integerPromise, Duration.ofSeconds(1)).orElseThrow()).isEqualTo(1);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void shouldHaveARuntimeException() throws Throwable {
+    @Test(expected = IOException.class)
+    public void shouldHaveAnIOExceptionException() throws Throwable {
         final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> {
-            throw new RuntimeException();
+            throw new IOException();
         });
 
         await(integerPromise, Duration.ofSeconds(5)).orElseThrow();
@@ -70,7 +70,7 @@ public class ExecutorTest {
     }
 
     @Test(expected = CancellationException.class)
-    public void shouldHaveARuntimeCancellationException() throws Throwable {
+    public void shouldHaveACancellationException() throws Throwable {
         final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> {
             Thread.sleep(10000);
