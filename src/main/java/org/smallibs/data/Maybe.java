@@ -148,8 +148,7 @@ public interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, HK<Maybe, T, Maybe
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            return true;
+            return o != null && getClass() == o.getClass();
         }
 
         @Override

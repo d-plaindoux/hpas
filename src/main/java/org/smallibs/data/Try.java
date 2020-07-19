@@ -169,8 +169,7 @@ public interface Try<T> extends Filter<Try, T, Try<T>>, HK<Try, T, Try<T>> {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            return true;
+            return o != null && getClass() == o.getClass();
         }
 
         @Override

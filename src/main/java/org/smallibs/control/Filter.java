@@ -15,7 +15,7 @@ import java.util.function.Predicate;
 /**
  * Filter interface
  */
-public interface Filter<M, A, Self extends HK<M, A, Self>>  {
+public interface Filter<M, A, Self extends HK<M, A, Self>> {
 
     /**
      * Method called when the current data must be filtered using a given predicate.

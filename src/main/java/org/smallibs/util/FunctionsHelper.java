@@ -8,8 +8,6 @@
 
 package org.smallibs.util;
 
-import org.smallibs.data.Try;
-
 import java.util.function.Function;
 
 public enum FunctionsHelper {
