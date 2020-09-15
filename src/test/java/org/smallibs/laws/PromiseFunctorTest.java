@@ -4,7 +4,6 @@ import com.pholser.junit.quickcheck.Property;
 import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
 import org.junit.runner.RunWith;
 import org.smallibs.concurrent.promise.Promise;
-import org.smallibs.util.FunctionsHelper;
 
 import java.util.function.Function;
 
