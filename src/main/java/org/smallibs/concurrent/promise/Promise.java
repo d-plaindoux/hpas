@@ -27,6 +27,7 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
     /**
      * Constructor
      *
+     * @param <T>
      * @param value The captured value
      * @return a solved promise
      */
