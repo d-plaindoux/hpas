@@ -15,11 +15,15 @@ import org.smallibs.concurrent.execution.ExecutorHelper;
 import org.smallibs.concurrent.promise.impl.SolvablePromise;
 import org.smallibs.data.Unit;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -89,7 +93,7 @@ public class PromisesSetTest {
         final Executor executor = givenAnExecutor();
 
         final Promise<Integer> promise = executor.async(() -> {
-            Thread.sleep(1000);
+            Thread.sleep(500);
             return 1;
         });
 
@@ -152,7 +156,7 @@ public class PromisesSetTest {
         final Executor executor = givenAnExecutor();
 
         final Promise<Integer> promise = executor.async(() -> {
-            Thread.sleep(1000);
+            Thread.sleep(500);
             return 1;
         });
 
@@ -216,7 +220,7 @@ public class PromisesSetTest {
         final Executor executor = givenAnExecutor();
 
         final Promise<Integer> promise = executor.async(() -> {
-            Thread.sleep(1000);
+            Thread.sleep(500);
             return 1;
         });
 
@@ -225,6 +229,32 @@ public class PromisesSetTest {
         await().atMost(Duration.FIVE_SECONDS).until(aBoolean::get);
 
         assertThat(aBoolean.get()).isTrue();
+    }
+
+    @Test
+    public void shouldCollectAllIntegersAsList() throws ExecutionException, InterruptedException {
+        final Executor executor = givenAnExecutor();
+
+        final List<Promise<Integer>> promisesList = IntStream.range(0, 3).mapToObj(i ->
+                executor.async(() -> {
+                    Thread.sleep(500);
+                    return i;
+                }))
+                .collect(Collectors.toList());
+
+        final List<Integer> integers = PromiseHelper.sequence(promisesList).getFuture().get();
+
+        assertThat(integers).containsExactly(0, 1, 2);
+    }
+
+    @Test
+    public void shouldCollectOptimistically() throws ExecutionException, InterruptedException {
+        final Executor executor = givenAnExecutor();
+
+        final Promise<Integer>[] promisesList = new Promise[]{PromiseHelper.success(1), PromiseHelper.failure(new Exception())};
+        final List<Integer> integers = PromiseHelper.sequence(Arrays.asList(promisesList)).getFuture().get();
+
+        assertThat(integers).containsExactly(1);
     }
 
     private Executor givenAnExecutor() {

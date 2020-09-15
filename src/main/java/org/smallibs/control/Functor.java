@@ -9,6 +9,7 @@
 package org.smallibs.control;
 
 import org.smallibs.type.HK;
+import org.smallibs.util.FunctionWithError;
 
 import java.util.function.Function;
 

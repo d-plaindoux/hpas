@@ -9,6 +9,7 @@
 package org.smallibs.concurrent.promise;
 
 import org.smallibs.concurrent.promise.impl.PromisesSet;
+import org.smallibs.concurrent.promise.impl.SolvablePromise;
 import org.smallibs.concurrent.promise.impl.SolvedPromise;
 import org.smallibs.control.Applicative;
 import org.smallibs.control.Functor;
@@ -16,7 +17,11 @@ import org.smallibs.control.Monad;
 import org.smallibs.data.Try;
 import org.smallibs.data.Unit;
 import org.smallibs.type.HK;
+import org.smallibs.util.FunctionsHelper;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Function;
 
 public enum PromiseHelper {
@@ -46,6 +51,20 @@ public enum PromiseHelper {
         return new PromisesSet(PromisesSet.Strategy.NO_STOP, promises);
     }
 
+    public static <T> Promise<List<T>> sequence(List<Promise<T>> promises) {
+        final List<T> result = Collections.synchronizedList(new ArrayList<>());
+        final SolvablePromise<List<T>> solvablePromise = new SolvablePromise<>();
+        final Promise[] promisesArray = promises.stream()
+                .map(p -> p.onSuccess(result::add))
+                .toArray(Promise[]::new);
+
+        PromiseHelper
+                .join(promisesArray)
+                .onComplete(c -> solvablePromise.solve(Try.pure(result)));
+
+        return solvablePromise;
+    }
+
     public static Promise<Unit> forall(Promise... promises) {
         return new PromisesSet(PromisesSet.Strategy.STOP_ON_ERROR, promises);
     }
@@ -73,7 +92,7 @@ public enum PromiseHelper {
 
         @Override
         default <B, NS extends HK<Promise, B, NS>> HK<Promise, B, NS> map(Function<? super T, ? extends B> function) {
-            return generalize((Functor4Promise<B>) () -> self().map(function));
+            return generalize((Functor4Promise<B>) () -> self().map(FunctionsHelper.fromFunction(function)));
         }
 
     }

@@ -11,6 +11,7 @@ package org.smallibs.data;
 import org.smallibs.control.Filter;
 import org.smallibs.exception.FilterException;
 import org.smallibs.type.HK;
+import org.smallibs.util.FunctionWithError;
 
 import java.util.Objects;
 import java.util.function.Consumer;

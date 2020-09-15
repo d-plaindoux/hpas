@@ -8,6 +8,8 @@
 
 package org.smallibs.util;
 
+import org.smallibs.data.Try;
+
 import java.util.function.Function;
 
 public enum FunctionsHelper {
@@ -20,4 +22,19 @@ public enum FunctionsHelper {
     public static <A> Function<A, A> id() {
         return Function.identity();
     }
+
+    public static <T, R> FunctionWithError<T, R> fromFunction(Function<T, R> function) {
+        return function::apply;
+    }
+
+    public static <T, R> Function<T, Try<R>> toFunction(FunctionWithError<T, R> function) {
+        return t -> {
+            try {
+                return Try.success(function.apply(t));
+            } catch (Throwable throwable) {
+                return Try.failure(throwable);
+            }
+        };
+    }
+
 }

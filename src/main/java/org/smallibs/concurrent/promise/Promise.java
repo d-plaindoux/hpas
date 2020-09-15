@@ -11,6 +11,7 @@ package org.smallibs.concurrent.promise;
 import org.smallibs.control.Filter;
 import org.smallibs.data.Try;
 import org.smallibs.type.HK;
+import org.smallibs.util.FunctionWithError;
 
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
@@ -72,7 +73,7 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
      * @param function The function to applied on success which can raise an error
      * @return a new promise
      */
-    <R> Promise<R> map(Function<? super T, ? extends R> function);
+    <R> Promise<R> map(FunctionWithError<? super T, ? extends R> function);
 
     /**
      * Method used when a new computation must be done when the current one succeed. The current one and the chained one
@@ -82,7 +83,7 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
      * @param function The function to applied on success
      * @return a new promise
      */
-    default <R> Promise<R> and(Function<? super T, R> function) {
+    default <R> Promise<R> and(FunctionWithError<? super T, R> function) {
         return this.map(function);
     }
 
