@@ -28,7 +28,7 @@ public enum ExecutorHelper {
     /**
      * Factory
      *
-     * @param executorService The underlying executr service
+     * @param executorService The underlying executor service
      * @return a new executor
      */
     public static Executor create(ExecutorService executorService) {

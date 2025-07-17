@@ -13,6 +13,7 @@ import org.smallibs.data.Try;
 import org.smallibs.type.HK;
 import org.smallibs.util.FunctionWithError;
 
+import java.time.Duration;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -27,7 +28,7 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
     /**
      * Constructor
      *
-     * @param <T> The value type returned by this promise
+     * @param <T>   The value type returned by this promise
      * @param value The captured value
      * @return a solved promise
      */
@@ -41,6 +42,16 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
      * @return a future
      */
     Future<T> getFuture();
+
+    /**
+     * This method waits for the result. This method uses a sleep/interrupt technic.
+     */
+    T await() throws Exception;
+
+    /**
+     * This method waits for the result for a maximum duration. This method uses a sleep/interrupt technic.
+     */
+    T await(Duration duration) throws Exception;
 
     /**
      * Method called when the computation succeed
@@ -75,6 +86,17 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
      * @return a new promise
      */
     <R> Promise<R> map(FunctionWithError<? super T, ? extends R> function);
+
+    /**
+     * Method used to map a function on success and another one on error. The result of this mapping
+     * is a new promise component.
+     *
+     * @param <R>       the promised value type
+     * @param onSuccess The function to applied on success which can raise an error
+     * @param onError   The function to applied on error which can also raise an error
+     * @return a new promise
+     */
+    <R> Promise<R> biMap(FunctionWithError<? super T, ? extends R> onSuccess, FunctionWithError<? super Throwable, ? extends R> onError);
 
     /**
      * Method used when a new computation must be done when the current one succeed. The current one and the chained one

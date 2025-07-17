@@ -11,29 +11,68 @@ package org.smallibs.concurrent.promise.impl;
 import org.smallibs.concurrent.promise.Promise;
 import org.smallibs.data.Try;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 public class SolvablePromise<T> extends AbstractPromise<T> {
 
     private final SolvableFuture<T> future;
     private final List<Consumer<T>> onSuccess;
     private final List<Consumer<Throwable>> onError;
+    private final List<Thread> waitingThreads;
 
     public SolvablePromise() {
         this.future = createFuture(this::notifyResponse);
 
         this.onSuccess = new ArrayList<>();
         this.onError = new ArrayList<>();
+        this.waitingThreads = new ArrayList<>();
     }
 
     @Override
     public Future<T> getFuture() {
         return future;
+    }
+
+    @Override
+    public T await() throws Exception {
+        return await(Duration.ofMinutes(3).plus(Duration.ofSeconds(14)));
+    }
+
+    @Override
+    public T await(Duration duration) throws Exception {
+        var thread = new AtomicReference<Thread>();
+
+        synchronized (this.future) {
+            if (!(future.isDone() || future.isCancelled())) {
+                thread.set(Thread.currentThread());
+                this.waitingThreads.add(Thread.currentThread());
+            }
+        }
+
+        if (thread.get() != null) {
+            var t0 = System.currentTimeMillis();
+            while (!(future.isDone() || future.isCancelled())) {
+                try {
+                    Thread.sleep(duration.toMillis());
+                    if (!(future.isDone() || future.isCancelled())) {
+                        throw new TimeoutException();
+                    }
+                } catch (InterruptedException consumed) {
+                    // Ignored
+                }
+            }
+        }
+
+        return future.get();
     }
 
     @Override
@@ -114,6 +153,9 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
     //
 
     private void notifyResponse(Try<T> response) {
+        waitingThreads.forEach(Thread::interrupt);
+        waitingThreads.clear();
+
         response.onSuccess(s -> {
             onSuccess.forEach(c -> c.accept(s));
             onSuccess.clear();

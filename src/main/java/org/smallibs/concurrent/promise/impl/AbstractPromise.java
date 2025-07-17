@@ -30,6 +30,14 @@ abstract class AbstractPromise<T> implements Promise<T> {
     }
 
     @Override
+    public final <R> Promise<R> biMap(FunctionWithError<? super T, ? extends R> onSuccess, FunctionWithError<? super Throwable, ? extends R> onError) {
+        Objects.requireNonNull(onSuccess);
+        Objects.requireNonNull(onError);
+
+        return new BiMappedPromise<>(this, onSuccess, onError);
+    }
+
+    @Override
     public final <R> Promise<R> flatmap(Function<? super T, Promise<R>> function) {
         Objects.requireNonNull(function);
 
@@ -51,5 +59,4 @@ abstract class AbstractPromise<T> implements Promise<T> {
     public final Promise<T> self() {
         return this;
     }
-
 }
