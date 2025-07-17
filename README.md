@@ -151,6 +151,24 @@ CompletableFuture<String> completable = CompletableFutureHelper.supplyAsync(() -
 Promise<String> helloWorldPromise = CompletableFutureHelper.promise(completable);
 ```
 
+## Async Await improved
+
+Now we can use async/await mechanism using Loom virtual thread. We can now await for a promise implying an
+asynchronous mechanism based on thread parking if it's a virtual thread or a blocking procedure for system
+thread.
+
+```java
+var executor = ExecutorHelper.create(Executors.newVirtualThreadPerTaskExecutor());
+
+var aLongAddition = executor.async(() -> {
+    var firstInteger = executor.async(() -> /* do something */ 2);
+    Thread.sleep(3000); // Current thread do nothing during 3 seconds
+    var firstInteger = executor.async(() -> /* do something else */ 5);
+
+    return firstInteger.await() + secondInteger.await(); // Await force virtual thread parking 
+}).await(); // System thread waiting for the result
+```
+
 ## Releases
 
 This library is available at Sonatype OSS Repository Hosting service and can be simply used adding the following 
@@ -172,7 +190,7 @@ For more information follow [this link](https://gist.github.com/jdegoes/6842d471
 
 ## License
 
-Copyright (C)2016-2020 D. Plaindoux.
+Copyright (C)2016-2025 D. Plaindoux.
 
 This program is  free software; you can redistribute  it and/or modify
 it  under the  terms  of  the GNU  Lesser  General  Public License  as
