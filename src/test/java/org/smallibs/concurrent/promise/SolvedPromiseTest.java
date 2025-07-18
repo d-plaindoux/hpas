@@ -2,13 +2,15 @@
  * HPAS
  * https://github.com/d-plaindoux/hpas
  *
- * Copyright (c) 2016-2017 Didier Plaindoux
+ * Copyright (c) 2016-2025 Didier Plaindoux
  * Licensed under the LGPL2 license.
  */
 
 package org.smallibs.concurrent.promise;
 
-import org.junit.Test;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.smallibs.exception.FilterException;
 import org.smallibs.type.HK;
 
 import java.util.concurrent.ExecutionException;
@@ -97,12 +99,14 @@ public class SolvedPromiseTest {
         assertThat(integerPromise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(2);
     }
 
-    @Test(expected = ExecutionException.class)
-    public void shouldNotApplyPromiseMap() throws Exception {
+    @Test
+    public void shouldNotApplyPromiseMap() {
         final Promise<Integer> integerPromise = PromiseHelper.<Integer>failure(new SecurityException()).
                 and(i -> i + 1);
 
-        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
+        Assertions.assertThatThrownBy(() -> integerPromise.getFuture().get(5, TimeUnit.SECONDS))
+                .cause()
+                .isInstanceOf(SecurityException.class);
     }
 
     @Test
@@ -122,13 +126,15 @@ public class SolvedPromiseTest {
         assertThat(integerPromise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(3);
     }
 
-    @Test(expected = ExecutionException.class)
-    public void shouldNotApplyPromiseFlatMap() throws Exception {
+    @Test
+    public void shouldNotApplyPromiseFlatMap() {
 
         final Promise<Integer> integerPromise = PromiseHelper.<Integer>failure(new SecurityException()).
                 then(i -> PromiseHelper.success(i + 1));
 
-        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
+        Assertions.assertThatThrownBy(() -> integerPromise.getFuture().get(5, TimeUnit.SECONDS))
+                .cause()
+                .isInstanceOf(SecurityException.class);
     }
 
 
@@ -139,11 +145,13 @@ public class SolvedPromiseTest {
         assertThat(integerPromise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(1);
     }
 
-    @Test(expected = ExecutionException.class)
-    public void shouldNotFilterPromise() throws Throwable {
+    @Test
+    public void shouldNotFilterPromise() {
         final Promise<Integer> integerPromise = PromiseHelper.success(1).filter(i -> i == 2).self();
 
-        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
+        Assertions.assertThatThrownBy(() -> integerPromise.getFuture().get(5, TimeUnit.SECONDS))
+                .cause()
+                .isInstanceOf(FilterException.class);
     }
 
 }

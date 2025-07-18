@@ -2,13 +2,14 @@
  * HPAS
  * https://github.com/d-plaindoux/hpas
  *
- * Copyright (c) 2016-2017 Didier Plaindoux
+ * Copyright (c) 2016-2025 Didier Plaindoux
  * Licensed under the LGPL2 license.
  */
 
 package org.smallibs.concurrent.promise;
 
-import org.junit.Test;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.smallibs.concurrent.execution.Executor;
 import org.smallibs.concurrent.execution.ExecutorHelper;
 import org.smallibs.exception.FilterException;
@@ -155,15 +156,17 @@ public class FlatMappedPromiseTest {
         assertThat(and1.self().getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(3);
     }
 
-    @Test(expected = ExecutionException.class)
-    public void shouldNotApplyPromiseMap() throws Exception {
+    @Test
+    public void shouldNotApplyPromiseMap() {
         final Executor executor = givenAnExecutor();
 
         final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
             throw new SecurityException();
         }).then(i -> executor.async(() -> i + 1)).and(i -> i + 1);
 
-        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
+        Assertions.assertThatThrownBy(() -> integerPromise.getFuture().get(5, TimeUnit.SECONDS))
+                .cause()
+                .isInstanceOf(SecurityException.class);
     }
 
     @Test
@@ -177,15 +180,17 @@ public class FlatMappedPromiseTest {
         assertThat(integerPromise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(3);
     }
 
-    @Test(expected = ExecutionException.class)
-    public void shouldNotApplyPromiseFlatMap() throws Exception {
+    @Test
+    public void shouldNotApplyPromiseFlatMap() {
         final Executor executor = givenAnExecutor();
 
         final Promise<Integer> integerPromise = executor.<Integer>async(() -> {
             throw new SecurityException();
         }).then(i -> executor.async(() -> i + 1)).then(i -> executor.async(() -> i + 1));
 
-        integerPromise.getFuture().get(5, TimeUnit.SECONDS);
+        Assertions.assertThatThrownBy(() -> integerPromise.getFuture().get(5, TimeUnit.SECONDS))
+                .cause()
+                .isInstanceOf(SecurityException.class);
     }
 
     @Test
@@ -200,8 +205,8 @@ public class FlatMappedPromiseTest {
         assertThat(integerPromise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(2);
     }
 
-    @Test(expected = FilterException.class)
-    public void shouldNotFilterPromise() throws Throwable {
+    @Test
+    public void shouldNotFilterPromise() {
         final Executor executor = givenAnExecutor();
 
         final Promise<Integer> integerPromise = executor.async(() -> 1).
@@ -209,7 +214,8 @@ public class FlatMappedPromiseTest {
                 filter(i -> i == 3).
                 self();
 
-        await(integerPromise, Duration.ofSeconds(5)).orElseThrow();
+        Assertions.assertThatThrownBy(() -> await(integerPromise, Duration.ofSeconds(5)).orElseThrow())
+                .isInstanceOf(FilterException.class);
     }
 
     private Executor givenAnExecutor() {

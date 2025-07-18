@@ -19,10 +19,10 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:d-plaindoux/haps.git</connection>
-        <developerConnection>scm:git:git@github.com:d-plaindoux/haps.git</developerConnection>
-        <url>git@github.com:d-plaindoux/haps.git</url>
-        <tag>v0.9</tag>
+        <connection>scm:git:git@github.com:d-plaindoux/hpas.git</connection>
+        <developerConnection>scm:git:git@github.com:d-plaindoux/hpas.git</developerConnection>
+        <url>git@github.com:d-plaindoux/hpas.git</url>
+        <tag>v0.12.0</tag>
     </scm>
 
     <developers>
@@ -53,8 +53,8 @@
 
         <dependency>
             <groupId>org.assertj</groupId>
-            <artifactId>assertj-core-java8</artifactId>
-            <version>1.0.0m1</version>
+            <artifactId>assertj-core</artifactId>
+            <version>3.27.3</version>
             <scope>test</scope>
         </dependency>
 
@@ -98,20 +98,6 @@
                     <source>21</source>
                     <target>21</target>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.2.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

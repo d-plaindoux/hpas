@@ -2,13 +2,14 @@
  * HPAS
  * https://github.com/d-plaindoux/hpas
  *
- * Copyright (c) 2016-2017 Didier Plaindoux
+ * Copyright (c) 2016-2025 Didier Plaindoux
  * Licensed under the LGPL2 license.
  */
 
 package org.smallibs.data;
 
-import org.junit.Test;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,68 +19,68 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TryTest {
 
     @Test
-    public void shouldHaveSuccess() throws Exception {
+    public void shouldHaveSuccess() {
         assertThat(Try.success(1).isSuccess()).isTrue();
     }
 
     @Test
-    public void shouldHaveSuccessValue() throws Exception {
+    public void shouldHaveSuccessValue() {
         assertThat(Try.success(1).<Integer>fold(x -> x, __ -> 0)).isEqualTo(1);
     }
 
     @Test
-    public void shouldHaveFailure() throws Exception {
+    public void shouldHaveFailure() {
         assertThat(Try.failure(new Exception()).isSuccess()).isFalse();
     }
 
 
     @Test
-    public void shouldFilterSuccess() throws Exception {
+    public void shouldFilterSuccess() {
         assertThat(Try.success(1).filter(i -> i == 1).isSuccess()).isTrue();
     }
 
     @Test
-    public void shouldFilterSuccessRetrieveValue() throws Exception {
+    public void shouldFilterSuccessRetrieveValue() {
         assertThat(Try.success(1).filter(i -> i == 1).<Integer>fold(x -> x, __ -> 0)).isEqualTo(1);
     }
 
     @Test
-    public void shouldNotFilterSuccess() throws Exception {
+    public void shouldNotFilterSuccess() {
         assertThat(Try.success(1).filter(i -> i != 1).isSuccess()).isFalse();
     }
 
     @Test
-    public void shouldFilterFailure() throws Exception {
+    public void shouldFilterFailure() {
         assertThat(Try.<Integer>failure(new Exception()).filter(i -> i == 1).isSuccess()).isFalse();
     }
 
     @Test
-    public void shouldMapSuccess() throws Exception {
+    public void shouldMapSuccess() {
         assertThat((Try.success(1).map(i -> i + 1)).isSuccess()).isTrue();
     }
 
     @Test
-    public void shouldMapSuccessRetrieveValue() throws Exception {
+    public void shouldMapSuccessRetrieveValue() {
         assertThat((Try.success(1).map(i -> i + 1)).<Integer>fold(x -> x, __ -> 0)).isEqualTo(2);
     }
 
     @Test
-    public void shouldMapFailure() throws Exception {
+    public void shouldMapFailure() {
         assertThat(Try.<Integer>failure(new Exception()).map(i -> i + 1).isSuccess()).isFalse();
     }
 
     @Test
-    public void shouldFlatMapSuccessToFailure() throws Exception {
+    public void shouldFlatMapSuccessToFailure() {
         assertThat(Try.success(1).flatmap(i -> Try.failure(new Exception())).isSuccess()).isFalse();
     }
 
     @Test
-    public void shouldFlatMapFailure() throws Exception {
+    public void shouldFlatMapFailure() {
         assertThat(Try.<Integer>failure(new Exception()).flatmap(Try::success).isSuccess()).isFalse();
     }
 
     @Test
-    public void shouldOnSuccessSuccess() throws Exception {
+    public void shouldOnSuccessSuccess() {
         final AtomicInteger integer = new AtomicInteger(0);
 
         Try.success(1).onSuccess(integer::set);
@@ -88,7 +89,7 @@ public class TryTest {
     }
 
     @Test
-    public void shouldOnSuccessFailure() throws Exception {
+    public void shouldOnSuccessFailure() {
         final AtomicInteger integer = new AtomicInteger(0);
 
         Try.<Integer>failure(new Exception()).onSuccess(integer::set);
@@ -97,7 +98,7 @@ public class TryTest {
     }
 
     @Test
-    public void shouldOnFailureSuccess() throws Exception {
+    public void shouldOnFailureSuccess() {
         final AtomicInteger integer = new AtomicInteger(0);
 
         Try.success(1).onFailure(throwable -> integer.set(0));
@@ -106,7 +107,7 @@ public class TryTest {
     }
 
     @Test
-    public void shouldOnFailureFailure() throws Exception {
+    public void shouldOnFailureFailure() {
         final AtomicInteger integer = new AtomicInteger(0);
 
         Try.<Integer>failure(new Exception()).onFailure(throwable -> integer.set(1));
@@ -115,43 +116,44 @@ public class TryTest {
     }
 
     @Test
-    public void shouldRecoverWithSuccess() throws Exception {
+    public void shouldRecoverWithSuccess() {
         assertThat(Try.success(1).recoverWith(0)).isEqualTo(1);
     }
 
     @Test
-    public void shouldRecoverWithFailure() throws Exception {
+    public void shouldRecoverWithFailure() {
         assertThat(Try.<Integer>failure(new Exception()).recoverWith(0)).isEqualTo(0);
     }
 
     @Test
-    public void shouldOrLazyElseSuccess() throws Exception {
+    public void shouldOrLazyElseSuccess() {
         assertThat(Try.success(1).recoverWith(__ -> 0)).isEqualTo(1);
     }
 
     @Test
-    public void shouldOrLazyElseFailure() throws Exception {
+    public void shouldOrLazyElseFailure() {
         assertThat(Try.<Integer>failure(new Exception()).recoverWith(__ -> 0)).isEqualTo(0);
     }
 
     @Test
-    public void shouldToTrySuccess() throws Exception {
+    public void shouldToTrySuccess() {
         assertThat(TryHelper.toMaybe(Try.success(1)).hasSome()).isTrue();
     }
 
     @Test
-    public void shouldToTrySuccessValue() throws Exception {
+    public void shouldToTrySuccessValue() {
         assertThat(TryHelper.toMaybe(Try.success(1)).fold(x -> x, () -> 0)).isEqualTo(1);
     }
 
     @Test
-    public void shouldToTryFailure() throws Exception {
+    public void shouldToTryFailure() {
         assertThat(TryHelper.toMaybe(Try.failure(new Exception())).hasSome()).isFalse();
     }
 
-    @Test(expected = IOException.class)
-    public void shouldFailureRaiseASuppliedError() throws Throwable {
-        Try.failure(new UnknownError()).orElseThrow(() -> new IOException());
+    @Test
+    public void shouldFailureRaiseASuppliedError() {
+        Assertions.assertThatThrownBy(() -> Try.failure(new UnknownError()).orElseThrow(() -> new IOException()))
+                .isInstanceOf(IOException.class);
     }
 
     @Test
@@ -160,9 +162,10 @@ public class TryTest {
         assertThat(true).isTrue();
     }
 
-    @Test(expected = UnknownError.class)
-    public void shouldFailureBeRaised() throws Throwable {
-        Try.failure(new UnknownError()).orElseThrow();
+    @Test
+    public void shouldFailureBeRaised() {
+        Assertions.assertThatThrownBy(() -> Try.failure(new UnknownError()).orElseThrow())
+                .isInstanceOf(UnknownError.class);
     }
 
     @Test
@@ -171,9 +174,10 @@ public class TryTest {
         assertThat(true).isTrue();
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void shouldFailureDoAnExceptionRaise() throws Throwable {
-        Try.failure(new UnknownError()).orElseThrow(x -> new IOException());
+        Assertions.assertThatThrownBy(() -> Try.failure(new UnknownError()).orElseThrow(x -> new IOException()))
+                .isInstanceOf(IOException.class);
     }
 
     @Test

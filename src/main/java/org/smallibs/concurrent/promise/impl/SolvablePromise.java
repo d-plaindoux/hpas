@@ -18,9 +18,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 
 public class SolvablePromise<T> extends AbstractPromise<T> {
 
@@ -49,18 +47,17 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
 
     @Override
     public T await(Duration duration) throws Exception {
-        var thread = new AtomicReference<Thread>();
+        Thread thread = null;
 
         synchronized (this.future) {
             if (!(future.isDone() || future.isCancelled())) {
-                thread.set(Thread.currentThread());
-                this.waitingThreads.add(Thread.currentThread());
+                thread = Thread.currentThread();
+                this.waitingThreads.add(thread);
             }
         }
 
-        if (thread.get() != null) {
-            var t0 = System.currentTimeMillis();
-            while (!(future.isDone() || future.isCancelled())) {
+        if (thread != null) {
+            if (!(future.isDone() || future.isCancelled())) {
                 try {
                     Thread.sleep(duration.toMillis());
                     if (!(future.isDone() || future.isCancelled())) {

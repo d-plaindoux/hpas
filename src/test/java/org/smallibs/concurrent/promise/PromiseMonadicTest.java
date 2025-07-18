@@ -2,13 +2,13 @@
  * HPAS
  * https://github.com/d-plaindoux/hpas
  *
- * Copyright (c) 2016-2017 Didier Plaindoux
+ * Copyright (c) 2016-2025 Didier Plaindoux
  * Licensed under the LGPL2 license.
  */
 
 package org.smallibs.concurrent.promise;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.smallibs.concurrent.execution.Executor;
 import org.smallibs.concurrent.execution.ExecutorHelper;
 import org.smallibs.control.Applicative;

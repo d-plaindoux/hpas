@@ -2,14 +2,14 @@
  * HPAS
  * https://github.com/d-plaindoux/hpas
  *
- * Copyright (c) 2016-2017 Didier Plaindoux
+ * Copyright (c) 2016-2025 Didier Plaindoux
  * Licensed under the LGPL2 license.
  */
 
 package org.smallibs.concurrent.promise;
 
 import com.jayway.awaitility.Duration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.smallibs.concurrent.execution.Executor;
 import org.smallibs.concurrent.execution.ExecutorHelper;
 import org.smallibs.concurrent.promise.impl.SolvablePromise;
@@ -236,10 +236,10 @@ public class PromisesSetTest {
         final Executor executor = givenAnExecutor();
 
         final List<Promise<Integer>> promisesList = IntStream.range(0, 3).mapToObj(i ->
-                executor.async(() -> {
-                    Thread.sleep(500);
-                    return i;
-                }))
+                        executor.async(() -> {
+                            Thread.sleep(500);
+                            return i;
+                        }))
                 .collect(Collectors.toList());
 
         final List<Integer> integers = PromiseHelper.sequence(promisesList).getFuture().get();
@@ -249,8 +249,6 @@ public class PromisesSetTest {
 
     @Test
     public void shouldCollectOptimistically() throws ExecutionException, InterruptedException {
-        final Executor executor = givenAnExecutor();
-
         final Promise<Integer>[] promisesList = new Promise[]{PromiseHelper.success(1), PromiseHelper.failure(new Exception())};
         final List<Integer> integers = PromiseHelper.sequence(Arrays.asList(promisesList)).getFuture().get();
 

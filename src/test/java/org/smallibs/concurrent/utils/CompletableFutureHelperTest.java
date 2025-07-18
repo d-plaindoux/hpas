@@ -1,6 +1,7 @@
 package org.smallibs.concurrent.utils;
 
-import org.junit.Test;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.smallibs.concurrent.execution.ExecutorHelper;
 import org.smallibs.concurrent.promise.Promise;
 import org.smallibs.concurrent.promise.impl.SolvablePromise;
@@ -29,22 +30,25 @@ public class CompletableFutureHelperTest {
         assertThat(completableFuture.get()).isEqualTo(42);
     }
 
-    @Test(expected = ExecutionException.class)
-    public void shouldHaveACompletableFutureCompletedExceptionally() throws Exception {
+    @Test
+    public void shouldHaveACompletableFutureCompletedExceptionally() {
         final SolvablePromise<Integer> promise = new SolvablePromise<>();
         final CompletableFuture<Integer> completableFuture = CompletableFutureHelper.completableFuture(promise);
 
         promise.solve(Try.failure(new IllegalArgumentException()));
 
-        completableFuture.get();
+        Assertions.assertThatThrownBy(completableFuture::get)
+                .cause()
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test(expected = TimeoutException.class)
+    @Test
     public void shouldHaveACompletableFutureNotCompleted() throws Exception {
         final SolvablePromise<Integer> promise = new SolvablePromise<>();
         final CompletableFuture<Integer> completableFuture = CompletableFutureHelper.completableFuture(promise);
 
-        completableFuture.get(1, TimeUnit.SECONDS);
+        Assertions.assertThatThrownBy(() -> completableFuture.get(1, TimeUnit.SECONDS))
+                .isInstanceOf(TimeoutException.class);
     }
 
     @Test
@@ -61,7 +65,7 @@ public class CompletableFutureHelperTest {
         assertThat(completableFuture.get()).isEqualTo(42);
     }
 
-    @Test(expected = ExecutionException.class)
+    @Test
     public void shouldHaveACompletableFutureCompletedExceptionallyAfterAWhile() throws Exception {
         final Promise<Integer> promise = ExecutorHelper.create(Executors.newSingleThreadExecutor()).async(() -> {
             Thread.sleep(1000);
@@ -72,7 +76,9 @@ public class CompletableFutureHelperTest {
 
         await().atMost(2, TimeUnit.SECONDS).until(completableFuture::isDone);
 
-        assertThat(completableFuture.get()).isEqualTo(42);
+        Assertions.assertThatThrownBy(() -> assertThat(completableFuture.get()).isEqualTo(42))
+                .cause()
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     // CompletableFuture -> Promise
@@ -85,7 +91,7 @@ public class CompletableFutureHelperTest {
         assertThat(promise.getFuture().get()).isEqualTo(42);
     }
 
-    @Test(expected = ExecutionException.class)
+    @Test
     public void shouldHaveAPromiseFailure() throws Exception {
         final CompletableFuture<Integer> completableFuture = CompletableFuture.supplyAsync(() -> {
             throw new IllegalArgumentException();
@@ -93,15 +99,19 @@ public class CompletableFutureHelperTest {
 
         final Promise<Integer> promise = CompletableFutureHelper.promise(completableFuture);
 
-        promise.getFuture().get();
+        Assertions.assertThatThrownBy(() -> promise.getFuture().get())
+                .cause()
+                .cause()
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test(expected = TimeoutException.class)
+    @Test
     public void shouldHaveAPromiseNotSolved() throws Exception {
         final CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
         final Promise<Integer> promise = CompletableFutureHelper.promise(completableFuture);
 
-        promise.getFuture().get(1, TimeUnit.SECONDS);
+        Assertions.assertThatThrownBy(() -> promise.getFuture().get(1, TimeUnit.SECONDS))
+                .isInstanceOf(TimeoutException.class);
     }
 
     @Test
@@ -121,7 +131,7 @@ public class CompletableFutureHelperTest {
         assertThat(promise.getFuture().get()).isEqualTo(42);
     }
 
-    @Test(expected = ExecutionException.class)
+    @Test
     public void shouldHaveAPromiseFailureAfterAWhile() throws Exception {
         final CompletableFuture<Integer> completableFuture = CompletableFuture.supplyAsync(() -> {
             try {
@@ -135,7 +145,10 @@ public class CompletableFutureHelperTest {
 
         await().atMost(2, TimeUnit.SECONDS).until(promise.getFuture()::isDone);
 
-        promise.getFuture().get();
+        Assertions.assertThatThrownBy(() -> promise.getFuture().get())
+                .cause()
+                .cause()
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
 }

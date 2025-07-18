@@ -2,13 +2,14 @@
  * HPAS
  * https://github.com/d-plaindoux/hpas
  *
- * Copyright (c) 2016-2017 Didier Plaindoux
+ * Copyright (c) 2016-2025 Didier Plaindoux
  * Licensed under the LGPL2 license.
  */
 
 package org.smallibs.concurrent.promise;
 
-import org.junit.Test;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.smallibs.concurrent.execution.Executor;
 import org.smallibs.concurrent.execution.ExecutorHelper;
 import org.smallibs.concurrent.promise.impl.SolvablePromise;
@@ -250,15 +251,17 @@ public class SolvablePromiseTest {
         assertThat(promise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(2);
     }
 
-    @Test(expected = ExecutionException.class)
-    public void shouldNotApplyPromiseMap() throws Exception {
+    @Test
+    public void shouldNotApplyPromiseMap() {
         final SolvablePromise<Integer> integerPromise = new SolvablePromise<>();
 
         integerPromise.solve(Try.failure(new SecurityException()));
 
         final Promise<Integer> promise = integerPromise.map(i -> i + 1);
 
-        promise.getFuture().get(5, TimeUnit.SECONDS);
+        Assertions.assertThatThrownBy(() -> promise.getFuture().get(5, TimeUnit.SECONDS))
+                .cause()
+                .isInstanceOf(SecurityException.class);
     }
 
     @Test
@@ -287,8 +290,8 @@ public class SolvablePromiseTest {
         assertThat(promise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(3);
     }
 
-    @Test(expected = ExecutionException.class)
-    public void shouldNotApplyPromiseFlatMap() throws Exception {
+    @Test
+    public void shouldNotApplyPromiseFlatMap() {
         final Executor executor = givenAnExecutor();
 
         SolvablePromise<Integer> integerPromise = new SolvablePromise<>();
@@ -297,7 +300,9 @@ public class SolvablePromiseTest {
 
         final Promise<Integer> promise = integerPromise.flatmap(i -> executor.async(() -> i + 1));
 
-        promise.getFuture().get(5, TimeUnit.SECONDS);
+        Assertions.assertThatThrownBy(() -> promise.getFuture().get(5, TimeUnit.SECONDS))
+                .cause()
+                .isInstanceOf(SecurityException.class);
     }
 
     @Test
@@ -313,8 +318,8 @@ public class SolvablePromiseTest {
         assertThat(promise.getFuture().get(5, TimeUnit.SECONDS)).isEqualTo(1);
     }
 
-    @Test(expected = FilterException.class)
-    public void shouldNotFilterPromise() throws Throwable {
+    @Test
+    public void shouldNotFilterPromise() {
         final Executor executor = givenAnExecutor();
 
         final SolvablePromise<Integer> integerPromise = new SolvablePromise<>();
@@ -323,7 +328,8 @@ public class SolvablePromiseTest {
 
         final Promise<Integer> promise = executor.async(() -> 1).filter(i -> i == 2).self();
 
-        await(promise, Duration.ofSeconds(5)).orElseThrow();
+        Assertions.assertThatThrownBy(() -> await(promise, Duration.ofSeconds(5)).orElseThrow())
+                .isInstanceOf(FilterException.class);
     }
 
     private Executor givenAnExecutor() {

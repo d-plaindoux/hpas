@@ -2,7 +2,7 @@
  * HPAS
  * https://github.com/d-plaindoux/hpas
  *
- * Copyright (c) 2016-2017 Didier Plaindoux
+ * Copyright (c) 2016-2025 Didier Plaindoux
  * Licensed under the LGPL2 license.
  */
 
@@ -54,7 +54,7 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
     T await(Duration duration) throws Exception;
 
     /**
-     * Method called when the computation succeed
+     * Method called when the computation succeeds
      *
      * @param consumer The callback to be activated on success
      * @return the current promise

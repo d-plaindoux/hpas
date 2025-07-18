@@ -2,13 +2,14 @@
  * HPAS
  * https://github.com/d-plaindoux/hpas
  *
- * Copyright (c) 2016-2017 Didier Plaindoux
+ * Copyright (c) 2016-2025 Didier Plaindoux
  * Licensed under the LGPL2 license.
  */
 
 package org.smallibs.concurrent.execution;
 
-import org.junit.Test;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.smallibs.concurrent.promise.Promise;
 
 import java.io.IOException;
@@ -38,27 +39,29 @@ public class ExecutorTest {
         assertThat(await(integerPromise, Duration.ofSeconds(1)).orElseThrow()).isEqualTo(1);
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void shouldHaveAnIOExceptionException() throws Throwable {
         final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> {
             throw new IOException();
         });
 
-        await(integerPromise, Duration.ofSeconds(5)).orElseThrow();
+        Assertions.assertThatThrownBy(() -> await(integerPromise, Duration.ofSeconds(5)).orElseThrow())
+                .isInstanceOf(IOException.class);
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void shouldHaveAnIOExceptionNotATimeout() throws Throwable {
         final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> {
             throw new IOException();
         });
 
-        await(integerPromise, Duration.ofSeconds(1)).orElseThrow();
+        Assertions.assertThatThrownBy(() -> await(integerPromise, Duration.ofSeconds(1)).orElseThrow())
+                .isInstanceOf(IOException.class);
     }
 
-    @Test(expected = TimeoutException.class)
+    @Test
     public void shouldHaveATimeoutException() throws Throwable {
         final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> {
@@ -66,10 +69,10 @@ public class ExecutorTest {
             return 1;
         });
 
-        await(integerPromise, Duration.ofSeconds(1)).orElseThrow();
+        Assertions.assertThatThrownBy(() -> await(integerPromise, Duration.ofSeconds(1)).orElseThrow())
+                .isInstanceOf(TimeoutException.class);
     }
 
-    @Test(expected = CancellationException.class)
     public void shouldHaveACancellationException() throws Throwable {
         final Executor executor = givenAnExecutor();
         final Promise<Integer> integerPromise = executor.async(() -> {
@@ -79,7 +82,8 @@ public class ExecutorTest {
 
         integerPromise.getFuture().cancel(true);
 
-        await(integerPromise, Duration.ofSeconds(5)).orElseThrow();
+        Assertions.assertThatThrownBy(() -> await(integerPromise, Duration.ofSeconds(5)).orElseThrow())
+                .isInstanceOf(CancellationException.class);
     }
 
     //
