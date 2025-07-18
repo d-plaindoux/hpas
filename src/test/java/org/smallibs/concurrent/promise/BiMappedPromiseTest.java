@@ -165,7 +165,7 @@ public class BiMappedPromiseTest {
         }).and(i -> i + 1).and(i -> i + 1);
 
         Assertions.assertThatThrownBy(() -> integerPromise.getFuture().get(5, TimeUnit.SECONDS))
-                .cause()
+                .rootCause()
                 .isInstanceOf(SecurityException.class);
     }
 
@@ -189,7 +189,7 @@ public class BiMappedPromiseTest {
         }).and(i -> i + 1).then(i -> executor.async(() -> i + 1));
 
         Assertions.assertThatThrownBy(() -> integerPromise.getFuture().get(5, TimeUnit.SECONDS))
-                .cause()
+                .rootCause()
                 .isInstanceOf(SecurityException.class);
     }
 

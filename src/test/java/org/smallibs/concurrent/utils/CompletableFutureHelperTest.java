@@ -8,7 +8,6 @@ import org.smallibs.concurrent.promise.impl.SolvablePromise;
 import org.smallibs.data.Try;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -38,7 +37,7 @@ public class CompletableFutureHelperTest {
         promise.solve(Try.failure(new IllegalArgumentException()));
 
         Assertions.assertThatThrownBy(completableFuture::get)
-                .cause()
+                .rootCause()
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -77,7 +76,7 @@ public class CompletableFutureHelperTest {
         await().atMost(2, TimeUnit.SECONDS).until(completableFuture::isDone);
 
         Assertions.assertThatThrownBy(() -> assertThat(completableFuture.get()).isEqualTo(42))
-                .cause()
+                .rootCause()
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -100,8 +99,7 @@ public class CompletableFutureHelperTest {
         final Promise<Integer> promise = CompletableFutureHelper.promise(completableFuture);
 
         Assertions.assertThatThrownBy(() -> promise.getFuture().get())
-                .cause()
-                .cause()
+                .rootCause()
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -146,8 +144,7 @@ public class CompletableFutureHelperTest {
         await().atMost(2, TimeUnit.SECONDS).until(promise.getFuture()::isDone);
 
         Assertions.assertThatThrownBy(() -> promise.getFuture().get())
-                .cause()
-                .cause()
+                .rootCause()
                 .isInstanceOf(IllegalArgumentException.class);
     }
 

@@ -1,13 +1,14 @@
 # HiPeAS
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/052bbdb13acf4b35bd5bbb485f6cad25)](https://app.codacy.com/manual/d-plaindoux/hpas?utm_source=github.com&utm_medium=referral&utm_content=d-plaindoux/hpas&utm_campaign=Badge_Grade_Dashboard)
-[![Build Status](https://travis-ci.org/d-plaindoux/hpas.svg?branch=master)](https://travis-ci.org/d-plaindoux/hpas)
 [![Coverage Status](https://coveralls.io/repos/github/d-plaindoux/hpas/badge.svg?branch=master)](https://coveralls.io/github/d-plaindoux/hpas?branch=master)
 [![stable](http://badges.github.io/stability-badges/dist/stable.svg)](http://github.com/badges/stability-badges)
 [![Maven Central](https://img.shields.io/maven-central/v/org.smallibs/hpas.svg)](http://search.maven.org/#artifactdetails%7Corg.smallibs%7Chpas%7C0.5%7Cjar)
 
 Functional paradigm deeply drives the design with a taste of OO for encapsulation and chaining methods which mimics infix
-operators like Haskell monad function `>>=`.
+operators like Haskell monad function `>>=`. 
+
+In addition, with version 21 of Java an Async/Await DSL like is available. 
 
 Since such ADT provides traditional map, flapmap etc. functions for a DSL perspective are also given in order to increase the code readability.
 
@@ -15,7 +16,7 @@ Since such ADT provides traditional map, flapmap etc. functions for a DSL perspe
 
 ```java
 Executor executor = ExecutorHelper.create(Executors.newSingleThreadExecutor());
-Promise<String> helloWorldPromise = executor.async(() -> "Hello").and(s -> s + " world!")
+Promise<String> helloWorldPromise = executor.async(() -> "Hello").and(s -> s + " world!");
 ```
 
 ## HiPeAS overview
@@ -105,6 +106,24 @@ In Promise&lt;T&gt; **onComplete :: (Try&lt;T&gt; &rarr; void) &rarr; Promise&lt
 integerPromise.onComplete(t -> t.fold(integerPromise::onSuccess, integerPromise::onFailure));
 ```
 
+## Async Await DSL
+
+Now we can use async/await mechanism using Loom virtual thread. We can now await for a promise implying an
+asynchronous mechanism based on thread parking if it's a virtual thread or a blocking procedure for system
+thread.
+
+```java
+var executor = ExecutorHelper.create(Executors.newVirtualThreadPerTaskExecutor());
+
+var aLongAddition = executor.async(() -> {
+    var firstInteger = executor.async(() -> /* do something */ 2);
+    Thread.sleep(3000); // Current thread do nothing during 3 seconds
+    var firstInteger = executor.async(() -> /* do something else */ 5);
+
+    return firstInteger.await() + secondInteger.await(); // Await force virtual thread parking 
+}).await(); // System thread waiting for the result
+```
+
 ## Functor, Applicative and Monad
 
 In addition monadic approach is available for each ADT. As usual `Monad` ihnerits `Applicative` which inherits `Functor`.
@@ -149,24 +168,6 @@ In CompletableFutureHelper **promise&lt;T&gt; :: CompletableFuture&lt;T&gt; → 
 ```java
 CompletableFuture<String> completable = CompletableFutureHelper.supplyAsync(() -> "Hello World");
 Promise<String> helloWorldPromise = CompletableFutureHelper.promise(completable);
-```
-
-## Async Await improved
-
-Now we can use async/await mechanism using Loom virtual thread. We can now await for a promise implying an
-asynchronous mechanism based on thread parking if it's a virtual thread or a blocking procedure for system
-thread.
-
-```java
-var executor = ExecutorHelper.create(Executors.newVirtualThreadPerTaskExecutor());
-
-var aLongAddition = executor.async(() -> {
-    var firstInteger = executor.async(() -> /* do something */ 2);
-    Thread.sleep(3000); // Current thread do nothing during 3 seconds
-    var firstInteger = executor.async(() -> /* do something else */ 5);
-
-    return firstInteger.await() + secondInteger.await(); // Await force virtual thread parking 
-}).await(); // System thread waiting for the result
 ```
 
 ## Releases

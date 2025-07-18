@@ -260,7 +260,7 @@ public class SolvablePromiseTest {
         final Promise<Integer> promise = integerPromise.map(i -> i + 1);
 
         Assertions.assertThatThrownBy(() -> promise.getFuture().get(5, TimeUnit.SECONDS))
-                .cause()
+                .rootCause()
                 .isInstanceOf(SecurityException.class);
     }
 
@@ -301,7 +301,7 @@ public class SolvablePromiseTest {
         final Promise<Integer> promise = integerPromise.flatmap(i -> executor.async(() -> i + 1));
 
         Assertions.assertThatThrownBy(() -> promise.getFuture().get(5, TimeUnit.SECONDS))
-                .cause()
+                .rootCause()
                 .isInstanceOf(SecurityException.class);
     }
 

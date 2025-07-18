@@ -105,7 +105,7 @@ public class SolvedPromiseTest {
                 and(i -> i + 1);
 
         Assertions.assertThatThrownBy(() -> integerPromise.getFuture().get(5, TimeUnit.SECONDS))
-                .cause()
+                .rootCause()
                 .isInstanceOf(SecurityException.class);
     }
 
@@ -133,7 +133,7 @@ public class SolvedPromiseTest {
                 then(i -> PromiseHelper.success(i + 1));
 
         Assertions.assertThatThrownBy(() -> integerPromise.getFuture().get(5, TimeUnit.SECONDS))
-                .cause()
+                .rootCause()
                 .isInstanceOf(SecurityException.class);
     }
 
@@ -150,7 +150,7 @@ public class SolvedPromiseTest {
         final Promise<Integer> integerPromise = PromiseHelper.success(1).filter(i -> i == 2).self();
 
         Assertions.assertThatThrownBy(() -> integerPromise.getFuture().get(5, TimeUnit.SECONDS))
-                .cause()
+                .rootCause()
                 .isInstanceOf(FilterException.class);
     }
 
