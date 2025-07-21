@@ -8,9 +8,12 @@
 
 package org.smallibs.data;
 
+import org.smallibs.concurrent.promise.Promise;
+import org.smallibs.concurrent.promise.PromiseHelper;
 import org.smallibs.control.Filter;
 import org.smallibs.exception.FilterException;
 import org.smallibs.type.HK;
+import org.smallibs.util.SupplierWithError;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -18,7 +21,22 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface Try<T> extends Filter<Try, T, Try<T>>, HK<Try, T, Try<T>> {
+public sealed interface Try<T> extends Filter<Try, T, Try<T>>, HK<Try, T, Try<T>> {
+
+    static <O> Try<O> handle(SupplierWithError<O> supplier) {
+        try {
+            return Try.pure(supplier.get());
+        } catch (Throwable e) {
+            return Try.failure(e);
+        }
+    }
+
+    default Promise<T> toPromise() {
+        return switch (this) {
+            case Try.Success<T> v -> PromiseHelper.success(v.value);
+            case Try.Failure<T> v -> PromiseHelper.failure(v.value);
+        };
+    }
 
     static <T> Try<T> pure(T value) {
         return success(value);
@@ -83,12 +101,7 @@ public interface Try<T> extends Filter<Try, T, Try<T>>, HK<Try, T, Try<T>> {
     /**
      * Success implementation
      */
-    final class Success<T> implements Try<T> {
-        private final T value;
-
-        private Success(T value) {
-            this.value = value;
-        }
+    record Success<T>(T value) implements Try<T> {
 
         @Override
         public <B> Try<B> flatmap(Function<? super T, Try<B>> mapper) {
@@ -133,12 +146,7 @@ public interface Try<T> extends Filter<Try, T, Try<T>>, HK<Try, T, Try<T>> {
     /**
      * Failure implementation
      */
-    final class Failure<T> implements Try<T> {
-        private final Throwable value;
-
-        private Failure(Throwable value) {
-            this.value = value;
-        }
+    record Failure<T>(Throwable value) implements Try<T> {
 
         @Override
         public <B> Try<B> flatmap(Function<? super T, Try<B>> mapper) {

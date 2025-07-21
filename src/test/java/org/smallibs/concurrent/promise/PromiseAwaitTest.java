@@ -6,13 +6,14 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.smallibs.concurrent.execution.Executor;
 import org.smallibs.concurrent.execution.ExecutorHelper;
+import org.smallibs.data.Try;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
-import static java.time.Duration.*;
+import static java.time.Duration.ofSeconds;
 
 public class PromiseAwaitTest {
 
@@ -59,7 +60,7 @@ public class PromiseAwaitTest {
         // Given
         var executor = ExecutorHelper.create(Executors.newVirtualThreadPerTaskExecutor());
 
-        var aLongAddition = executor.async(() -> {
+        var aLongAddition = Try.handle(() -> {
             var firstInteger = integer(executor, 5_000);
 
             Thread.sleep(3_000);
@@ -67,9 +68,9 @@ public class PromiseAwaitTest {
             var secondInteger = integer(executor, 7_000);
 
             return firstInteger.await() + secondInteger.await();
-        }).await();
+        });
 
-        Assertions.assertThat(aLongAddition).isEqualTo(12_000);
+        Assertions.assertThat(aLongAddition).isEqualTo(Try.success(12_000));
     }
 
     private static Promise<Integer> integer(Executor executor, int value) {

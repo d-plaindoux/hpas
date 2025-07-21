@@ -17,7 +17,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, HK<Maybe, T, Maybe<T>> {
+public sealed interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, HK<Maybe, T, Maybe<T>> {
 
     static <T> Maybe<T> pure(T value) {
         return some(value);
@@ -71,12 +71,7 @@ public interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, HK<Maybe, T, Maybe
     /**
      * Some implementation
      */
-    final class Some<T> implements Maybe<T> {
-        private final T value;
-
-        private Some(T value) {
-            this.value = value;
-        }
+    record Some<T>(T value) implements Maybe<T> {
 
         @Override
         public boolean hasSome() {
@@ -119,7 +114,7 @@ public interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, HK<Maybe, T, Maybe
     /**
      * None implementation
      */
-    final class None<T> implements Maybe<T> {
+    record None<T>() implements Maybe<T> {
 
         @Override
         public boolean hasSome() {
