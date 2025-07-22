@@ -15,6 +15,7 @@ import org.smallibs.type.HK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.smallibs.data.TryHelper.monad;
 
+@SuppressWarnings("rawtypes")
 public class TryMonadicTest {
 
     @Test

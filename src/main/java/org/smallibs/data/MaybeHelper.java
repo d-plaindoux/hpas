@@ -13,14 +13,14 @@ import org.smallibs.control.Monad;
 import org.smallibs.exception.NoValueException;
 import org.smallibs.type.HK;
 
-import java.util.Objects;
 import java.util.function.Function;
 
+@SuppressWarnings("rawtypes")
 public enum MaybeHelper {
     ;
 
     public static <T> Monad<Maybe, T, Maybe<T>> monad(Maybe<T> maybe) {
-        return new Monadic<T>(maybe);
+        return new Monadic<>(maybe);
     }
 
     public static <T> Try<T> toTry(Maybe<T> maybe) {
@@ -40,13 +40,7 @@ public enum MaybeHelper {
     /**
      * @param <T>
      */
-    final static class Monadic<T> implements Monad<Maybe, T, Maybe<T>> {
-        private final Maybe<T> aMaybe;
-
-        private Monadic(Maybe<T> aMaybe) {
-            this.aMaybe = aMaybe;
-        }
-
+    record Monadic<T>(Maybe<T> aMaybe) implements Monad<Maybe, T, Maybe<T>> {
         @Override
         public <B, NS extends HK<Maybe, B, NS>> HK<Maybe, B, NS> map(Function<? super T, ? extends B> function) {
             return generalize(new Monadic<>(aMaybe.map(function)));
@@ -73,19 +67,6 @@ public enum MaybeHelper {
         @Override
         public Maybe<T> self() {
             return aMaybe;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Monadic<?> monadic = (Monadic<?>) o;
-            return Objects.equals(aMaybe, monadic.aMaybe);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(aMaybe);
         }
     }
 }

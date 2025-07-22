@@ -11,12 +11,12 @@ package org.smallibs.data;
 import org.smallibs.control.Filter;
 import org.smallibs.type.HK;
 
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+@SuppressWarnings("rawtypes")
 public sealed interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, HK<Maybe, T, Maybe<T>> {
 
     static <T> Maybe<T> pure(T value) {
@@ -96,19 +96,6 @@ public sealed interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, HK<Maybe, T
         public T orElse(Supplier<T> t) {
             return this.value;
         }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Some<?> some = (Some<?>) o;
-            return Objects.equals(value, some.value);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(value);
-        }
     }
 
     /**
@@ -138,17 +125,6 @@ public sealed interface Maybe<T> extends Filter<Maybe, T, Maybe<T>>, HK<Maybe, T
 
         public T orElse(Supplier<T> t) {
             return t.get();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            return o != null && getClass() == o.getClass();
-        }
-
-        @Override
-        public int hashCode() {
-            return 13;
         }
     }
 

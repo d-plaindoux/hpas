@@ -17,6 +17,7 @@ import org.smallibs.type.HK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.smallibs.data.MaybeHelper.monad;
 
+@SuppressWarnings("rawtypes")
 public class MaybeMonadicTest {
 
     @Test

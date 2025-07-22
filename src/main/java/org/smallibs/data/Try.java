@@ -21,6 +21,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+@SuppressWarnings("rawtypes")
 public sealed interface Try<T> extends Filter<Try, T, Try<T>>, HK<Try, T, Try<T>> {
 
     static <O> Try<O> handle(SupplierWithError<O> supplier) {
