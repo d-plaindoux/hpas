@@ -26,7 +26,7 @@ public class PromiseAwaitTest {
         // When
         for (int i = 0; i < 1_000_000; i++) {
             executor.async(() -> {
-                Thread.sleep(5_000);
+                Thread.sleep(1_000);
                 running_tasks.decrementAndGet();
             });
         }
@@ -46,7 +46,7 @@ public class PromiseAwaitTest {
         // When
         var tasks = IntStream.range(0, 1_000_000).mapToObj(__ ->
                 executor.async(() -> {
-                    Thread.sleep(5_000);
+                    Thread.sleep(1_000);
                     running_tasks.decrementAndGet();
                 })
         ).toArray(Promise[]::new);
@@ -56,23 +56,24 @@ public class PromiseAwaitTest {
     }
 
     @Test
-    public void shouldAwaitForPromiseResponse() throws Throwable {
+    public void shouldAwaitForPromiseResponse() {
         // Given
         var executor = ExecutorHelper.create(Executors.newVirtualThreadPerTaskExecutor());
 
+        //When
         var aLongAddition = Try.handle(() -> {
-            var firstInteger = integer(executor, 5_000);
+            var firstInteger = integer(executor, 1_000);
 
-            Thread.sleep(3_000);
+            Thread.sleep(1_000);
 
-            var secondInteger = integer(executor, 7_000);
+            var secondInteger = integer(executor, 3_000);
 
             return firstInteger.await() + secondInteger.await();
         });
 
-        Assertions.assertThat(aLongAddition).isEqualTo(Try.success(12_000));
+        // Then
+        Assertions.assertThat(aLongAddition).isEqualTo(Try.success(4_000));
     }
-
     private static Promise<Integer> integer(Executor executor, int value) {
         return executor.async(() -> {
             Thread.sleep(value);

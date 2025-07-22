@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+@SuppressWarnings("rawtypes")
 public enum PromiseHelper {
     ;
 
