@@ -44,15 +44,17 @@ public class PromiseAwaitTest {
         var running_tasks = new AtomicInteger(1_000_000);
 
         // When
-        var tasks = IntStream.range(0, 1_000_000).mapToObj(__ ->
-                executor.async(() -> {
-                    Thread.sleep(1_000);
-                    running_tasks.decrementAndGet();
-                })
-        ).toArray(Promise[]::new);
+        PromiseHelper.join(
+                IntStream.range(0, 1_000_000).mapToObj(__ ->
+                        executor.async(() -> {
+                            Thread.sleep(1_000);
+                            running_tasks.decrementAndGet();
+                        })
+                ).toArray(Promise[]::new)
+        ).await(ofSeconds(30));
 
         // Then
-        PromiseHelper.join(tasks).await(ofSeconds(30));
+        Assertions.assertThat(running_tasks.get()).isEqualTo(0);
     }
 
     @Test
@@ -74,6 +76,7 @@ public class PromiseAwaitTest {
         // Then
         Assertions.assertThat(aLongAddition).isEqualTo(Try.success(4_000));
     }
+
     private static Promise<Integer> integer(Executor executor, int value) {
         return executor.async(() -> {
             Thread.sleep(value);
