@@ -25,6 +25,8 @@ import java.util.function.Function;
 
 public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, T, Promise<T>> {
 
+    Duration MAX_AWAIT_DURATION = Duration.ofMinutes(3).plus(Duration.ofSeconds(14));
+
     /**
      * Constructor
      *

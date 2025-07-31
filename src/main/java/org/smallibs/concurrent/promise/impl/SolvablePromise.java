@@ -2,7 +2,7 @@
  * HPAS
  * https://github.com/d-plaindoux/hpas
  *
- * Copyright (c) 2016 Didier Plaindoux
+ * Copyright (c) 2016-2025 Didier Plaindoux
  * Licensed under the LGPL2 license.
  */
 
@@ -18,12 +18,10 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 public class SolvablePromise<T> extends AbstractPromise<T> {
 
-    private final ReentrantLock lock = new ReentrantLock();
     private final SolvableFuture<T> future;
     private final List<Consumer<T>> onSuccess;
     private final List<Consumer<Throwable>> onError;
@@ -44,28 +42,31 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
 
     @Override
     public T await() throws Exception {
-        return await(Duration.ofMinutes(3).plus(Duration.ofSeconds(14)));
+        return await(MAX_AWAIT_DURATION);
     }
 
     @Override
     public T await(Duration duration) throws Exception {
-        lock.lock();
 
-        if (!(future.isDone() || future.isCancelled())) {
-            waitingThreads.add(Thread.currentThread());
+        var shouldSleep = false;
 
+        synchronized (this.future) {
+            if (!isCompleted()) {
+                waitingThreads.add(Thread.currentThread());
+                shouldSleep = true;
+            }
+        }
+
+        if (shouldSleep) {
             try {
-                lock.unlock();
                 Thread.sleep(duration.toMillis());
 
-                if (!(future.isDone() || future.isCancelled())) {
+                if (!isCompleted()) {
                     throw new TimeoutException();
                 }
             } catch (InterruptedException consumed) {
                 // Ignored
             }
-        } else {
-            lock.unlock();
         }
 
         return future.get();
@@ -77,9 +78,8 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
 
         final T value;
 
-        lock.lock();
-        try {
-            if (future.isDone() || future.isCancelled()) {
+        synchronized (future) {
+            if (isCompleted()) {
                 try {
                     value = future.get();
                 } catch (InterruptedException | ExecutionException e) {
@@ -89,8 +89,6 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
                 this.onSuccess.add(consumer);
                 return this;
             }
-        } finally {
-            lock.unlock();
         }
 
         consumer.accept(value);
@@ -104,9 +102,8 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
 
         Throwable value;
 
-        lock.lock();
-        try {
-            if (future.isDone() || future.isCancelled()) {
+        synchronized (future) {
+            if (isCompleted()) {
                 try {
                     this.future.get();
                     return this;
@@ -119,8 +116,6 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
                 this.onError.add(consumer);
                 return this;
             }
-        } finally {
-            lock.unlock();
         }
 
         consumer.accept(value);
@@ -137,28 +132,29 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
     }
 
     public boolean solve(final Try<T> response) {
-        lock.lock();
-        try {
+        synchronized (future) {
             return this.future.solve(response);
-        } finally {
-            lock.unlock();
         }
     }
 
-    //
-    // Protected behaviors
-    //
+//
+// Protected behaviors
+//
 
     protected SolvableFuture<T> createFuture(Consumer<Try<T>> callbackOnComplete) {
         return new SolvableFuture<>(callbackOnComplete);
     }
 
-    //
-    // Private behaviors
-    //
+//
+// Private behaviors
+//
+
+    private boolean isCompleted() {
+        return future.isDone() || future.isCancelled();
+    }
 
     private void notifyResponse(Try<T> response) {
-        waitingThreads.forEach(Thread::interrupt);
+        waitingThreads.forEach(this::interrupt);
         waitingThreads.clear();
 
         response.onSuccess(s -> {
@@ -168,5 +164,15 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
             onError.forEach(c -> c.accept(t));
             onError.clear();
         });
+    }
+
+    private void interrupt(Thread thread) {
+        while (isNotInterruptible(thread.getState())) Thread.onSpinWait();
+
+        thread.interrupt();
+    }
+
+    private static boolean isNotInterruptible(Thread.State state) {
+        return state != Thread.State.TIMED_WAITING && state != Thread.State.WAITING;
     }
 }
