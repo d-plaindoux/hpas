@@ -44,14 +44,15 @@ public class PromiseAwaitTest {
         var running_tasks = new AtomicInteger(1_000_000);
 
         // When
-        PromiseHelper.join(
-                IntStream.range(0, 1_000_000).mapToObj(__ ->
+        var promises = IntStream.range(0, 1_000_000)
+                .mapToObj(__ ->
                         executor.async(() -> {
-                            // Thread.sleep(1_000);
+                            Thread.sleep(1_000);
                             running_tasks.decrementAndGet();
                         })
-                ).toArray(Promise[]::new)
-        ).await(ofSeconds(30));
+                ).toArray(Promise[]::new);
+
+        PromiseHelper.join(promises).await(ofSeconds(30));
 
         // Then
         Assertions.assertThat(running_tasks.get()).isEqualTo(0);
