@@ -18,10 +18,12 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 public class SolvablePromise<T> extends AbstractPromise<T> {
 
+    private final ReentrantLock lock = new ReentrantLock();
     private final SolvableFuture<T> future;
     private final List<Consumer<T>> onSuccess;
     private final List<Consumer<Throwable>> onError;
@@ -47,26 +49,23 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
 
     @Override
     public T await(Duration duration) throws Exception {
-        Thread thread = null;
+        lock.lock();
 
-        synchronized (this.future) {
-            if (!(future.isDone() || future.isCancelled())) {
-                thread = Thread.currentThread();
-                this.waitingThreads.add(thread);
-            }
-        }
+        if (!(future.isDone() || future.isCancelled())) {
+            waitingThreads.add(Thread.currentThread());
 
-        if (thread != null) {
-            if (!(future.isDone() || future.isCancelled())) {
-                try {
-                    Thread.sleep(duration.toMillis());
-                    if (!(future.isDone() || future.isCancelled())) {
-                        throw new TimeoutException();
-                    }
-                } catch (InterruptedException consumed) {
-                    // Ignored
+            try {
+                lock.unlock();
+                Thread.sleep(duration.toMillis());
+
+                if (!(future.isDone() || future.isCancelled())) {
+                    throw new TimeoutException();
                 }
+            } catch (InterruptedException consumed) {
+                // Ignored
             }
+        } else {
+            lock.unlock();
         }
 
         return future.get();
@@ -78,7 +77,8 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
 
         final T value;
 
-        synchronized (this.future) {
+        lock.lock();
+        try {
             if (future.isDone() || future.isCancelled()) {
                 try {
                     value = future.get();
@@ -89,6 +89,8 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
                 this.onSuccess.add(consumer);
                 return this;
             }
+        } finally {
+            lock.unlock();
         }
 
         consumer.accept(value);
@@ -102,7 +104,8 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
 
         Throwable value;
 
-        synchronized (this.future) {
+        lock.lock();
+        try {
             if (future.isDone() || future.isCancelled()) {
                 try {
                     this.future.get();
@@ -116,6 +119,8 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
                 this.onError.add(consumer);
                 return this;
             }
+        } finally {
+            lock.unlock();
         }
 
         consumer.accept(value);
@@ -132,8 +137,11 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
     }
 
     public boolean solve(final Try<T> response) {
-        synchronized (this.future) {
+        lock.lock();
+        try {
             return this.future.solve(response);
+        } finally {
+            lock.unlock();
         }
     }
 

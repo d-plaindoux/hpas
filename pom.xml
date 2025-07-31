@@ -4,7 +4,7 @@
 
     <groupId>org.smallibs</groupId>
     <artifactId>hpas</artifactId>
-    <version>0.12.0</version>
+    <version>0.12.2</version>
     <packaging>jar</packaging>
 
     <name>org.smallibs:hpas</name>
@@ -22,7 +22,7 @@
         <connection>scm:git:git@github.com:d-plaindoux/hpas.git</connection>
         <developerConnection>scm:git:git@github.com:d-plaindoux/hpas.git</developerConnection>
         <url>git@github.com:d-plaindoux/hpas.git</url>
-        <tag>v0.12.0</tag>
+        <tag>v0.12.2</tag>
     </scm>
 
     <developers>
@@ -84,12 +84,6 @@
             <artifactId>junit-quickcheck-guava</artifactId>
             <version>1.0</version>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>3.2.8</version>
         </dependency>
 
     </dependencies>
@@ -164,18 +158,25 @@
     <profiles>
         <profile>
             <id>mavenDeployment</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>3.2.8</version>
+                </dependency>
+            </dependencies>
             <build>
                 <pluginManagement>
                     <plugins>
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-gpg-plugin</artifactId>
-                            <version>1.5</version>
+                            <version>3.2.8</version>
                         </plugin>
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-release-plugin</artifactId>
-                            <version>2.4.2</version>
+                            <version>3.0.1</version>
                         </plugin>
                     </plugins>
                 </pluginManagement>

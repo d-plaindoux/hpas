@@ -47,7 +47,7 @@ public class PromiseAwaitTest {
         PromiseHelper.join(
                 IntStream.range(0, 1_000_000).mapToObj(__ ->
                         executor.async(() -> {
-                            Thread.sleep(1_000);
+                            // Thread.sleep(1_000);
                             running_tasks.decrementAndGet();
                         })
                 ).toArray(Promise[]::new)
