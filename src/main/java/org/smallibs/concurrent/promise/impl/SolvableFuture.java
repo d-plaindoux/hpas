@@ -83,7 +83,11 @@ public class SolvableFuture<T> implements Future<T> {
         return getNow();
     }
 
-    public boolean solve(final Try<T> response) {
+    //
+    // Protected behavior
+    //
+
+    boolean solve(final Try<T> response) {
         if (this.status.compareAndSet(Status.WAITING, Status.SOLVED)) {
             this.responseReference.set(response);
             this.callbackOnComplete.accept(response);

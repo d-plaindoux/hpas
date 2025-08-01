@@ -15,24 +15,27 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 public class SolvablePromise<T> extends AbstractPromise<T> {
 
     private final SolvableFuture<T> future;
-    private final List<Consumer<T>> onSuccess;
-    private final List<Consumer<Throwable>> onError;
-    private final List<Thread> waitingThreads;
+
+    private CountDownLatch awaiting;
+    private List<Consumer<T>> onSuccess;
+    private List<Consumer<Throwable>> onError;
 
     public SolvablePromise() {
         this.future = createFuture(this::notifyResponse);
 
-        this.onSuccess = new ArrayList<>();
-        this.onError = new ArrayList<>();
-        this.waitingThreads = new ArrayList<>();
+        this.onSuccess = null;
+        this.onError = null;
+        this.awaiting = null;
     }
 
     @Override
@@ -47,21 +50,21 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
 
     @Override
     public T await(Duration duration) throws Exception {
+        var shouldAwait = false;
 
-        var shouldSleep = false;
+        synchronized (future) {
+            shouldAwait = !isCompleted();
 
-        synchronized (this.future) {
-            if (!isCompleted()) {
-                waitingThreads.add(Thread.currentThread());
-                shouldSleep = true;
+            if (shouldAwait && awaiting == null) {
+                awaiting = new CountDownLatch(1);
             }
         }
 
-        if (shouldSleep) {
+        if (shouldAwait) {
             try {
-                Thread.sleep(duration.toMillis());
+                var awaited = awaiting.await(duration.toMillis(), TimeUnit.MILLISECONDS);
 
-                if (!isCompleted()) {
+                if (!isCompleted() || !awaited) {
                     throw new TimeoutException();
                 }
             } catch (InterruptedException consumed) {
@@ -86,6 +89,9 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
                     return this;
                 }
             } else {
+                if (this.onSuccess == null) {
+                    this.onSuccess = new ArrayList<>();
+                }
                 this.onSuccess.add(consumer);
                 return this;
             }
@@ -113,6 +119,9 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
                     value = e.getCause();
                 }
             } else {
+                if (this.onError == null) {
+                    this.onError = new ArrayList<>();
+                }
                 this.onError.add(consumer);
                 return this;
             }
@@ -137,42 +146,37 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
         }
     }
 
-//
-// Protected behaviors
-//
+    //
+    // Protected behaviors
+    //
 
     protected SolvableFuture<T> createFuture(Consumer<Try<T>> callbackOnComplete) {
         return new SolvableFuture<>(callbackOnComplete);
     }
 
-//
-// Private behaviors
-//
+    //
+    // Private behaviors
+    //
 
     private boolean isCompleted() {
         return future.isDone() || future.isCancelled();
     }
 
     private void notifyResponse(Try<T> response) {
-        waitingThreads.forEach(this::interrupt);
-        waitingThreads.clear();
+        if (awaiting != null) {
+            awaiting.countDown();
+        }
 
         response.onSuccess(s -> {
-            onSuccess.forEach(c -> c.accept(s));
-            onSuccess.clear();
+            if (onSuccess != null) {
+                onSuccess.forEach(c -> c.accept(s));
+                onSuccess.clear();
+            }
         }).onFailure(t -> {
-            onError.forEach(c -> c.accept(t));
-            onError.clear();
+            if (onError != null) {
+                onError.forEach(c -> c.accept(t));
+                onError.clear();
+            }
         });
-    }
-
-    private void interrupt(Thread thread) {
-        while (isNotInterruptible(thread.getState())) Thread.onSpinWait();
-
-        thread.interrupt();
-    }
-
-    private static boolean isNotInterruptible(Thread.State state) {
-        return state != Thread.State.TIMED_WAITING && state != Thread.State.WAITING;
     }
 }
