@@ -53,7 +53,7 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
         var shouldAwait = false;
 
         synchronized (future) {
-            shouldAwait = !isCompleted();
+            shouldAwait = isNotCompleted();
 
             if (shouldAwait && awaiting == null) {
                 awaiting = new CountDownLatch(1);
@@ -64,7 +64,7 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
             try {
                 var awaited = awaiting.await(duration.toMillis(), TimeUnit.MILLISECONDS);
 
-                if (!isCompleted() || !awaited) {
+                if (isNotCompleted() || !awaited) {
                     throw new TimeoutException();
                 }
             } catch (InterruptedException consumed) {
@@ -79,16 +79,8 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
     public Promise<T> onSuccess(Consumer<T> consumer) {
         Objects.requireNonNull(consumer);
 
-        final T value;
-
         synchronized (future) {
-            if (isCompleted()) {
-                try {
-                    value = future.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    return this;
-                }
-            } else {
+            if (isNotCompleted()) {
                 if (this.onSuccess == null) {
                     this.onSuccess = new ArrayList<>();
                 }
@@ -97,7 +89,10 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
             }
         }
 
-        consumer.accept(value);
+        try {
+            consumer.accept(future.get());
+        } catch (InterruptedException | ExecutionException ignored) {
+        }
 
         return this;
     }
@@ -106,19 +101,8 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
     public Promise<T> onFailure(Consumer<Throwable> consumer) {
         Objects.requireNonNull(consumer);
 
-        Throwable value;
-
         synchronized (future) {
-            if (isCompleted()) {
-                try {
-                    this.future.get();
-                    return this;
-                } catch (InterruptedException e) {
-                    value = e;
-                } catch (ExecutionException e) {
-                    value = e.getCause();
-                }
-            } else {
+            if (isNotCompleted()) {
                 if (this.onError == null) {
                     this.onError = new ArrayList<>();
                 }
@@ -127,7 +111,13 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
             }
         }
 
-        consumer.accept(value);
+        try {
+            this.future.get();
+        } catch (InterruptedException e) {
+            consumer.accept(e);
+        } catch (ExecutionException e) {
+            consumer.accept(e.getCause());
+        }
 
         return this;
     }
@@ -141,9 +131,7 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
     }
 
     public boolean solve(final Try<T> response) {
-        synchronized (future) {
-            return this.future.solve(response);
-        }
+        return this.future.solve(response);
     }
 
     //
@@ -158,8 +146,8 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
     // Private behaviors
     //
 
-    private boolean isCompleted() {
-        return future.isDone() || future.isCancelled();
+    private boolean isNotCompleted() {
+        return !future.isDone() && !future.isCancelled();
     }
 
     private void notifyResponse(Try<T> response) {

@@ -84,7 +84,7 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
      * is a new promise component.
      *
      * @param <R>      the promised value type
-     * @param function The function to applied on success which can raise an error
+     * @param function The function to apply on success which can raise an error
      * @return a new promise
      */
     <R> Promise<R> map(FunctionWithError<? super T, ? extends R> function);
@@ -94,8 +94,8 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
      * is a new promise component.
      *
      * @param <R>       the promised value type
-     * @param onSuccess The function to applied on success which can raise an error
-     * @param onError   The function to applied on error which can also raise an error
+     * @param onSuccess The function to apply on success which can raise an error
+     * @param onError   The function to apply on error which can also raise an error
      * @return a new promise
      */
     <R> Promise<R> biMap(FunctionWithError<? super T, ? extends R> onSuccess, FunctionWithError<? super Throwable, ? extends R> onError);
@@ -105,7 +105,7 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
      * are done sequentially in the same context.
      *
      * @param <R>      the promised value type
-     * @param function The function to applied on success
+     * @param function The function to apply on success
      * @return a new promise
      */
     default <R> Promise<R> and(FunctionWithError<? super T, R> function) {
@@ -117,7 +117,7 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
      * is a new promise component.
      *
      * @param <R>      the promised value type
-     * @param function The function to applied on success
+     * @param function The function to apply on success
      * @return a new promise
      */
     <R> Promise<R> flatmap(Function<? super T, Promise<R>> function);
@@ -127,7 +127,7 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
      * chained one are not done sequentially in the same context.
      *
      * @param <R>      the promised value type
-     * @param function The function to applied on success
+     * @param function The function to apply on success
      * @return a new promise
      */
     default <R> Promise<R> then(Function<? super T, Promise<R>> function) {

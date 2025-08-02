@@ -47,7 +47,7 @@ public final class RunnablePromise<T> extends SolvablePromise<T> implements Runn
 
     @Override
     protected SolvableFuture<T> createFuture(Consumer<Try<T>> callbackOnComplete) {
-        return new SolvableFuture<T>(callbackOnComplete) {
+        return new SolvableFuture<>(callbackOnComplete) {
             @Override
             public boolean cancel(boolean mayInterruptIfRunning) {
                 if (mayInterruptIfRunning) {
