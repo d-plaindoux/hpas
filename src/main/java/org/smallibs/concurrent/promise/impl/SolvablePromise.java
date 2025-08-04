@@ -44,12 +44,7 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
     }
 
     @Override
-    public T await() throws Exception {
-        return await(MAX_AWAIT_DURATION);
-    }
-
-    @Override
-    public T await(Duration duration) throws Exception {
+    public T await(Duration duration) throws Throwable {
         var shouldAwait = false;
 
         synchronized (future) {
@@ -72,7 +67,11 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
             }
         }
 
-        return future.get();
+        try {
+            return future.get();
+        } catch (ExecutionException e) {
+            throw e.getCause();
+        }
     }
 
     @Override

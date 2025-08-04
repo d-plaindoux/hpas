@@ -13,11 +13,7 @@ import org.smallibs.concurrent.promise.Promise;
 import org.smallibs.data.Try;
 
 import java.time.Duration;
-import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Asynchronous execution builder
@@ -44,14 +40,6 @@ public enum ExecutorHelper {
      * @return a result or a failure
      */
     public static <T> Try<T> await(Promise<T> promise, Duration duration) {
-        Objects.requireNonNull(promise);
-
-        try {
-            return Try.success(promise.getFuture().get(duration.toMillis(), TimeUnit.MILLISECONDS));
-        } catch (InterruptedException | TimeoutException e) {
-            return Try.failure(e);
-        } catch (ExecutionException e) {
-            return Try.failure(e.getCause());
-        }
+        return Try.handle(() -> promise.await(duration));
     }
 }

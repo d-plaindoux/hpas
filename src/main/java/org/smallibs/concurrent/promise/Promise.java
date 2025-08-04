@@ -15,16 +15,19 @@ import org.smallibs.util.FunctionWithError;
 
 import java.time.Duration;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * A promise is a component denoting an asynchronous computation. Such component can be mapped in order to chain
- * transformations.
+ * A promise is a component denoting an asynchronous computation. Such a component can
+ * be mapped to chain transformations.
  */
-
 public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, T, Promise<T>> {
 
+    /**
+     * The maximum default await duration is 3 minutes and 14 seconds
+     */
     Duration MAX_AWAIT_DURATION = Duration.ofMinutes(3).plus(Duration.ofSeconds(14));
 
     /**
@@ -43,17 +46,45 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
      *
      * @return a future
      */
+    @Deprecated
     Future<T> getFuture();
 
     /**
-     * This method waits for the result. This method uses a sleep/interrupt technic.
+     * Method called when we want the result in a direct style.
+     * <p>
+     * This method waits for the result for a maximum duration.
+     * With virtual thread, this await method parks the current
+     * thread (if not pinned) and releases the carrier thread.
+     *
+     * @return the value or throw an error.
      */
-    T await() throws Exception;
+    default T await() throws Throwable {
+        return await(MAX_AWAIT_DURATION);
+    }
 
     /**
-     * This method waits for the result for a maximum duration. This method uses a sleep/interrupt technic.
+     * Method called when we want the result in a direct style.
+     * <p>
+     * This method waits for the result for a maximum duration.
+     * With virtual thread, this await method parks the current
+     * thread (if not pinned) and releases the carrier thread.
+     *
+     * @return the value or throw an error.
      */
-    T await(Duration duration) throws Exception;
+    default T await(long duration, TimeUnit unit) throws Throwable {
+        return await(Duration.of(duration, unit.toChronoUnit()));
+    }
+
+    /**
+     * Method called when we want the result in a direct style.
+     * <p>
+     * This method waits for the result for a maximum duration.
+     * With virtual thread, this await method parks the current
+     * thread (if not pinned) and releases the carrier thread.
+     *
+     * @return the value or throw an error.
+     */
+    T await(Duration duration) throws Throwable;
 
     /**
      * Method called when the computation succeeds
@@ -80,8 +111,8 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
     Promise<T> onComplete(Consumer<Try<T>> consumer);
 
     /**
-     * Method used to map a function. This mapping is done when the operation is a success. The result of this mapping
-     * is a new promise component.
+     * Method used to map a function. This mapping is done when the operation is a success.
+     * The result of this mapping is a new promise component.
      *
      * @param <R>      the promised value type
      * @param function The function to apply on success which can raise an error
@@ -90,19 +121,22 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
     <R> Promise<R> map(FunctionWithError<? super T, ? extends R> function);
 
     /**
-     * Method used to map a function on success and another one on error. The result of this mapping
-     * is a new promise component.
+     * Method used to map a function on success and another one on error.
+     * The result of this mapping is a new promise component.
      *
      * @param <R>       the promised value type
      * @param onSuccess The function to apply on success which can raise an error
      * @param onError   The function to apply on error which can also raise an error
      * @return a new promise
      */
-    <R> Promise<R> biMap(FunctionWithError<? super T, ? extends R> onSuccess, FunctionWithError<? super Throwable, ? extends R> onError);
+    <R> Promise<R> biMap(
+            FunctionWithError<? super T, ? extends R> onSuccess,
+            FunctionWithError<? super Throwable, ? extends R> onError
+    );
 
     /**
-     * Method used when a new computation must be done when the current one succeed. The current one and the chained one
-     * are done sequentially in the same context.
+     * Method used when a new computation must be done when the current one succeeds.
+     * The current one and the chained one are done sequentially in the same context.
      *
      * @param <R>      the promised value type
      * @param function The function to apply on success
@@ -113,8 +147,8 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
     }
 
     /**
-     * Method used to flatmap a function. This mapping is done when the operation is a success. The result of this mapping
-     * is a new promise component.
+     * Method used to flatmap a function. This mapping is done when the operation is a success.
+     * The result of this mapping is a new promise component.
      *
      * @param <R>      the promised value type
      * @param function The function to apply on success
@@ -123,8 +157,8 @@ public interface Promise<T> extends Filter<Promise, T, Promise<T>>, HK<Promise, 
     <R> Promise<R> flatmap(Function<? super T, Promise<R>> function);
 
     /**
-     * Method used when a new asynchronous computation must be done when the current one succeed. The current one and the
-     * chained one are not done sequentially in the same context.
+     * Method used when a new asynchronous computation must be done when the current one succeeds.
+     * The current one and the chained one are not done sequentially in the same context.
      *
      * @param <R>      the promised value type
      * @param function The function to apply on success

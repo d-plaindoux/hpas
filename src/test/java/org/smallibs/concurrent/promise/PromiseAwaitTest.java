@@ -38,7 +38,7 @@ public class PromiseAwaitTest {
     }
 
     @Test
-    public void shouldAwaitFor_1_000_000_Tasks() throws Exception {
+    public void shouldAwaitFor_1_000_000_Tasks() throws Throwable {
         // Given
         var executor = ExecutorHelper.create(Executors.newVirtualThreadPerTaskExecutor());
         var running_tasks = new AtomicInteger(1_000_000);
