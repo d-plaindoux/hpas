@@ -179,7 +179,7 @@ dependency - for instance - to your pom project.
 <dependency>
   <groupId>org.smallibs</groupId>
   <artifactId>hpas</artifactId>
-  <version>0.11.0</version>
+  <version>0.12.5</version>
 </dependency>
 ```
 
