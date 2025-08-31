@@ -87,34 +87,22 @@ public class SolvableFuture<T> implements Future<T> {
     // Protected behavior
     //
 
-    boolean solve(final Try<T> response) {
-        boolean solved = isSolved(response);
-
-        if (solved) {
-            this.callbackOnComplete.accept(response);
-
-            synchronized (this) {
-                this.notifyAll();
-            }
-        }
-
-        return solved;
-    }
-
-    //
-    // Private behaviors
-    //
-
-    private boolean isSolved(Try<T> response) {
+    boolean solve(Try<T> response) {
         synchronized (this) {
-            if (this.status.compareAndSet(Status.WAITING, Status.SOLVED)) {
+            if (this.status.compareAndSet(SolvableFuture.Status.WAITING, SolvableFuture.Status.SOLVED)) {
                 this.responseReference.set(response);
+                this.callbackOnComplete.accept(response);
+                this.notifyAll();
                 return true;
             } else {
                 return false;
             }
         }
     }
+
+    //
+    // Private behaviors
+    //
 
     private T getNow() throws ExecutionException {
         return responseReference.get().orElseThrow(t -> {

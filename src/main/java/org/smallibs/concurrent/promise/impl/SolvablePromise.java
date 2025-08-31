@@ -130,7 +130,9 @@ public class SolvablePromise<T> extends AbstractPromise<T> {
     }
 
     public boolean solve(final Try<T> response) {
-        return this.future.solve(response);
+        synchronized (future) {
+            return this.future.solve(response);
+        }
     }
 
     //
